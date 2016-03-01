@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<context version="7.2.0.217">
+    <database host="localhost" port="3308" name="AlarmClockMain"/>
+    <scope type="Project" name="AlarmClock">
+        <architecture>
+            <element type="Layer" name="Presentation">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.h2m.alarm.presentation.*"/>
+                    <element type="ExcludeTypePattern" name="**.Main"/>
+                    <element type="ExcludeTypePattern" name="**.AlarmToFile"/>
+                </element>
+                <dependency toName="Project|AlarmClock::Layer|Model" type="AllowedDependency"/>
+                <dependency toName="Project|Foundation::Layer|Foundation::Subsystem|Observer" type="AllowedDependency">
+                    <access name="Project|Foundation::Layer|Foundation::Subsystem|Observer::NamedInterface|IFace"/>
+                </dependency>
+            </element>
+            <element type="Layer" name="Model">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.h2m.alarm.model.*"/>
+                </element>
+            </element>
+            <element type="Layer" name="Main">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="StrongTypePattern" name="com.h2m.alarm.presentation.Main"/>
+                </element>
+            </element>
+        </architecture>
+        <workspace>
+            <element type="JavaRootDirectory" name="../AlarmClock/src/main/java">
+                <reference name="Project|AlarmClock::BuildUnit|AlarmClock"/>
+            </element>
+            <element type="JavaRootDirectory" name="../AlarmClock/target/classes">
+                <reference name="Project|AlarmClock::BuildUnit|AlarmClock"/>
+            </element>
+        </workspace>
+        <itemDefinition>
+            <item type="FixWarningFilterItem">
+                <property value="Ingmar" name="AssignedTo"/>
+                <property value="NumberOfStatements" name="AttributeId"/>
+                <property value="" name="Comment"/>
+                <property value="2012-03-07 13:37:32" name="Date"/>
+                <property value="JavaSourceFile" name="ElementType"/>
+                <property value="com/h2m/alarm/presentation/Main.java" name="Pattern"/>
+                <property value="Medium" name="Priority"/>
+            </item>
+            <item type="IgnoreViolationFilterItem">
+                <property value="" name="Comment"/>
+                <property value="2014-08-18 20:38:10" name="Date"/>
+                <property value="com.h2m.alarm.presentation.AlarmHandler" name="FromPattern"/>
+                <property value="com.h2m.common.observer.Observable" name="ToPattern"/>
+            </item>
+        </itemDefinition>
+        <physical>
+            <element type="BuildUnit" name="AlarmClock"/>
+        </physical>
+    </scope>
+    <scope type="Project" name="Foundation">
+        <architecture>
+            <element type="Layer" name="Foundation">
+                <element type="TypeFilter" name="Assignment">
+                    <element type="IncludeTypePattern" name="com.h2m.common.**"/>
+                </element>
+                <element type="Subsystem" name="Observer">
+                    <element type="TypeFilter" name="Assignment">
+                        <element type="IncludeTypePattern" name="**.observer.**"/>
+                    </element>
+                    <element type="NamedInterface" name="IFace">
+                        <element type="TypeFilter" name="Assignment">
+                            <element type="IncludeTypePattern" name="com.h2m.common.observer.Observable$IObserver"/>
+                        </element>
+                    </element>
+                </element>
+            </element>
+        </architecture>
+        <workspace>
+            <element type="JavaRootDirectory" name="../Foundation/src/main/java">
+                <reference name="Project|Foundation::BuildUnit|Foundation"/>
+            </element>
+            <element type="JavaRootDirectory" name="../Foundation/target/classes">
+                <reference name="Project|Foundation::BuildUnit|Foundation"/>
+            </element>
+        </workspace>
+        <physical>
+            <element type="BuildUnit" name="Foundation"/>
+        </physical>
+    </scope>
+    <scope type="External" name="External">
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+            <element type="ExcludeTypePattern" name="java.lang.Object"/>
+            <element type="ExcludeTypePattern" name="java.io.*"/>
+            <element type="ExcludeTypePattern" name="java.util.*"/>
+            <element type="ExcludeTypePattern" name="java.lang.*"/>
+        </element>
+    </scope>
+    <scope type="Global" name="Global">
+        <element type="Configuration" name="Configuration">
+            <property value="true" name="CycleAnalysisDepthSourceFile"/>
+        </element>
+        <element type="TypeFilter" name="Filter">
+            <element type="IncludeTypePattern" name="**"/>
+        </element>
+        <itemDefinition>
+            <item type="ThresholdItem">
+                <property value="LinesOfCode" name="AttributeId"/>
+                <property value="" name="LowerValue"/>
+                <property value="SourceFile" name="NamedElementGroup"/>
+                <property value="80" name="UpperValue"/>
+            </item>
+        </itemDefinition>
+    </scope>
+    <itemDefinition>
+        <item type="CutTypeDependencyItem">
+            <property value="" name="AssignedTo"/>
+            <property value="" name="Comment"/>
+            <property value="2012-03-13 13:31:09" name="Date"/>
+            <property value="com.h2m.alarm.model.AlarmClock" name="FromType"/>
+            <property value="Medium" name="Priority"/>
+            <property value="AlarmClock" name="SourceScope"/>
+            <property value="com.h2m.common.observer.Observable" name="ToType"/>
+        </item>
+    </itemDefinition>
+</context>

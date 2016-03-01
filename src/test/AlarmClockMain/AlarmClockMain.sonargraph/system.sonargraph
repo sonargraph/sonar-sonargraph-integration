@@ -1,0 +1,16 @@
+<?xml version="1.0" ?>
+<ns2:softwareSystem xmlns:ns2="http://www.hello2morrow.com/sonargraph/core" id="6db0a52dfa66892be8a4bc2bb7cf1720" version="8.6.0.0">
+    <description></description>
+    <module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/java" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdJavaModule" name="Foundation" id="f3f3732fb2bd177a31c8372de54a7840" language="Java">
+        <description></description>
+        <rootPath name="./Foundation/target/classes"></rootPath>
+        <sourceRootPath name="./Foundation/src/main/java"></sourceRootPath>
+    </module>
+    <module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/java" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdJavaModule" name="AlarmClock" id="c189dd773c714217668d2cd3ac8c34ec" language="Java">
+        <description></description>
+        <dependsOn xsi:type="ns4:xsdJavaManualWorkspaceDependency" id="f3f3732fb2bd177a31c8372de54a7840" name="Foundation"></dependsOn>
+        <rootPath name="./AlarmClock/target/classes"></rootPath>
+        <sourceRootPath name="./AlarmClock/src/main/java"></sourceRootPath>
+        <sourceRootPath name="./AlarmClock/src/test/java"></sourceRootPath>
+    </module>
+</ns2:softwareSystem>

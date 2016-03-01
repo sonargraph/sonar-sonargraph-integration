@@ -1,0 +1,89 @@
+<%
+if measure('sg_i.CORE_ACD')
+%>
+<div class="dashbox">
+  <table>
+    <tr>
+        <td width="280px"><h3>Relative Package Cyclicity</h3></td>
+        <%
+        if measure('sg_i.CORE_MAX_ACD')
+        %>
+            <td width="270px"><h3>Highest Module ACD (John Lakos)</h3></td>
+        <% 
+        else
+        %>
+            <td width="270px"><h3>ACD (John Lakos)</h3></td>
+        <% 
+        end 
+        %>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#structure" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'sonargraphintegration', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+        <td>
+            <span class="big">
+              <%= format_measure('sg_i.JAVA_RELATIVE_CYCLICITY_PACKAGES') -%> % <%= tendency_icon(measure('sg_i.JAVA_RELATIVE_CYCLICITY_PACKAGES')) %> 
+            </span>
+        </td>
+        <td>
+            <span class="big">
+            <%
+            if measure('sg_i.CORE_MAX_ACD')
+            %>
+              <%= format_measure('sg_i.CORE_MAX_ACD') -%> <%= tendency_icon(measure('sg_i.CORE_MAX_ACD')) %> 
+            <% 
+            else
+            %>
+                <%= format_measure('sg_i.CORE_ACD') -%> <%= tendency_icon(measure('sg_i.CORE_ACD')) %>
+            <% 
+            end 
+            %>
+            </span>
+        </td>
+    </tr>
+   	<tr>
+        <td>
+              <%= format_measure('sg_i.JAVA_BIGGEST_PACKAGE_CYCLE_GROUP', :suffix => ' biggest package cycle group size') -%> <%= tendency_icon(measure('sg_i.JAVA_BIGGEST_PACKAGE_CYCLE_GROUP')) %>
+        </td>
+        <td>
+            <%
+            if measure('sg_i.MAX_MODULE_NCCD')
+            %>
+               <%= format_measure('sg_i.MAX_MODULE_NCCD') -%> Highest Module NCCD (John Lakos) <%= tendency_icon(measure('sg_i.CORE_NCCD')) %>
+            <% 
+            else
+            %>
+                <%= format_measure('sg_i.CORE_NCCD') -%> NCCD (John Lakos) <%= tendency_icon(measure('sg_i.CORE_NCCD')) %>
+            <% 
+            end 
+            %>        
+        </td>
+    </tr>
+    <tr>
+        <td>
+              <%= format_measure('sg_i.JAVA_CYCLIC_PACKAGES', :suffix => ' cyclic packages') -%> <%= format_measure('sg_i.JAVA_CYCLIC_PACKAGES_PERCENT', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sg_i.JAVA_CYCLIC_PACKAGES')) %>
+        </td>
+        <td>
+              <%= format_measure('sg_i.CORE_RACD') -%> rACD (John Lakos) <%= tendency_icon(measure('sg_i.CORE_RACD')) %>
+        </td>
+    </tr>
+    <tr>
+    	<td>
+    		  <%= format_measure('sg_i.JAVA_COMPONENT_DEPENDENCIES_TO_REMOVE_PACKAGES', :suffix => ' type dependencies to cut (approx.)') -%><%= tendency_icon(measure('sg_i.JAVA_COMPONENT_DEPENDENCIES_TO_REMOVE_PACKAGES')) %>
+    	</td>
+    	<td>
+              <%= format_measure('sg_i.JAVA_BYTE_CODE_INSTRUCTIONS', :suffix => ' byte code instr.') -%> <%= tendency_icon(measure('sg_i.JAVA_BYTE_CODE_INSTRUCTIONS')) %>
+    	</td>
+    </tr>
+    <tr>
+    	<td>
+    	<%= format_measure('sg_i.JAVA_PARSER_DEPENDENCIES_TO_REMOVE_PACKAGES', :suffix => ' references to remove (approx.)') -%><%= tendency_icon(measure('sg_i.JAVA_PARSER_DEPENDENCIES_TO_REMOVE_PACKAGES')) %>
+    	</td>
+    	<td>
+    	      <%= format_measure('sg_i.CORE_SOURCE_ELEMENT_COUNT', :suffix => ' source element count') -%><%= tendency_icon(measure('sg_i.CORE_SOURCE_ELEMENT_COUNT')) %>
+        </td>
+    </tr>
+  </table>
+</div>
+<% 
+end
+%>  

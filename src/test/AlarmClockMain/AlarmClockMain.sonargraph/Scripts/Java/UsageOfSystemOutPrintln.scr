@@ -1,0 +1,58 @@
+<?xml version="1.0" ?>
+<script version="8.7.0.360">
+    <description></description>
+    <source><![CDATA[IJavaVisitor v = javaAccess.createVisitor()
+Set<ElementAccess> referencingTypes = new HashSet<>()
+
+v.onType {
+        
+    TypeAccess type ->
+        
+    	if (!type.isExternal())
+		{
+			return;
+		}
+		
+		if (!type.getName().equals("java.lang.System"))
+		{
+			return;
+		}
+		
+		v.visitChildren(type);
+}
+
+v.onField 
+{
+    FieldAccess field ->
+
+   		if (field.name == "out" || field.name == "err")
+		{
+			List<AggregatedDependencyAccess> agg = field.getIncomingDependencies(Aggregator.METHOD, true);
+			for (AggregatedDependencyAccess next : agg)
+			{
+				referencingTypes.add(next.from);
+				for (DependencyAccess dep : next.dependencies)
+				{
+					if (!dep.getFrom().isExternal())
+					{
+						result.addWarningIssue(dep, "Don't use System.$field.name", "Use LOGGER instead");
+					}
+				}
+				result.addElement(next);
+			}
+		} 
+}
+
+//Traverse the model
+coreAccess.visitParserModel(v)
+
+
+]]></source>
+    <parameterDefinitions>
+        <parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+        <parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+    </parameterDefinitions>
+    <languages>
+        <language>Java</language>
+    </languages>
+</script>

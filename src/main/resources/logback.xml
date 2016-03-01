@@ -1,0 +1,25 @@
+<configuration debug="false" scan="false">
+	<appender name="FILE_DEFAULT"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>sonargraph_access.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern>%date %level [%thread{20}] %logger %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>sonargraph_access-%d{yyyy_MM_dd}.log</fileNamePattern>
+			<maxHistory>14</maxHistory>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+		</rollingPolicy>
+	</appender>
+    
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%date %level [%thread{20}|%logger] %msg%n</Pattern>
+        </encoder>
+    </appender>
+    
+	<root level="INFO">
+		<appender-ref ref="FILE_DEFAULT" />
+        <appender-ref ref="CONSOLE"/>
+	</root>
+</configuration>

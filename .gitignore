@@ -1,0 +1,5 @@
+/build.eclipse/
+/target/
+**/target/
+**/.sonar
+/sonargraph_access*.log

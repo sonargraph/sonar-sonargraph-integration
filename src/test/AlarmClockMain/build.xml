@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    SonarQube Sonargraph Integration Plugin
+    Copyright (C) 2016 hello2morrow GmbH
+    mailto: support AT hello2morrow DOT com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project name="AlarmClockMain_Ant" basedir=".">
+    <property environment="env"/>
+    
+	<property name="AlarmClock" location="./AlarmClock"/>
+	<property name="Foundation" location="./Foundation"/>
+
+	<property name="dir.target.report" location="${basedir}/target"/>
+	<property name="sonar.report" value="AlarmClockMain_Ant.xml" />
+	<property name="path.target.report" location="${dir.target.report}/${sonar.report}" />
+
+<!-- Replace directory if necessary -->
+	<property name="sonar.anttask.dir" location="_REPLACE_ME"/> <!-- D:/07_Software/sonar-ant-task-2.3 /-->
+	<taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+		<classpath path="${sonar.anttask.dir}/sonar-ant-task-2.3.jar" />
+	</taskdef>
+
+	<target name="clean" description="clean all generated files">
+		<delete dir=".sonar"/>
+		<ant dir="${Foundation}" target="clean"/>
+		<ant dir="${AlarmClock}" target="clean"/>
+	</target>
+
+	<target name="compile" depends="clean">
+		<ant dir="${Foundation}" target="compile"/>
+		<ant dir="${AlarmClock}" target="compile"/>
+	</target>
+
+<!-- Replace with the installation directory of your SonargraphBuild -->    
+    <property name="sonargraph.build.installation" location="_REPLACE_ME"/> <!-- ../../../../com.hello2morrow.sonargraph.build/dist/release/SonargraphBuild -->
+    
+<!-- Replace with a valid Sonargraph Build activation code or license file path-->    
+    <property name="sonargraph.activationCode" value="_REPLACE_ME" />
+	<property name="sonargraph.licenseFile" location="_REPLACE_ME" /> <!-- C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/Sonargraph.license -->
+    <property name="sonargraph.systemDirectory" value="${basedir}/AlarmClockMain.sonargraph" />
+    <property name="sonargraph.reportDirectory" value="${dir.target.report}" />
+    
+  <!-- optional properties -->
+    <property name="sonargraph.reportFileName" value="AlarmClockMain_Ant" />
+    
+    <!-- possible values (one or several): Java, CSharp, CPlusPlus -->
+    <property name="sonargraph.languages" value="Java"/>
+    
+    <!-- possible values: standard (default), full -->
+    <property name="sonargraph.reportType" value="full"/>
+
+    <!-- possible values (comma separated): html (default), xml -->
+    <property name="sonargraph.reportFormat" value="xml, html"/>
+    <property name="sonargraph.proxyHost" value="" />
+    <property name="sonargraph.proxyPort" value="" />
+    <property name="sonargraph.proxyUsername" value="" />
+    <property name="sonargraph.proxyPassword" value="" />
+    
+    <!-- possible values: off, error, warn, info (default), debug, trace, all -->
+    <property name="sonargraph.logLevel" value="" /> 
+    
+  <!-- task definition -->
+    <taskdef name="sonargraphBuild" classname="com.hello2morrow.sonargraph.build.client.ant.SonargraphReportTask">
+        <classpath>
+            <fileset dir="${sonargraph.build.installation}/plugins">
+                <include name="org.eclipse.osgi_3.10*.jar" />
+                <include name="com.hello2morrow.sonargraph.build.client*.jar"/>
+            </fileset>
+            <fileset dir="${sonargraph.build.installation}/client" includes="*.jar" />
+        </classpath>
+    </taskdef>
+    
+  <!-- create report -->
+   <!--  -->
+    <target name="create-sonargraph-report" description="Creates an XML report with SonargraphBuild" depends="compile">
+        <echo message="Using SonargraphBuild installation: ${sonargraph.build.installation}" />
+        <sonargraphBuild
+			licenseFile="${sonargraph.licenseFile}"
+            languages="${sonargraph.languages}"
+            installationDirectory="${sonargraph.build.installation}"
+            systemDirectory="${sonargraph.systemDirectory}" 
+            reportDirectory="${sonargraph.reportDirectory}"
+            reportFileName="${sonargraph.reportFileName}"
+            reportType="${sonargraph.reportType}"
+            reportFormat="${sonargraph.reportFormat}"
+            proxyHost="${sonargraph.proxyHost}" 
+            proxyPort="${sonargraph.proxyPort}" 
+            proxyUsername="${sonargraph.proxyUsername}"
+            proxyPassword="${sonargraph.proxyPassword}"/> 
+    </target>
+    
+	<property name="sonar.modules" value="Foundation,AlarmClock"/>
+	
+	<property name="Foundation.sonar.projectName" value="Foundation" />
+	<property name="Foundation.sonar.sources" value="src/main/java" />
+	<property name="Foundation.sonar.binaries" value="target" />
+	<!-- Default module base directory is <current_directory>/<module_ID>. It can be overridden if necessary -->
+	<property name="Foundation.sonar.projectBaseDir" value="./Foundation" />  
+	
+	<property name="AlarmClock.sonar.projectName" value="AlarmClock" />
+	<property name="AlarmClock.sonar.sources" value="src/main/java, src/test/java" />
+	<property name="AlarmClock.sonar.binaries" value="target" />
+	<property name="AlarmClock.sonar.projectBaseDir" value="./AlarmClock" />  
+	
+	<property name="sonar.projectKey" value="com.hello2morrow:AlarmClockMain_Ant"/>
+	<property name="sonar.projectName" value="AlarmClockMain_Ant" />
+	<property name="sonar.projectVersion" value="0.1-SNAPSHOT" />
+	<property name="sonar.sonargraph_integration.report.path" value="${path.target.report}" />
+	<property name="sonar.language" value="java" />
+
+	<target name="sonar" depends="create-sonargraph-report">
+		<sonar:sonar xmlns:sonar="antlib:org.sonar.ant"/>
+	</target>
+
+</project>

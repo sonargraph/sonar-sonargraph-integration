@@ -1,0 +1,96 @@
+<!--
+
+    SonarQube Sonargraph Integration Plugin
+    Copyright (C) 2016 hello2morrow GmbH
+    mailto: support AT hello2morrow DOT com
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.hello2morrow.sonargraph.test</groupId>
+	<artifactId>AlarmClockMain</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>AlarmClockMain</name>
+
+	<description>Project aggregating the different modules</description>
+	<modules>
+		<module>Foundation</module>
+		<module>AlarmClock</module>
+	</modules>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven-central-repository</id>
+			<url>http://repo1.maven.org/maven2</url>
+		</pluginRepository>
+		<pluginRepository>
+			<id>hello2morrow.maven.repository</id>
+			<url>http://maven.hello2morrow.com/repository</url>
+		</pluginRepository>
+	</pluginRepositories>
+	<build>
+		<plugins>
+			<plugin>
+                <groupId>com.hello2morrow</groupId>
+                <artifactId>sonargraph-maven-plugin</artifactId>
+                <version>8.7.0</version>
+                <configuration>
+                  <!-- 
+                  <installationDirectory>${basedir}/../../../../com.hello2morrow.sonargraph.build/dist/release/SonargraphBuild</installationDirectory>
+                  <activationCode>_REPLACE_ME</activationCode>
+                  -->
+                  <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
+                  <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
+                  <reportFormat>xml, html</reportFormat>
+                  <prepareForSonarQube>true</prepareForSonarQube>
+                  <logLevel>info</logLevel>
+                  <reportDirectory>${baseDir}</reportDirectory>
+                  <reportName>AlarmClockMain</reportName>
+                  <reportType>full</reportType>
+                  <autoUpdate>true</autoUpdate>
+                  <!-- failSet>
+                    <includes>
+                        <include>
+                            <issueType>NamespaceCycleGroup</issueType>
+                        </include>
+                        <include>
+                            <issueType>ArchitectureViolation</issueType>
+                        </include>
+                    </includes>
+                  </failSet -->
+                </configuration>
+                <executions>
+                  <execution>
+                    <goals>
+                      <goal>create-report</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+     		<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.3.2</version>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+
+		</plugins>
+	</build>
+</project>

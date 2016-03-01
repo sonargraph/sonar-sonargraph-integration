@@ -1,0 +1,116 @@
+<%
+if measure('sg_i.JAVA_STRUCTURAL_DEBT_INDEX_PACKAGES')
+%>
+<div class="dashbox">
+  <table>
+    <tr>
+    	<td width="280px"><h3>Structural Debt Index</h3></td>
+        <td width="270px">
+            <%
+            m = measure('sg_i.STRUCTURAL_DEBT_COST') 
+            if m && m.value >= 0
+            %>
+            <h3>Estimated Cost of Structural Debt</h3>
+            <% 
+            end
+            %>
+        </td>
+        <td align="right"><a href="http://www.hello2morrow.com/products/sonargraph/sonar#debt" target="_blank"><img alt="Sonargraph" class="png" src="<%= url_for_static(:plugin => 'sonargraphintegration', :path => 'SonargraphIconSmall.png') %>" /></a></td>
+    </tr>
+    <tr>
+		<td>
+        <span class="big">
+    		<%= format_measure('sg_i.JAVA_STRUCTURAL_DEBT_INDEX_PACKAGES') -%> <%= tendency_icon(measure('sg_i.JAVA_STRUCTURAL_DEBT_INDEX_PACKAGES')) %>
+    	</span>
+		</td>
+		<td>
+		<%
+		m = measure('sg_i.STRUCTURAL_DEBT_COST') 
+        if m && m.value >= 0
+		%>
+        <span class="big">
+    		<%= format_measure('sg_i.STRUCTURAL_DEBT_COST') -%> <%= configuration('sonar.sonargraph_integration.currency', 'USD') %> <%= tendency_icon(measure('sg_i.STRUCTURAL_DEBT_COST')) %>
+    	</span>
+    	<% 
+    	end
+    	%>
+		</td>
+    </tr>
+    <%
+    if measure('sg_i.VIRTUAL_MODEL_FEATURE_AVAILABLE')
+    %>
+    <tr>
+        <td>
+            <b>Current virtual model:</b> <%= format_measure('sg_i.CURRENT_VIRTUAL_MODEL') -%>
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_RESOLUTIONS', :suffix => ' resolutions') -%>
+        </td>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS', :suffix => ' non-applicable resolutions') -%>
+        </td>
+        <td>
+        </td>
+    </tr>    
+    <tr>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_TASKS', :suffix => ' tasks') -%>
+        </td>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_UNAPPLICABLE_TASKS', :suffix => ' non-applicable tasks') -%>
+        </td>
+        <td>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_REFACTORINGS', :suffix => ' refactorings') -%>
+        </td>
+        <td>
+            <%= format_measure('sg_i.NUMBER_OF_UNAPPLICABLE_REFACTORINGS', :suffix => ' non-applicable refactorings') -%>
+        </td>
+        <td>
+        </td>
+    </tr>
+        <%
+        pd = measure('sg_i.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS')
+        if pd && pd.value > 0
+        %>
+            <tr>
+                <td>
+                    <%= format_measure('sg_i.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS', :prefix => '(with ', :suffix => ' parser dependencies)') -%> <%= tendency_icon(measure('sg_i.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS')) %>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+            </tr>
+        <%
+        end
+        %>
+   <%
+   else
+   %>
+   <tr>
+        <td>
+           <strong>Further metrics are available, if feature "Virtual Model" is licensed.</strong>
+        </td>
+        <td>
+        </td>
+        <td>
+        </td>
+   </tr>
+   <%
+   end
+   %>
+  </table>
+</div>
+<% 
+end
+%>  

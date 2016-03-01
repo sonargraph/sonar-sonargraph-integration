@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<runConfiguration version="8.7.0.360" description="">
+    <parameterValue name="refingTo">10</parameterValue>
+    <parameterValue name="refedBy">10</parameterValue>
+    <parameterValue name="level">Namespace</parameterValue>
+</runConfiguration>

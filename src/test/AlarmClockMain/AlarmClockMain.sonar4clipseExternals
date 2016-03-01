@@ -1,0 +1,5 @@
+#Mon Apr 23 12:42:58 CEST 2012
+sonar.active.non_eclipse_projects=AlarmClock\:\:AlarmClock|Foundation\:\:Foundation
+sonar.active.non_eclipse_project.directories=
+sonar.inactive.non_eclipse_projects=
+sonar.inactive.non_eclipse_project.directories=

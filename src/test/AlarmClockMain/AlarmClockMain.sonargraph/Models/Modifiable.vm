@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<virtualModel version="8.6.1.0">
+    <resolutions>
+        <delete assignedTo="Ingmar" priority="Medium" date="2015-10-26T09:25:12.394Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="DeleteRefactoring" descriptor="8330b82c0bfdeb2dca1d74e763012aee"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:Foundation:./Foundation/target/classes:com:h2m:common:observer:Observable.java</elementPattern>
+        </delete>
+        <fix assignedTo="Ingmar" priority="Medium" date="2015-10-26T09:25:30.452Z" description="">
+            <type class="Architecture" name="ArchitectureViolation" descriptor="./Layers.arc"></type>
+            <dependencyPattern type="Wildcard" from="Workspace:AlarmClock:./AlarmClock/target/classes:com:h2m:alarm:model:AlarmClock.java:AlarmClock:AlarmClock()" to="Workspace:AlarmClock:./AlarmClock/target/classes:com:h2m:alarm:presentation:AlarmToFile.java:AlarmToFile:AlarmToFile()"></dependencyPattern>
+        </fix>
+    </resolutions>
+</virtualModel>

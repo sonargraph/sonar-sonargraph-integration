@@ -1,0 +1,99 @@
+<?xml version="1.0" ?>
+<script version="8.7.0.360">
+    <description></description>
+    <source><![CDATA[IJavaVisitor v = javaAccess.createVisitor()
+
+//variable to be used in recursive function must not be declared using def or a type.
+typesWithNonSerializableMembers = result.addNode("Serializable types with non-serializable members");
+visitedTypes = new HashSet<String>()
+whiteList =  new HashSet<String>()
+
+whiteList.add("java.lang.Long")
+whiteList.add("java.lang.Integer")
+whiteList.add("java.lang.Short")
+whiteList.add("java.lang.Byte")
+whiteList.add("java.lang.Double")
+whiteList.add("java.lang.Float")
+whiteList.add("java.lang.Boolean")
+whiteList.add("java.lang.String")
+whiteList.add("java.lang.Character")
+ //... TODO: Add more external types that we know to implement Serializable
+
+//function to recursively check if a type contains non-serializable fields
+def findNonSerializableFields(JavaTypeAccess type) 
+{
+	if (visitedTypes.contains(type.getName())) 
+	{
+    	//println "type already checked: " + type.getName()
+        return 
+    }
+	visitedTypes.add(type.getName())
+	println "processing serializable type : " + type.getName() 
+	
+	//Add elements so they show up in the elements tab, so we know which types are serializable
+	result.addElement(type)
+    
+    List<JavaFieldAccess> fields = type.getFields(type)                            
+    for (JavaFieldAccess field in fields) 
+	{
+    	if (field.isStatic() || field.isTransient()) 
+		{
+    		continue
+        }
+        List<ElementAccess> fieldTypes = field.getReferencedElements(Aggregator.TYPE, false, DependencyKind.USES)
+        if (fieldTypes.size() == 0) 
+		{
+			//omit primitive types like int, long, double
+        	continue
+        }
+			
+        for (ElementAccess element in fieldTypes) 
+		{
+        	JavaTypeAccess typeAccess = (JavaTypeAccess) element
+        	if (!typeAccess.typeOf("java.io.Serializable")) 
+			{
+				if (!whiteList.contains(typeAccess.getName()))
+				{
+	            	result.addWarningIssue(field, "non-serializable member(s) in type: $type.name", typeAccess.getName())
+					result.addNode(typesWithNonSerializableMembers, field)
+				}
+				else
+				{
+					println "omitting white-listed type: $typeAccess.name"
+				}
+            }
+            else 
+			{
+				if (!typeAccess.isExternal() || !typeAccess.isExcluded())
+				{
+            		findNonSerializableFields(typeAccess)
+				}
+            }
+    	}
+    }
+}
+
+v.onType
+{
+	JavaTypeAccess type ->
+    	if(type.isExternal() || type.isExcluded())
+        {
+        	return
+        }
+        if (type.typeOf("java.io.Serializable")) 
+		{
+        	findNonSerializableFields(type)
+        }
+        v.visitChildren(type)
+}
+
+//Traverse the model
+coreAccess.visitModel(v)]]></source>
+    <parameterDefinitions>
+        <parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+        <parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+    </parameterDefinitions>
+    <languages>
+        <language>Java</language>
+    </languages>
+</script>

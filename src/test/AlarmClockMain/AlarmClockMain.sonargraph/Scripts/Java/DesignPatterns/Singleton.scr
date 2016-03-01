@@ -1,0 +1,102 @@
+<?xml version="1.0" ?>
+<script version="8.6.0.0">
+    <description>Finds all classes that implement the singleton pattern</description>
+    <source><![CDATA[NodeAccess singletons = null;
+
+IJavaVisitor v = javaAccess.createVisitor()
+v.onType
+{
+    JavaTypeAccess type ->
+		if (type.isExternal() || type.isExcluded())
+		{
+			return;
+		}
+
+        //We deliberately exclude interfaces and enumerations
+ 		if (type.isInterface() || type.isEnum())
+		{
+			return;
+		}
+
+		//Check if all constructors are private
+        for (JavaMethodAccess method : type.getMethods())
+	    {
+			if (method.isConstructor() && !method.isPrivate())
+			{
+				return;
+			}
+		}
+
+		//Check if a single static member variable exists
+		boolean foundStaticMember = false;
+        List<JavaFieldAccess> staticMembers = type.getFields().findAll
+		{
+        JavaFieldAccess field ->
+            if (!field.isStatic())
+            {
+                return false;
+            }
+
+            List dependencies = field.getOutgoingDependencies(Aggregator.TYPE, false).findAll
+            {
+                AggregatedDependencyAccess dependency ->
+                    return dependency.getTo() == type
+            }
+
+			return field.isStatic() && dependencies.size() == 1;
+		}
+
+        if (staticMembers.size() != 1)
+        {
+            return;
+        }
+
+        //Check if that field is used by a static method
+        List<AggregatedDependencyAccess> dependencies = staticMembers.get(0).getIncomingDependencies(Aggregator.METHOD, false)
+            .findAll {
+                AggregatedDependencyAccess dependency ->
+
+                    if (!(dependency.from instanceof JavaMethodAccess))
+                    {
+                        return false;
+                    }
+                    JavaMethodAccess method = (JavaMethodAccess) dependency.from;
+                    if (!method.isStatic())
+                    {
+                        return false;
+                    }
+
+                   //Check that the return type of the method matches
+                   List<AggregatedDependencyAccess> returnTypes = method.getOutgoingDependencies(Aggregator.TYPE, true, JavaDependencyKind.RETURNS)
+                       .findAll
+                       {
+                           AggregatedDependencyAccess methodDep ->
+                           return methodDep.getTo() == type;
+                       }
+
+                    return returnTypes.size() == 1;
+              }
+
+        if (dependencies.size() < 1)
+        {
+            return
+        }
+
+        //Add the info to the result
+        result.addElement(type)
+        if (singletons == null)
+        {
+            singletons = result.addNode("Singletons");
+        }
+        result.addNode(singletons, type)
+}
+
+javaAccess.visitParserModel(v)]]></source>
+    <parameterDefinitions>
+        <parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+        <parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+    </parameterDefinitions>
+    <languages>
+        <language>Java</language>
+    </languages>
+</script>
