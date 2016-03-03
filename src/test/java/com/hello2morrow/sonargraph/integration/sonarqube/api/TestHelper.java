@@ -18,7 +18,6 @@
 package com.hello2morrow.sonargraph.integration.sonarqube.api;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -52,7 +51,6 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
-import org.sonar.plugins.java.api.JavaResourceLocator;
 
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
@@ -379,13 +377,5 @@ public final class TestHelper
             }
         });
         return perspectives;
-    }
-
-    public static JavaResourceLocator initResourceLocator()
-    {
-        final JavaResourceLocator javaResourceLocator = mock(JavaResourceLocator.class);
-        final Resource resource = mock(Resource.class);
-        when(javaResourceLocator.findResourceByClassName(anyString())).thenReturn(resource);
-        return javaResourceLocator;
     }
 }
