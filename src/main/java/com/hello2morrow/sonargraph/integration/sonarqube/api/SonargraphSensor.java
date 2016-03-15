@@ -179,8 +179,7 @@ public final class SonargraphSensor implements Sensor
         }
         processModule(metrics, project, sensorContext, system);
 
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing of " + project.getName() + " [" + project.getKey()
-                + "]");
+        LOG.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
     }
 
     private void processFeatures(final SensorContext sensorContext)
@@ -376,7 +375,12 @@ public final class SonargraphSensor implements Sensor
         {
             final String categoryName = issue.getIssueType().getCategory().getName();
             final ActiveRule rule = categoryToRuleMap.get(categoryName);
-            assert rule != null : "There must be a rule available for issue category '" + categoryName + "'";
+            if (rule == null)
+            {
+                LOG.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", issue.getIssueType()
+                        .getPresentationName());
+                continue;
+            }
 
             if (issue instanceof IDuplicateCodeBlockIssue)
             {

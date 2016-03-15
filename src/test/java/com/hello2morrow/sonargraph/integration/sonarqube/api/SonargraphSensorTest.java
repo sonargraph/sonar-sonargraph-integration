@@ -200,6 +200,28 @@ public class SonargraphSensorTest implements MetricFinder
     }
 
     @Test
+    public void testHandleDuplicateRuleNotActivated()
+    {
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_SINGLE_MODULE);
+        rulesProfile = TestHelper.initRulesProfile(SonargraphMetrics.createRuleKey("DuplicateCode"));
+        sensor = new SonargraphSensor(this, rulesProfile, settings, moduleFileSystem, TestHelper.initPerspectives());
+
+        final Project project = mock(Project.class);
+        doReturn("hello2morrow:AlarmClock").when(project).key();
+        doReturn("AlarmClock").when(project).name();
+        doReturn(Qualifiers.PROJECT).when(project).getQualifier();
+        doReturn(Boolean.TRUE).when(project).isRoot();
+
+        sensor.analyse(project, sensorContext);
+        assertTrue(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
+        final String coreStatements = SonargraphMetrics.createMetricKeyFromStandardName("CoreStatements");
+        assertTrue("Metric not found!", sonargraphRulesRepository.getLoadedMetrics().containsKey(coreStatements));
+        assertTrue("Successfully analyzed report!", true);
+        assertEquals("Wrong value for system metric 'core statements'", 148,
+                TestHelper.getMeasures().get(sonargraphRulesRepository.getLoadedMetrics().get(coreStatements).key()).getValue().intValue());
+    }
+
+    @Test
     public void testAnalyseModuleMetrisOfReport()
     {
         settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_MULTI_MODULES);
