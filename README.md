@@ -5,6 +5,7 @@ Sonargraph Integration Plugin
 - Author: [hello2morrow](https://www.hello2morrow.com)
 
 Compatible with Sonargraph 8.7 and higher versions.
+Requires Java 8 runtime.
 
 Check the GitHub Wiki for information about compatibilities with SonarQube versions and Sonargraph versions.  
 
