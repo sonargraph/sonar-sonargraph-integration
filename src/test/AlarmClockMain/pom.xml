@@ -47,7 +47,7 @@
 			<plugin>
                 <groupId>com.hello2morrow</groupId>
                 <artifactId>sonargraph-maven-plugin</artifactId>
-                <version>8.7.0</version>
+                <version>8.7.1</version>
                 <configuration>
                   <!-- 
                   <installationDirectory>${basedir}/../../../../com.hello2morrow.sonargraph.build/dist/release/SonargraphBuild</installationDirectory>
