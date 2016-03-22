@@ -18,7 +18,6 @@
 package com.hello2morrow.sonargraph.integration.sonarqube.api;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -353,21 +352,13 @@ public final class SonargraphSensor implements Sensor
         final String sourceRelPath = sourceFile.getRelativePath();
 
         String sourceFileLocation = "";
-        try
-        {
-            final File rootDir = new File(baseDir, rootDirectoryRelPath);
-            sourceFileLocation = new File(rootDir, sourceRelPath).getCanonicalFile().getAbsolutePath();
-        }
-        catch (final IOException e)
-        {
-            LOG.error("Failed to create absolute source path: " + baseDir + ", " + rootDirectoryRelPath + ", " + sourceRelPath, e);
-            return;
-        }
+        final File rootDir = new File(baseDir, rootDirectoryRelPath);
+        sourceFileLocation = new File(rootDir, sourceRelPath).getAbsolutePath();
 
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
-            LOG.error("Failed to locate resource '" + sourceFile.getFqName());
+            LOG.error("Failed to locate resource '" + sourceFile.getFqName() + "' at '" + sourceFileLocation + "'");
             return;
         }
 

@@ -82,7 +82,7 @@ public final class Utilities
         assert absolutePath != null : "Parameter 'absolutePath' of method 'getResource' must not be null";
 
         final String normalizedPath = FileUtility.convertPathToUniversalForm(absolutePath);
-        return Optional.ofNullable(fileSystem.inputFile(f -> f.absolutePath().equals(normalizedPath)));
+        return Optional.ofNullable(fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(normalizedPath)));
     }
 
     public static boolean buildUnitMatchesAnalyzedProject(final String buName, final Project project)

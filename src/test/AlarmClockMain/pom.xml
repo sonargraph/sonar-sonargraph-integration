@@ -47,21 +47,21 @@
 			<plugin>
                 <groupId>com.hello2morrow</groupId>
                 <artifactId>sonargraph-maven-plugin</artifactId>
-                <version>8.7.1</version>
+                <version>8.8.0</version>
                 <configuration>
+                  <installationDirectory>D:\00_repos\00_e4-sgng\com.hello2morrow.sonargraph.build\dist\release\SonargraphBuild</installationDirectory>
                   <!-- 
-                  <installationDirectory>${basedir}/../../../../com.hello2morrow.sonargraph.build/dist/release/SonargraphBuild</installationDirectory>
                   <activationCode>_REPLACE_ME</activationCode>
                   -->
                   <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
-                  <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
+                  <systemDirectory>${basedir}/subdirectory/AlarmClockMain.sonargraph</systemDirectory>
                   <reportFormat>xml, html</reportFormat>
                   <prepareForSonarQube>true</prepareForSonarQube>
                   <logLevel>info</logLevel>
                   <reportDirectory>${baseDir}</reportDirectory>
                   <reportName>AlarmClockMain</reportName>
                   <reportType>full</reportType>
-                  <autoUpdate>true</autoUpdate>
+                  <!--  autoUpdate>true</autoUpdate -->
                   <!-- failSet>
                     <includes>
                         <include>
