@@ -638,16 +638,26 @@ public final class SonargraphSensor implements Sensor
         }
         else
         {
-            reportFile = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
+            //try maven path
+            final File mavenDefaultLocation = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
                     SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
-        }
-        LOG.debug("Load report from " + reportPathOld);
+            if (mavenDefaultLocation.exists() && mavenDefaultLocation.canRead())
+            {
+                reportFile = mavenDefaultLocation;
+            }
+            else
+            {
+                //try gradle path
+                reportFile = Paths.get(fileSystem.workDir().getParentFile().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
+                        SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
+            }
 
+        }
         if (reportFile.exists() && reportFile.canRead())
         {
+            LOG.debug("Load report from " + reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
-
         return Optional.empty();
     }
 
