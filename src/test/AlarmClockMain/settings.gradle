@@ -1,0 +1,2 @@
+include 'AlarmClock', 'Foundation'
+rootProject.name = 'AlarmClock_Gradle'
