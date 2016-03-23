@@ -152,7 +152,7 @@ public final class SonargraphSensor implements Sensor
         final File reportFile = reportFileOptional.get();
         LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading Sonargraph metrics report from: "
                 + reportFile.getAbsolutePath());
-        loadReportResult = loadReport(project, reportFile);
+        loadReportResult = loadReport(project, reportFile, settings);
         if (loadReportResult.isFailure())
         {
             return;
@@ -198,10 +198,19 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private OperationResult loadReport(final Project project, final File reportFile)
+    private OperationResult loadReport(final Project project, final File reportFile, final Settings settings)
     {
         final OperationResult result = new OperationResult("Reading Sonargraph report from: " + reportFile.getAbsolutePath());
-        result.addMessagesFrom(controller.loadSystemReport(reportFile));
+        final Optional<File> baseDirectory = determineBaseDirectory(fileSystem, settings);
+        if (baseDirectory.isPresent())
+        {
+            LOG.info("Changing Sonargraph baseDirectory to: " + baseDirectory.get().getAbsolutePath());
+            result.addMessagesFrom(controller.loadSystemReport(reportFile, baseDirectory.get()));
+        }
+        else
+        {
+            result.addMessagesFrom(controller.loadSystemReport(reportFile));
+        }
         if (result.isFailure())
         {
             LOG.error("Failed to execute Sonargraph plugin for " + project.getName() + " [" + project.getKey() + "]");
@@ -351,10 +360,7 @@ public final class SonargraphSensor implements Sensor
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
         final String sourceRelPath = sourceFile.getRelativePath();
 
-        String sourceFileLocation = "";
-        final File rootDir = new File(baseDir, rootDirectoryRelPath);
-        sourceFileLocation = new File(rootDir, sourceRelPath).getAbsolutePath();
-
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
@@ -651,14 +657,25 @@ public final class SonargraphSensor implements Sensor
                 reportFile = Paths.get(fileSystem.workDir().getParentFile().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
                         SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
             }
-
         }
+
         if (reportFile.exists() && reportFile.canRead())
         {
             LOG.debug("Load report from " + reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
         return Optional.empty();
+    }
+
+    private static Optional<File> determineBaseDirectory(final FileSystem fileSystem, final Settings settings)
+    {
+        final String baseDirectory = settings.getString(SonargraphPluginBase.SYSTEM_BASE_DIRECTORY);
+        if (baseDirectory == null || baseDirectory.trim().isEmpty())
+        {
+            return Optional.empty();
+        }
+        final File baseDir = Paths.get(baseDirectory).toAbsolutePath().normalize().toFile();
+        return Optional.of(baseDir);
     }
 
     private static Optional<IModule> determineModuleName(final Project project, final ISoftwareSystem system)

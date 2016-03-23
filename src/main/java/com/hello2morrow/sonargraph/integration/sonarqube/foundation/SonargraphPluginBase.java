@@ -56,6 +56,8 @@ public final class SonargraphPluginBase
     public static final String REPORT_PATH = CONFIG_PREFIX + "report.path";
     public static final String METADATA_PATH = CONFIG_PREFIX + "exportmetadata.path";
 
+    public static final String SYSTEM_BASE_DIRECTORY = CONFIG_PREFIX + "basedirectory.path";
+
     private SonargraphPluginBase()
     {
         // Don't instantiate

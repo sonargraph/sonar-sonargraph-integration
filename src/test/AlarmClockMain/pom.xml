@@ -32,6 +32,11 @@
 		<module>AlarmClock</module>
 	</modules>
 
+<!-- 
+    <properties>
+      <sonar.sonargraph_integration.basedirectory.path>D:/temp</sonar.sonargraph_integration.basedirectory.path>
+    </properties>
+-->
 	<pluginRepositories>
 		<pluginRepository>
 			<id>maven-central-repository</id>
@@ -54,7 +59,7 @@
                   <activationCode>_REPLACE_ME</activationCode>
                   -->
                   <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
-                  <systemDirectory>${basedir}/subdirectory/AlarmClockMain.sonargraph</systemDirectory>
+                  <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
                   <reportFormat>xml, html</reportFormat>
                   <prepareForSonarQube>true</prepareForSonarQube>
                   <logLevel>info</logLevel>
