@@ -23,6 +23,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,7 +65,7 @@ public final class TestHelper
         super();
     }
 
-    public static RulesProfile initRulesProfile()
+    public static RulesProfile initRulesProfile(final String... keysOfInactiveRules)
     {
         final RulesDefinition rulesDefinition = new SonargraphRulesRepository(initSettings());
         final RulesDefinition.Context context = new RulesDefinition.Context();
@@ -74,9 +75,14 @@ public final class TestHelper
         final Repository repository = context.repository(SonargraphPluginBase.PLUGIN_KEY);
         final RulesProfile profile = RulesProfile.create(SonargraphPluginBase.PLUGIN_KEY, "JAVA");
 
+        final List<String> inactiveRules = keysOfInactiveRules != null ? Arrays.asList(keysOfInactiveRules) : Collections.emptyList();
+
         for (final Rule rule : repository.rules())
         {
-            profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
+            if (!inactiveRules.contains(rule.key()))
+            {
+                profile.activateRule(org.sonar.api.rules.Rule.create(repository.key(), rule.key(), rule.name()), null);
+            }
         }
         return profile;
     }

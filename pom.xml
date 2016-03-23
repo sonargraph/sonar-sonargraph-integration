@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>com.hello2morrow.sonargraph.integration</groupId>
+  <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>0.9.2</version>
+  <version>1.0.0</version>
 
   <name>SonarQube Sonargraph Integration Plugin</name>
-  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 8.7 and later.</description>
+  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 8.7 and higher.</description>
 
   <inceptionYear>2015</inceptionYear>
   <organization>
@@ -51,7 +51,7 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>1.0.0</version>
+      <version>1.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

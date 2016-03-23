@@ -14,7 +14,7 @@ if measure ('sg_i.CORE_ACD')
     if measure('sg_i.ARCHITECTURE_FEATURE_AVAILABLE')
 %>
             <p><span class="big">
-              <%= format_measure('sg_i.CORE_VIOLATIONS_COMPONENT_DEPENDENCIES', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=SonargraphIntegration:ARCHITECTURE_VIOLATION") -%> </span> 
+              <%= format_measure('sg_i.CORE_VIOLATIONS_COMPONENT_DEPENDENCIES', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=sonargraphintegration:ARCHITECTURE_VIOLATION") -%> </span> 
               violating component dependencies <%= tendency_icon(measure('sg_i.CORE_VIOLATIONS_COMPONENT_DEPENDENCIES')) %>
             </p>
 <% 
@@ -35,7 +35,7 @@ end
     </tr>
    	<tr>
         <td> 
-              <%= format_measure('sg_i.CORE_VIOLATING_COMPONENTS', :suffix => ' violating components', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=SonargraphIntegration:ARCHITECTURE_VIOLATION") -%> <%= format_measure('VIOLATING_COMPONENTS_PERCENT', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sg_i.CORE_VIOLATING_COMPONENTS')) %> 
+              <%= format_measure('sg_i.CORE_VIOLATING_COMPONENTS', :suffix => ' violating components', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=sonargraphintegration:ARCHITECTURE_VIOLATION") -%> <%= format_measure('VIOLATING_COMPONENTS_PERCENT', :prefix => '(', :suffix => ')') -%> <%= tendency_icon(measure('sg_i.CORE_VIOLATING_COMPONENTS')) %> 
         </td>
         <td>                                                                            
               <%= format_measure('sg_i.JAVA_PACKAGE_CYCLE_GROUPS', :suffix => ' package cycle groups') -%> <%= tendency_icon(measure('sg_i.JAVA_PACKAGE_CYCLE_GROUPS')) %>
@@ -43,10 +43,10 @@ end
     </tr>
     <tr>
     	<td>
-              <%= format_measure('sg_i.CORE_VIOLATIONS_PARSER_DEPENDENCIES', :suffix => ' violating parser dependencies', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=SonargraphIntegration:ARCHITECTURE_VIOLATION") -%>
+              <%= format_measure('sg_i.CORE_VIOLATIONS_PARSER_DEPENDENCIES', :suffix => ' violating parser dependencies', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=sonargraphintegration:ARCHITECTURE_VIOLATION") -%>
         </td>
         <td>  
-        	  <%= format_measure('sg_i.CORE_DUPLICATES', :suffix => ' duplicate code blocks', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=SonargraphIntegration:DUPLICATE_CODE") -%> <%= tendency_icon(measure('sg_i.CORE_DUPLICATES')) %>
+        	  <%= format_measure('sg_i.CORE_DUPLICATES', :suffix => ' duplicate code blocks', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=sonargraphintegration:DUPLICATE_CODE") -%> <%= tendency_icon(measure('sg_i.CORE_DUPLICATES')) %>
         </td>
     </tr>
     <tr>
@@ -54,7 +54,7 @@ end
               <%= format_measure('sg_i.CORE_IGNORED_VIOLATIONS_PARSER_DEPENDENCIES', :suffix => ' ignored violations') -%> <%= tendency_icon(measure('sg_i.CORE_IGNORED_VIOLATIONS_PARSER_DEPENDENCIES')) %>
         </td>
         <td>
-              <%= format_measure('sg_i.NUMBER_OF_THRESHOLD_VIOLATIONS', :suffix => ' threshold violations', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=SonargraphIntegration:THRESHOLD_VIOLATION") -%> <%= tendency_icon(measure('sg_i.NUMBER_OF_THRESHOLD_VIOLATIONS')) %>
+              <%= format_measure('sg_i.NUMBER_OF_THRESHOLD_VIOLATIONS', :suffix => ' threshold violations', :url => "#{ApplicationController.root_context}/drilldown/issues/#{@project.id}?filter=category&rule=sonargraphintegration:THRESHOLD_VIOLATION") -%> <%= tendency_icon(measure('sg_i.NUMBER_OF_THRESHOLD_VIOLATIONS')) %>
         </td>
     </tr>
     <tr>
