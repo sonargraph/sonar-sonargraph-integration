@@ -18,5 +18,5 @@ Usually a high level of coupling and cyclic dependencies points to a high level 
 structural erosion. If structural erosion grows over a certain level this will have a negative impact on testability, maintainability and 
 comprehensibility of your code.
 
-A detailed description of the capabilities and configuration can be found here: <a href="https://www.hello2morrow.com/doc/build/html/content/sonarqube_integration.html">https://www.hello2morrow.com/doc/build/html/content/sonarqube_integration.html</a> 
+A detailed description of the capabilities and configuration can be found here: <a href="http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html">http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html</a> 
 
