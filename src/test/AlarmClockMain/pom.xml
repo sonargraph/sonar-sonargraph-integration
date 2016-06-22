@@ -52,9 +52,9 @@
 			<plugin>
                 <groupId>com.hello2morrow</groupId>
                 <artifactId>sonargraph-maven-plugin</artifactId>
-                <version>8.8.0</version>
+                <version>8.9.1</version>
                 <configuration>
-                  <installationDirectory>D:\00_repos\00_e4-sgng\com.hello2morrow.sonargraph.build\dist\release\SonargraphBuild</installationDirectory>
+                  <installationDirectory>D:\02_programs\SG8\release\SonargraphBuild-8.9.1.379_2016-06-03</installationDirectory>
                   <!-- 
                   <activationCode>_REPLACE_ME</activationCode>
                   -->
