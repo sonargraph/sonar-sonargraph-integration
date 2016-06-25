@@ -630,17 +630,16 @@ public final class SonargraphSensor implements Sensor
     }
 
     private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings) {
-        final File projectDirectory = fileSystem.baseDir();
         final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
         final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
         final File reportFile;
         if (reportPathOld != null)
         {
-            reportFile = lookupRelativeOrAbsoluteFile(reportPathOld, projectDirectory);
+            reportFile = fileSystem.resolvePath(reportPathOld);
         }
         else if (reportPath != null)
         {
-            reportFile = lookupRelativeOrAbsoluteFile(reportPath, projectDirectory);
+            reportFile = fileSystem.resolvePath(reportPath);
         }
         else
         {
@@ -669,11 +668,6 @@ public final class SonargraphSensor implements Sensor
 
     private static boolean fileExistsAndIsReadable(File reportFile) {
         return reportFile.exists() && reportFile.canRead();
-    }
-
-    private static File lookupRelativeOrAbsoluteFile(String path, File root) {
-        File relativeFile = new File(root, path);
-        return fileExistsAndIsReadable(relativeFile) ? relativeFile : new File(path);
     }
 
     private static Optional<File> determineBaseDirectory(final FileSystem fileSystem, final Settings settings)

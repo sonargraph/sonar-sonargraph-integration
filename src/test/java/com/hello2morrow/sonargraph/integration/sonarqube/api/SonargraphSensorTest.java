@@ -55,11 +55,6 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPl
 @SuppressWarnings("rawtypes")
 public class SonargraphSensorTest implements MetricFinder
 {
-    private static final String REPORT_PATH_MULTI_MODULES = "./src/test/AlarmClockMain/AlarmClockMain.xml";
-    private static final String REPORT_PATH_SINGLE_MODULE = "./src/test/report/AlarmClock_Ant.xml";
-
-    private static final String REPORT_CRM = "./src/test/report/CRM-Sonargraph-Report.xml";
-    private static final String REPORT_EXPLORER = "./src/test/explorer/AlarmClockMain.xml";
 
     private RulesProfile rulesProfile;
     private SensorContext sensorContext;
@@ -72,7 +67,7 @@ public class SonargraphSensorTest implements MetricFinder
 
     private String getReport()
     {
-        return REPORT_PATH_MULTI_MODULES;
+        return TestHelper.REPORT_PATH_MULTI_MODULES;
     }
 
     @Before
@@ -154,7 +149,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testAnalyseSystemMetricsOfReportWithMultipleModules()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_MULTI_MODULES);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_MULTI_MODULES);
 
         final Project project = mock(Project.class);
         doReturn("hello2morrow:AlarmClockMain").when(project).key();
@@ -182,7 +177,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testAnalyseSystemMetricsOfReportWithSingleModule()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_SINGLE_MODULE);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_SINGLE_MODULE);
 
         final Project project = mock(Project.class);
         doReturn("hello2morrow:AlarmClock").when(project).key();
@@ -202,7 +197,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testHandleDuplicateRuleNotActivated()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_SINGLE_MODULE);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_SINGLE_MODULE);
         rulesProfile = TestHelper.initRulesProfile(SonargraphMetrics.createRuleKey("DuplicateCode"));
         sensor = new SonargraphSensor(this, rulesProfile, settings, moduleFileSystem, TestHelper.initPerspectives());
 
@@ -224,7 +219,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testAnalyseModuleMetrisOfReport()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_PATH_MULTI_MODULES);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_MULTI_MODULES);
 
         final Project project = mock(Project.class);
         doReturn("AlarmClock").when(project).key();
@@ -255,7 +250,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testAnalyseSingleModuleProject()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_CRM);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_CRM);
         final Project project = mock(Project.class);
         doReturn("com.hello2morrow:crm-domain-example").when(project).key();
         doReturn("crm-domain-example").when(project).name();
@@ -284,7 +279,7 @@ public class SonargraphSensorTest implements MetricFinder
     @Test
     public void testAnalyseExplorerReport()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, REPORT_EXPLORER);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_EXPLORER);
 
         final Project project = mock(Project.class);
         doReturn("AlarmClock").when(project).key();
