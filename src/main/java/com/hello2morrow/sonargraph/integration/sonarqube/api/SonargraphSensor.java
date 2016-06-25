@@ -629,25 +629,25 @@ public final class SonargraphSensor implements Sensor
         return loadReportResult;
     }
 
-    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
-    {
+    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings) {
+        final File projectDirectory = fileSystem.baseDir();
         final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
         final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
         final File reportFile;
         if (reportPathOld != null)
         {
-            reportFile = new File(reportPathOld);
+            reportFile = lookupRelativeOrAbsoluteFile(reportPathOld, projectDirectory);
         }
         else if (reportPath != null)
         {
-            reportFile = new File(reportPath);
+            reportFile = lookupRelativeOrAbsoluteFile(reportPath, projectDirectory);
         }
         else
         {
             //try maven path
             final File mavenDefaultLocation = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
                     SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
-            if (mavenDefaultLocation.exists() && mavenDefaultLocation.canRead())
+            if (fileExistsAndIsReadable(mavenDefaultLocation))
             {
                 reportFile = mavenDefaultLocation;
             }
@@ -659,12 +659,21 @@ public final class SonargraphSensor implements Sensor
             }
         }
 
-        if (reportFile.exists() && reportFile.canRead())
+        if (fileExistsAndIsReadable(reportFile))
         {
             LOG.debug("Load report from " + reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
         return Optional.empty();
+    }
+
+    private static boolean fileExistsAndIsReadable(File reportFile) {
+        return reportFile.exists() && reportFile.canRead();
+    }
+
+    private static File lookupRelativeOrAbsoluteFile(String path, File root) {
+        File relativeFile = new File(root, path);
+        return fileExistsAndIsReadable(relativeFile) ? relativeFile : new File(path);
     }
 
     private static Optional<File> determineBaseDirectory(final FileSystem fileSystem, final Settings settings)
