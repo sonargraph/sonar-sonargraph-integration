@@ -169,11 +169,13 @@ public final class TestHelper
             inputFiles.add(file);
         }
 
-        when (fileSystem.resolvePath(any())).thenAnswer(new Answer<File>() {
+        when(fileSystem.resolvePath(any())).thenAnswer(new Answer<File>()
+        {
             @Override
-            public File answer(InvocationOnMock mock) throws Throwable {
-                File f = new File(String.valueOf(mock.getArguments()[0]));
-                return (f.isAbsolute()) ? f : new File("./" +  f.getPath());
+            public File answer(final InvocationOnMock mock) throws Throwable
+            {
+                final File f = new File(String.valueOf(mock.getArguments()[0]));
+                return (f.isAbsolute()) ? f : new File("./" + f.getPath());
             }
         });
 
@@ -223,7 +225,6 @@ public final class TestHelper
             {
                 return new FilePredicates()
                 {
-
                     @Override
                     public FilePredicate or(final FilePredicate first, final FilePredicate second)
                     {

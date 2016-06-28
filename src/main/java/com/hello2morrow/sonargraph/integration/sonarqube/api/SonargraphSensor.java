@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -201,7 +202,7 @@ public final class SonargraphSensor implements Sensor
     private OperationResult loadReport(final Project project, final File reportFile, final Settings settings)
     {
         final OperationResult result = new OperationResult("Reading Sonargraph report from: " + reportFile.getAbsolutePath());
-        final Optional<File> baseDirectory = determineBaseDirectory(fileSystem, settings);
+        final Optional<File> baseDirectory = determineBaseDirectory(settings);
         if (baseDirectory.isPresent())
         {
             LOG.info("Changing Sonargraph baseDirectory to: " + baseDirectory.get().getAbsolutePath());
@@ -278,12 +279,13 @@ public final class SonargraphSensor implements Sensor
     private void processProjectMetrics(final SensorContext sensorContext, final IElementContainer container, final IInfoProcessor infoProcessor,
             final Map<String, Metric<?>> metrics, final IMetricLevel level)
     {
+        final List<String> unconfiguredMetrics = new ArrayList<>();
         for (final IMetricId next : infoProcessor.getMetricIdsForLevel(level))
         {
             final String metricKey = SonargraphMetrics.createMetricKeyFromStandardName(next.getName());
             if (!isConfiguredMetric(metrics, next))
             {
-                LOG.warn("Metric id '" + next.getName() + "' has not been configured");
+                unconfiguredMetrics.add(next.getName());
                 continue;
             }
 
@@ -299,6 +301,16 @@ public final class SonargraphSensor implements Sensor
             {
                 LOG.error("No value found for metric '" + next.getPresentationName() + "'. Please check the meta-data configuration for Sonargraph!");
             }
+        }
+        if (!unconfiguredMetrics.isEmpty())
+        {
+            final StringJoiner joiner = new StringJoiner(", ");
+            unconfiguredMetrics.stream().forEach(joiner::add);
+
+            LOG.warn("The following Sonargraph metrics have not been configured: \n    "
+                    + joiner.toString()
+                    + "\n    If you want to persist the values for these metrics in SonarQube, "
+                    + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.");
         }
 
         sensorContext.saveMeasure(new Measure<String>(SonargraphMetrics.CURRENT_VIRTUAL_MODEL, controller.getSoftwareSystem().getVirtualModel()));
@@ -629,7 +641,8 @@ public final class SonargraphSensor implements Sensor
         return loadReportResult;
     }
 
-    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings) {
+    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
+    {
         final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
         final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
         final File reportFile;
@@ -666,11 +679,12 @@ public final class SonargraphSensor implements Sensor
         return Optional.empty();
     }
 
-    private static boolean fileExistsAndIsReadable(File reportFile) {
+    private static boolean fileExistsAndIsReadable(final File reportFile)
+    {
         return reportFile.exists() && reportFile.canRead();
     }
 
-    private static Optional<File> determineBaseDirectory(final FileSystem fileSystem, final Settings settings)
+    private static Optional<File> determineBaseDirectory(final Settings settings)
     {
         final String baseDirectory = settings.getString(SonargraphPluginBase.SYSTEM_BASE_DIRECTORY);
         if (baseDirectory == null || baseDirectory.trim().isEmpty())

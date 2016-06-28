@@ -46,7 +46,7 @@
 	</target>
 
 <!-- Replace with the installation directory of your SonargraphBuild -->    
-    <property name="sonargraph.build.installation" location="_REPLACE_ME"/> <!-- ../../../../com.hello2morrow.sonargraph.build/dist/release/SonargraphBuild -->
+    <property name="sonargraph.build.installation" location="../../../../00_e4-sgng/products/SonargraphBuild/dist/release/SonargraphBuild"/>
     
 <!-- Replace with a valid Sonargraph Build activation code or license file path-->    
     <property name="sonargraph.activationCode" value="_REPLACE_ME" />
@@ -77,8 +77,7 @@
     <taskdef name="sonargraphBuild" classname="com.hello2morrow.sonargraph.build.client.ant.SonargraphReportTask">
         <classpath>
             <fileset dir="${sonargraph.build.installation}/plugins">
-                <include name="org.eclipse.osgi_3.10*.jar" />
-                <include name="com.hello2morrow.sonargraph.build.client*.jar"/>
+                <include name="org.eclipse.osgi_*.jar" />
             </fileset>
             <fileset dir="${sonargraph.build.installation}/client" includes="*.jar" />
         </classpath>

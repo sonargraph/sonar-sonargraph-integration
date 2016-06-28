@@ -3,5 +3,5 @@
 **/target/
 **/.sonar
 /sonargraph_access*.log
-/src/test/AlarmClockMain/build
+/src/test/AlarmClockMain/**/build
 /src/test/AlarmClockMain/.gradle

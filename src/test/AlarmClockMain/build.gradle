@@ -26,7 +26,7 @@ buildscript
     
     dependencies
     {
-        classpath('com.hello2morrow:sonargraph-gradle-plugin:8.8.0') 
+        classpath('com.hello2morrow:sonargraph-gradle-plugin:8.9.1') 
     }
     
     dependencies 
@@ -55,7 +55,7 @@ sonargraphReport
     // This is a activation code for Sonargraph-Explorer Build which you can use for testing.
     // Replace with your own if you have one.
     //activationCode = "36E2-0F3E-643F-B4F2"
-    licenseFile="C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license"
+    licenseFile = "C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license"
     systemDirectory = "./AlarmClockMain.sonargraph"
     prepareForSonarQube = "true"
 //    failSet {
