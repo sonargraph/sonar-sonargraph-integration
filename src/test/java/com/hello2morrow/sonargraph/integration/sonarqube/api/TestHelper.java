@@ -57,6 +57,11 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPl
 
 public final class TestHelper
 {
+    public static final String REPORT_PATH_MULTI_MODULES = "src/test/AlarmClockMain/AlarmClockMain.xml";
+    public static final String REPORT_PATH_SINGLE_MODULE = "src/test/report/AlarmClock_Ant.xml";
+    public static final String REPORT_CRM = new File("./src/test/report/CRM-Sonargraph-Report.xml").getAbsolutePath();
+    public static final String REPORT_EXPLORER = "src/test/explorer/AlarmClockMain.xml";
+
     private static Map<String, Measure<?>> s_systemMetrics;
     private static final List<InputFile> inputFiles = new ArrayList<>();
 
@@ -163,6 +168,14 @@ public final class TestHelper
             });
             inputFiles.add(file);
         }
+
+        when (fileSystem.resolvePath(any())).thenAnswer(new Answer<File>() {
+            @Override
+            public File answer(InvocationOnMock mock) throws Throwable {
+                File f = new File(String.valueOf(mock.getArguments()[0]));
+                return (f.isAbsolute()) ? f : new File("./" +  f.getPath());
+            }
+        });
 
         when(fileSystem.hasFiles(any(FilePredicate.class))).thenAnswer(new Answer<Boolean>()
         {
