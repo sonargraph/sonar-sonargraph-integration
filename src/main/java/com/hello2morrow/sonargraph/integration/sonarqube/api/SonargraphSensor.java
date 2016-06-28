@@ -629,7 +629,8 @@ public final class SonargraphSensor implements Sensor
         return loadReportResult;
     }
 
-    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings) {
+    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
+    {
         final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
         final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
         final File reportFile;
@@ -666,7 +667,8 @@ public final class SonargraphSensor implements Sensor
         return Optional.empty();
     }
 
-    private static boolean fileExistsAndIsReadable(File reportFile) {
+    private static boolean fileExistsAndIsReadable(final File reportFile)
+    {
         return reportFile.exists() && reportFile.canRead();
     }
 
