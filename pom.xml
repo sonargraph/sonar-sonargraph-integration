@@ -33,11 +33,6 @@
     </developer>
   </developers>
 
-  <!-- issueManagement>
-  <system>JIRA</system>
-    <url>http://jira.codehaus.org/browse/SONARPLUGINS/component/14758</url>
-  </issueManagement -->
-
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonargraph.integration.sonarqube.api.SonargraphPlugin</sonar.plugin.class>
     <sonar.version>5.1</sonar.version>
@@ -178,6 +173,7 @@
             </execution>
         </executions>
       </plugin>
+      <!-- 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
@@ -215,6 +211,7 @@
             </execution>
         </executions>
        </plugin>
+       -->
        <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
