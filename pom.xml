@@ -7,7 +7,7 @@
   <packaging>sonar-plugin</packaging>
   <version>1.1.0</version>
 
-  <name>SonarQube Sonargraph Integration Plugin</name>
+  <name>SonarQube Sonargraph 8 Integration Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 8.7 and higher.</description>
 
   <inceptionYear>2015</inceptionYear>
@@ -118,12 +118,17 @@
       <url>http://maven.hello2morrow.com/repository</url>
     </pluginRepository>
   </pluginRepositories>
-  <!--  scm>
-    <connection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</connection>
-    <developerConnection>scm:git:git@github.com:SonarCommunity/sonar-sonargraph.git</developerConnection>
-    <url>https://github.com/SonarCommunity/sonar-sonargraph</url>
+  <scm>
+    <connection>scm:git:git@github.com:sonargraph/sonar-sonargraph-integration.git</connection>
+    <developerConnection>scm:git:git@github.com:sonargraph/sonar-sonargraph-integration.git</developerConnection>
+    <url>https://github.com/sonargraph/sonar-sonargraph-integration</url>
     <tag>HEAD</tag>
-  </scm -->
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/sonargraph/sonar-sonargraph-integration/issues</url>
+  </issueManagement>
 
   <build>
     <resources>

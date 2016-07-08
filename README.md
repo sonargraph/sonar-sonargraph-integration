@@ -1,3 +1,5 @@
+[![Build Status](https://api.travis-ci.org/sonargraph/sonar-sonargraph-integration.svg)](https://travis-ci.org/sonargraph/sonar-sonargraph-integration)
+
 Sonargraph Integration Plugin
 =================
 
