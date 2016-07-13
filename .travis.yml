@@ -6,7 +6,7 @@ jdk:
   - oraclejdk8
 
 script:
-  - mvn verify -B -e -V
+  - mvn verify -B -e -V sonar:sonar -Dsonar.host.url=https://sonarqube.com:443 -Dsonar.login=1188e72ef2776e5b566fccd94e09df3184c7a7ff
 
 cache:
   directories:
