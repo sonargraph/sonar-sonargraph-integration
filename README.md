@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/sonargraph/sonar-sonargraph-integration.svg)](https://travis-ci.org/sonargraph/sonar-sonargraph-integration)  [![Nemo Quality Gate status](https://nemo.sonarqube.org/api/badges/gate?id=com.hello2morrow%3Asonar-sonargraph-integration)](https://nemo.sonarqube.org/overview?id=com.hello2morrow%3Asonar-sonargraph-integration)
+[![Build Status](https://api.travis-ci.org/sonargraph/sonar-sonargraph-integration.svg)](https://travis-ci.org/sonargraph/sonar-sonargraph-integration) [![Nemo Quality Gate status](https://nemo.sonarqube.org/api/badges/gate?key=com.hello2morrow%3Asonar-sonargraph-integration)](https://nemo.sonarqube.org/overview?id=com.hello2morrow%3Asonar-sonargraph-integration)
 
 Sonargraph Integration Plugin
 =================
