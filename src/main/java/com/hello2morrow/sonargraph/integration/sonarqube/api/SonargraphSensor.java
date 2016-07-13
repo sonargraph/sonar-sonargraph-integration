@@ -397,33 +397,39 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                final Issuable issuable = perspectives.as(Issuable.class, resource.get());
-                if (issuable == null)
-                {
-                    LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
-                    continue;
-                }
-                final IssueBuilder issueBuilder = issuable.newIssueBuilder();
-                issueBuilder.ruleKey(rule.getRule().ruleKey());
-                if (rule.getSeverity() != null)
-                {
-                    issueBuilder.severity(rule.getSeverity().toString());
-                }
-
-                final String msg = issue.getIssueType().getCategory().getPresentationName() + ": " + issue.getDescription() + " ["
-                        + issue.getIssueProvider().getPresentationName() + "]";
-                issueBuilder.message(msg);
-                final int line = issue.getLineNumber();
-
-                if (line > 0)
-                {
-                    issueBuilder.line(line);
-                }
-
-                final Issue sqIssue = issueBuilder.build();
-                issuable.addIssue(sqIssue);
+                handleIssue(resource, issue, rule);
             }
         }
+    }
+
+    private void handleIssue(final Optional<InputPath> resource, final IIssue issue, final ActiveRule rule)
+    {
+        final Issuable issuable = perspectives.as(Issuable.class, resource.get());
+        if (issuable == null)
+        {
+            LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
+            return;
+        }
+
+        final IssueBuilder issueBuilder = issuable.newIssueBuilder();
+        issueBuilder.ruleKey(rule.getRule().ruleKey());
+        if (rule.getSeverity() != null)
+        {
+            issueBuilder.severity(rule.getSeverity().toString());
+        }
+
+        final String msg = issue.getIssueType().getCategory().getPresentationName() + ": " + issue.getDescription() + " ["
+                + issue.getIssueProvider().getPresentationName() + "]";
+        issueBuilder.message(msg);
+        final int line = issue.getLineNumber();
+
+        if (line > 0)
+        {
+            issueBuilder.line(line);
+        }
+
+        final Issue sqIssue = issueBuilder.build();
+        issuable.addIssue(sqIssue);
     }
 
     private void handleDuplicateCodeBlock(final IDuplicateCodeBlockIssue issue, final ISourceFile sourceFile, final InputPath resource,
