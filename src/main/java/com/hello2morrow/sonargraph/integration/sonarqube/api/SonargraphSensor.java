@@ -437,7 +437,6 @@ public final class SonargraphSensor implements Sensor
     {
         for (final IDuplicateCodeBlockOccurrence occurrence : issue.getOccurrences())
         {
-            //We need to handle duplicate issues with blocks within the same source file
             if (occurrence.getSourceFile().equals(sourceFile))
             {
                 final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(issue.getOccurrences());
