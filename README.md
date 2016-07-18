@@ -22,3 +22,22 @@ comprehensibility of your code.
 
 A detailed description of the capabilities and configuration can be found here: <a href="http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html">http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html</a> 
 
+## Getting Started ##
+- Download the latest SonarQube version
+- Download the latest Sonargraph plugin and copy it into <sonarqube-inst>/extensions/plugins
+- Start SonarQube server
+- Change the current quality profile or create a new one that include at least one of the "Sonargraph Integration" rules. Assign your project to this profile.
+- Change the dashboard configuration to include the "Sonargraph Integration" widgets.
+- For the full functionality of Sonargraph, you need an "Architect" license. If you don't have one, just register on our <a href="">hello2morrow web site</a> and request a trial license.
+  Alternatively, use a free Sonargraph Explorer license with reduced feature set (no architecture checks, no scripts execution, etc.) 
+- Configure your build to run SonargraphBuild prior to the SonarQube scanner. Check the <a href="http://eclipse.hello2morrow.com/doc/build/content/">online documentation</a> of SonargraphBuild.
+  There are specific chapters for the integration with Ant, Maven, Gradle and the command shell. Don't forget to configure the "prepareForSonarQube" flag!
+  Check the example multi-maven project contained in this repository at <a href="https://github.com/sonargraph/sonar-sonargraph-integration/tree/master/src/test/AlarmClockMain">src/test/AlarmClockMain</a>.
+  There are various build files and batch files available that demonstrate how the analysis can be executed.
+- Execute the build, check the console log, that the Sonargraph Integration plugin has been executed. In SonarQube the widgets should now display metrics determined by Sonargraph and if your
+  projects contains architecture violations or cyclic dependencies, these should be visible as issues.
+- If you have difficulties setting up the integration, check first the online documentation (it's searchable!). If that does not provide any answer, feel free to send a mail to the <a href="https://groups.google.com/forum/#!forum/sonarqube">SonarQube Google group</a>
+  or directly to support at hello2morrow.com.  
+  
+ 
+
