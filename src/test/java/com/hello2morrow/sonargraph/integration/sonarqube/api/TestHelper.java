@@ -437,7 +437,6 @@ public final class TestHelper
     public static int getNumberOfIssues(final String ruleKey)
     {
         assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'getNumberOfIssues' must not be empty";
-
         final Integer count = s_ruleKeyToNumberOfIssuesMap.get(ruleKey);
         return count == null ? 0 : count.intValue();
     }
