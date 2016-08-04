@@ -15,9 +15,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
 package com.hello2morrow.sonargraph.integration.sonarqube.api;
 
 import static org.junit.Assert.assertEquals;
@@ -28,10 +25,6 @@ import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 
-/**
- * @author Ingmar
- *
- */
 public class SonargraphPluginIssuesDetectionTest extends AbstractSonargraphSensorTest
 {
     @Test
