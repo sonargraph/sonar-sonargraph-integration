@@ -56,7 +56,7 @@
                 <configuration>
                   <!-- 
                   <installationDirectory>D:\02_programs\SG8\release\SonargraphBuild-8.9.1.379_2016-06-03</installationDirectory>
-                  <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
+                  
                   <activationCode>_REPLACE_ME</activationCode>
                   -->
                   <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
@@ -66,6 +66,7 @@
                   <reportDirectory>${baseDir}</reportDirectory>
                   <reportName>AlarmClockMain</reportName>
                   <reportType>full</reportType>
+                  <sonargraphBuildVersion>newest</sonargraphBuildVersion>
                   <!--  autoUpdate>true</autoUpdate -->
                   <!-- failSet>
                     <includes>

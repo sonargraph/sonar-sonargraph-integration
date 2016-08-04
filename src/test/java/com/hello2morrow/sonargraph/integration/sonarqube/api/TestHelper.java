@@ -49,6 +49,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Resource;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Repository;
 import org.sonar.api.server.rule.RulesDefinition.Rule;
@@ -61,8 +62,10 @@ public final class TestHelper
     public static final String REPORT_PATH_SINGLE_MODULE = "src/test/report/AlarmClock_Ant.xml";
     public static final String REPORT_CRM = new File("./src/test/report/CRM-Sonargraph-Report.xml").getAbsolutePath();
     public static final String REPORT_EXPLORER = "src/test/explorer/AlarmClockMain.xml";
+    public static final String REPORT_PATH_WORKSPACE_ISSUES = "src/test/report/AlarmClockMain_WorkpaceProblems.xml";
 
     private static Map<String, Measure<?>> s_systemMetrics;
+    private static Map<String, Integer> s_ruleKeyToNumberOfIssuesMap;
     private static final List<InputFile> inputFiles = new ArrayList<>();
 
     private TestHelper()
@@ -110,6 +113,7 @@ public final class TestHelper
     public static SensorContext initSensorContext()
     {
         s_systemMetrics = new HashMap<>();
+        s_ruleKeyToNumberOfIssuesMap = new HashMap<>();
         final SensorContext sensorContext = mock(SensorContext.class);
 
         when(sensorContext.getResource(any(Resource.class))).thenAnswer(new Answer()
@@ -145,15 +149,15 @@ public final class TestHelper
         return Collections.unmodifiableMap(s_systemMetrics);
     }
 
-    public static FileSystem initModuleFileSystem()
+    public static FileSystem initModuleFileSystem(final String basePath)
     {
         final FileSystem fileSystem = mock(FileSystem.class);
 
         inputFiles.clear();
-        final String basePath = "D:/00_repos/00_e4-sgng/com.hello2morrow.sonargraph.integration.sonarqube/src/test/AlarmClockMain_ant/AlarmClock/src/main/java";
-        final String[] paths = new String[] { "com/h2m/alarm/presentation/Main.java", "com/h2m/alarm/model/AlarmClock.java",
-                "com/h2m/alarm/p1/C1.java", "com/h2m/alarm/p2/C2.java", "com/h2m/alarm/presentation/AlarmHandler.java",
-                "com/h2m/alarm/presentation/AlarmToFile.java" };
+        final String[] paths = new String[] { "AlarmClock/src/main/java/com/h2m/alarm/presentation/Main.java",
+                "AlarmClock/src/main/java/com/h2m/alarm/model/AlarmClock.java", "Foundation/src/main/java/com/h2m/common/test/C1.java",
+                "AlarmClock/src/main/java/com/h2m/alarm/p2/C2.java", "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmHandler.java",
+                "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmToFile.java" };
         for (final String next : paths)
         {
             final String path = basePath + "/" + next;
@@ -312,7 +316,14 @@ public final class TestHelper
                     @Override
                     public FilePredicate hasAbsolutePath(final String s)
                     {
-                        return null;
+                        return new FilePredicate()
+                        {
+                            @Override
+                            public boolean apply(final InputFile inputFile)
+                            {
+                                return inputFile.absolutePath().equals(s);
+                            }
+                        };
                     }
 
                     @Override
@@ -390,12 +401,44 @@ public final class TestHelper
                     @Override
                     public IssueBuilder answer(final InvocationOnMock invocation) throws Throwable
                     {
-                        return mock(IssueBuilder.class);
+                        final IssueBuilder builder = mock(IssueBuilder.class);
+                        when(builder.ruleKey(any(RuleKey.class))).thenAnswer(new Answer<IssueBuilder>()
+                        {
+                            @Override
+                            public IssueBuilder answer(final InvocationOnMock invocation) throws Throwable
+                            {
+                                final Object a0 = invocation.getArguments()[0];
+                                final RuleKey key = (RuleKey) a0;
+                                final String rule = key.rule();
+                                final Integer counter;
+                                if (s_ruleKeyToNumberOfIssuesMap.containsKey(rule))
+                                {
+                                    counter = s_ruleKeyToNumberOfIssuesMap.get(rule);
+                                }
+                                else
+                                {
+                                    counter = new Integer(0);
+                                }
+                                s_ruleKeyToNumberOfIssuesMap.put(rule, counter + 1);
+
+                                return builder;
+                            }
+                        });
+                        return builder;
                     }
                 });
+
                 return issuable;
             }
         });
         return perspectives;
+    }
+
+    public static int getNumberOfIssues(final String ruleKey)
+    {
+        assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'getNumberOfIssues' must not be empty";
+
+        final Integer count = s_ruleKeyToNumberOfIssuesMap.get(ruleKey);
+        return count == null ? 0 : count.intValue();
     }
 }
