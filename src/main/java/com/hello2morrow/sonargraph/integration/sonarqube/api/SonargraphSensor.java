@@ -551,8 +551,7 @@ public final class SonargraphSensor implements Sensor
         numberOfWorkspaceWarnings = infoProcessor.getIssues(
                 (final IIssue issue) -> !issue.hasResolution()
                         && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, new Integer(numberOfWorkspaceWarnings)
-                .doubleValue()));
+        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, new Double(numberOfWorkspaceWarnings)));
 
         final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
         if (numberOfComponentsMetric.isPresent())
