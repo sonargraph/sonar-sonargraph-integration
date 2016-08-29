@@ -8,6 +8,7 @@ Sonargraph Integration Plugin
 
 Compatible with Sonargraph 8.7 and higher versions.
 Requires Java 8 runtime.
+Currently only supports Sonargraph systems containing Java modules. 
 
 Check the GitHub Wiki for information about compatibilities with SonarQube versions and Sonargraph versions.  
 
