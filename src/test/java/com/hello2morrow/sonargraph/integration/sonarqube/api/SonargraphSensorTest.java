@@ -23,24 +23,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.profiles.RulesProfile;
@@ -52,50 +40,18 @@ import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
-@SuppressWarnings("rawtypes")
-public class SonargraphSensorTest implements MetricFinder
+public class SonargraphSensorTest extends AbstractSonargraphSensorTest
 {
-
-    private RulesProfile rulesProfile;
-    private SensorContext sensorContext;
-    private FileSystem moduleFileSystem;
-    private Settings settings;
-
-    private SonargraphSensor sensor;
-    private SonargraphRulesRepository sonargraphRulesRepository;
-    private List<org.sonar.api.batch.measure.Metric> metrics;
-
-    private String getReport()
+    @Override
+    protected String getReport()
     {
         return TestHelper.REPORT_PATH_MULTI_MODULES;
     }
 
-    @Before
-    public void initSensor()
+    @Override
+    protected String getBasePath()
     {
-        rulesProfile = TestHelper.initRulesProfile();
-        sensorContext = TestHelper.initSensorContext();
-        moduleFileSystem = TestHelper.initModuleFileSystem();
-        settings = TestHelper.initSettings();
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, getReport());
-
-        sonargraphRulesRepository = new SonargraphRulesRepository(settings);
-        metrics = new ArrayList<>();
-        for (final Metric metric : sonargraphRulesRepository.getMetrics())
-        {
-            final org.sonar.api.batch.measure.Metric converted = mock(org.sonar.api.batch.measure.Metric.class);
-            when(converted.key()).thenAnswer(new Answer<String>()
-            {
-                @Override
-                public String answer(final InvocationOnMock invocation) throws Throwable
-                {
-                    return metric.key();
-                }
-            });
-            metrics.add(converted);
-        }
-        sensor = new SonargraphSensor(this, rulesProfile, settings, moduleFileSystem, TestHelper.initPerspectives());
-        assertTrue(sensor.toString().startsWith(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME));
+        return "D:/00_repos/00_e4-sgng/com.hello2morrow.sonargraph.integration.sonarqube/src/test/AlarmClockMain_ant/AlarmClock/src/main/java";
     }
 
     @After
@@ -315,23 +271,5 @@ public class SonargraphSensorTest implements MetricFinder
         final Project project = mock(Project.class);
         sensor.analyse(project, sensorContext);
         assertFalse(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
-    }
-
-    @Override
-    public org.sonar.api.batch.measure.Metric findByKey(final String key)
-    {
-        return null;
-    }
-
-    @Override
-    public Collection<org.sonar.api.batch.measure.Metric> findAll(final List<String> metricKeys)
-    {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Collection<org.sonar.api.batch.measure.Metric> findAll()
-    {
-        return metrics;
     }
 }

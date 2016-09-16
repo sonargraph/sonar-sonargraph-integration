@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>com.hello2morrow</groupId>
@@ -22,7 +23,7 @@
     </license>
   </licenses>
   <developers>
-   <developer>
+    <developer>
       <id>ingmarkellner</id>
       <name>Ingmar Kellner</name>
     </developer>
@@ -61,16 +62,13 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
-		<groupId>org.sonarsource.java</groupId>
-		<artifactId>sonar-java-plugin</artifactId>
-		<version>3.4</version>
-		<scope>provided</scope>
-	</dependency>
-    <!--  dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.12</version>
-    </dependency -->
+      <groupId>org.sonarsource.java</groupId>
+      <artifactId>sonar-java-plugin</artifactId>
+      <version>3.4</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-api</artifactId> 
+      <version>1.7.12</version> </dependency -->
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-classic</artifactId>
@@ -133,10 +131,10 @@
     </resources>
     <plugins>
       <plugin>
-		<groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
-		<artifactId>sonar-packaging-maven-plugin</artifactId>
-		<version>1.15</version>
-		<extensions>true</extensions>
+        <groupId>org.sonarsource.sonar-packaging-maven-plugin</groupId>
+        <artifactId>sonar-packaging-maven-plugin</artifactId>
+        <version>1.15</version>
+        <extensions>true</extensions>
         <configuration>
           <pluginName>Sonargraph Integration</pluginName>
           <pluginKey>sonargraphintegration</pluginKey>
@@ -158,18 +156,18 @@
         <artifactId>license-maven-plugin</artifactId>
         <version>2.11</version>
         <configuration>
-            <header>licenseHeader.txt</header>
-            <includes>
-                <include>src/main/java/**</include>
-                <include>src/test/java/**</include>
-            </includes>
+          <header>licenseHeader.txt</header>
+          <includes>
+            <include>src/main/java/**</include>
+            <include>src/test/java/**</include>
+          </includes>
         </configuration>
         <executions>
-            <execution>
-                <goals>
-                    <goal>check</goal>
-                </goals>
-            </execution>
+          <execution>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
         </executions>
       </plugin>
       <!-- 
@@ -211,7 +209,7 @@
         </executions>
        </plugin>
        -->
-       <plugin>
+      <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
         <version>3.0.1</version>
@@ -219,7 +217,8 @@
     </plugins>
     <pluginManagement>
       <plugins>
-        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <!--This plugin's configuration is used to store Eclipse m2e settings 
+          only. It has no influence on the Maven build itself. -->
         <plugin>
           <groupId>org.eclipse.m2e</groupId>
           <artifactId>lifecycle-mapping</artifactId>

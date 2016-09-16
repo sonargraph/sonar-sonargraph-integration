@@ -94,6 +94,7 @@ public final class SonargraphSensor implements Sensor
     private ISonargraphSystemController controller;
     private Exception sensorExecutionException;
     private final MetricFinder metricFinder;
+    private int numberOfWorkspaceWarnings = 0;
 
     public SonargraphSensor(final MetricFinder metricFinder, final RulesProfile profile, final Settings settings, final FileSystem moduleFileSystem,
             final ResourcePerspectives perspectives)
@@ -141,6 +142,7 @@ public final class SonargraphSensor implements Sensor
                 + "]");
 
         controller = new ControllerFactory().createController();
+        numberOfWorkspaceWarnings = 0;
         final Optional<File> reportFileOptional = determineReportFile(fileSystem, settings);
         if (!reportFileOptional.isPresent())
         {
@@ -180,6 +182,13 @@ public final class SonargraphSensor implements Sensor
         processModule(metrics, project, sensorContext, system);
 
         LOG.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
+        if (numberOfWorkspaceWarnings > 0)
+        {
+            LOG.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
+                    + "Please check that all root directories of the Sonargraph workspace are correct "
+                    + "and that class files have been generated before executing Sonargraph to create a report.",
+                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, numberOfWorkspaceWarnings);
+        }
     }
 
     private void processFeatures(final SensorContext sensorContext)
@@ -265,7 +274,8 @@ public final class SonargraphSensor implements Sensor
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
 
-        processIssues(moduleInfoProcessor, (final IIssue issue) -> !issue.hasResolution());
+        processIssues(moduleInfoProcessor, (final IIssue issue) -> !issue.hasResolution()
+                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
         processIssues(
                 moduleInfoProcessor,
                 (final IIssue issue) -> issue.hasResolution()
@@ -397,33 +407,39 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                final Issuable issuable = perspectives.as(Issuable.class, resource.get());
-                if (issuable == null)
-                {
-                    LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
-                    continue;
-                }
-                final IssueBuilder issueBuilder = issuable.newIssueBuilder();
-                issueBuilder.ruleKey(rule.getRule().ruleKey());
-                if (rule.getSeverity() != null)
-                {
-                    issueBuilder.severity(rule.getSeverity().toString());
-                }
-
-                final String msg = issue.getIssueType().getCategory().getPresentationName() + ": " + issue.getDescription() + " ["
-                        + issue.getIssueProvider().getPresentationName() + "]";
-                issueBuilder.message(msg);
-                final int line = issue.getLineNumber();
-
-                if (line > 0)
-                {
-                    issueBuilder.line(line);
-                }
-
-                final Issue sqIssue = issueBuilder.build();
-                issuable.addIssue(sqIssue);
+                handleIssue(resource, issue, rule);
             }
         }
+    }
+
+    private void handleIssue(final Optional<InputPath> resource, final IIssue issue, final ActiveRule rule)
+    {
+        final Issuable issuable = perspectives.as(Issuable.class, resource.get());
+        if (issuable == null)
+        {
+            LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
+            return;
+        }
+
+        final IssueBuilder issueBuilder = issuable.newIssueBuilder();
+        issueBuilder.ruleKey(rule.getRule().ruleKey());
+        if (rule.getSeverity() != null)
+        {
+            issueBuilder.severity(rule.getSeverity().toString());
+        }
+
+        final String msg = issue.getIssueType().getCategory().getPresentationName() + ": " + issue.getDescription() + " ["
+                + issue.getIssueProvider().getPresentationName() + "]";
+        issueBuilder.message(msg);
+        final int line = issue.getLineNumber();
+
+        if (line > 0)
+        {
+            issueBuilder.line(line);
+        }
+
+        final Issue sqIssue = issueBuilder.build();
+        issuable.addIssue(sqIssue);
     }
 
     private void handleDuplicateCodeBlock(final IDuplicateCodeBlockIssue issue, final ISourceFile sourceFile, final InputPath resource,
@@ -431,7 +447,6 @@ public final class SonargraphSensor implements Sensor
     {
         for (final IDuplicateCodeBlockOccurrence occurrence : issue.getOccurrences())
         {
-            //We need to handle duplicate issues with blocks within the same source file
             if (occurrence.getSourceFile().equals(sourceFile))
             {
                 final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(issue.getOccurrences());
@@ -533,14 +548,10 @@ public final class SonargraphSensor implements Sensor
                                                 || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
 
-        if (IMetricLevel.SYSTEM.equals(level.getName()))
-        {
-
-            final double numberOfWorkspaceWarnings = infoProcessor.getIssues(
-                    (final IIssue issue) -> !issue.hasResolution()
-                            && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-            sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, numberOfWorkspaceWarnings));
-        }
+        numberOfWorkspaceWarnings = infoProcessor.getIssues(
+                (final IIssue issue) -> !issue.hasResolution()
+                        && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
+        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, new Double(numberOfWorkspaceWarnings)));
 
         final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
         if (numberOfComponentsMetric.isPresent())
@@ -714,5 +725,10 @@ public final class SonargraphSensor implements Sensor
             }
         }
         return Optional.empty();
+    }
+
+    int getNumberOfWorkspaceWarnings()
+    {
+        return numberOfWorkspaceWarnings;
     }
 }
