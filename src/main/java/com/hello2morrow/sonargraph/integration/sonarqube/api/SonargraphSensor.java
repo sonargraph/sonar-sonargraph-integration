@@ -269,7 +269,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
                 .filter((final IMetricLevel level) -> level.getName().equals(IMetricLevel.MODULE)).findAny();
 
-        if (project.isModule())
+        if (project.isModule() && optionalMetricLevel.isPresent())
         {
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
@@ -407,17 +407,17 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                handleIssue(resource, issue, rule);
+                handleIssue(issue, resource.get(), rule);
             }
         }
     }
 
-    private void handleIssue(final Optional<InputPath> resource, final IIssue issue, final ActiveRule rule)
+    private void handleIssue(final IIssue issue, final InputPath resource, final ActiveRule rule)
     {
-        final Issuable issuable = perspectives.as(Issuable.class, resource.get());
+        final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
+            LOG.error("Failed to create Issuable for resource '" + resource.absolutePath());
             return;
         }
 
@@ -551,7 +551,7 @@ public final class SonargraphSensor implements Sensor
         numberOfWorkspaceWarnings = infoProcessor.getIssues(
                 (final IIssue issue) -> !issue.hasResolution()
                         && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, new Double(numberOfWorkspaceWarnings)));
+        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
 
         final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
         if (numberOfComponentsMetric.isPresent())
