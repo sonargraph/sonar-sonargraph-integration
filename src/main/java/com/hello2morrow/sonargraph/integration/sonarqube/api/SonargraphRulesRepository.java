@@ -42,7 +42,7 @@ import com.hello2morrow.sonargraph.integration.access.controller.ControllerFacto
 import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
-import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
+import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMergedExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
@@ -53,7 +53,6 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
 {
     private static final Logger LOG = LoggerFactory.getLogger(SonargraphRulesRepository.class);
     private static final String DEFAULT_META_DATA_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
-    private static final String DEFAULT_SEVERITY = Severity.MAJOR;
     private static final String RULE_TAG_SONARGRAPH = "sonargraph-integration";
 
     private List<Metric<? extends Serializable>> metrics;
@@ -114,10 +113,13 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     next.getPresentationName(), next.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(next))
                     .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH);
 
-            //A change in those size metrics don't indicate an improvement or degradation
-            if (!("JavaByteCodeInstructions".equals(next.getName()) || "CoreSourceElementCount".equals(next.getName())))
+            if (next.getBestValue() != Double.NaN)
             {
-                metric.setDirection(Metric.DIRECTION_WORST).setQualitative(true);
+                metric.setBestValue(next.getBestValue());
+            }
+            if (next.getWorstValue() != Double.NaN)
+            {
+                metric.setWorstValue(next.getWorstValue());
             }
             metrics.add(metric.create());
         }
@@ -204,14 +206,23 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                 SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + " Rules");
         final IExportMetaData metaData = result.get();
 
-        for (final IIssueCategory category : metaData.getIssueCategories().values())
+        for (final Map.Entry<String, IIssueType> entry : metaData.getIssueTypes().entrySet())
         {
+            final IIssueType type = entry.getValue();
             final NewRule rule = repository.createRule(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics
-                    .createRuleKey(category.getName()));
-            rule.setName(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + category.getPresentationName());
-            rule.setHtmlDescription(category.getPresentationName());
-            rule.addTags(RULE_TAG_SONARGRAPH);
-            rule.setSeverity(DEFAULT_SEVERITY);
+                    .createRuleKey(type.getName()));
+            rule.setName(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + type.getPresentationName());
+            final String description = (type.getDescription().length() > 0 ? type.getDescription() : type.getPresentationName()) + ", category "
+                    + type.getCategory().getPresentationName();
+            rule.setHtmlDescription(description);
+            final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, type.getCategory().getName().toLowerCase()));
+            if (type.getProvider() != null)
+            {
+                final String cleaned = type.getProvider().getPresentationName().toLowerCase().replace("./", "");
+                tags.addAll(Arrays.asList(cleaned.split("/")));
+            }
+            rule.addTags(tags.toArray(new String[] {}));
+            rule.setSeverity(convertSeverity(type.getSeverity()));
         }
 
         repository.done();
@@ -326,5 +337,32 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             return description.substring(0, 252) + "...";
         }
         return description;
+    }
+
+    private String convertSeverity(final com.hello2morrow.sonargraph.integration.access.model.Severity severity)
+    {
+        assert severity != null : "Parameter 'severity' of method 'convertSeverity' must not be null";
+
+        String sonarQubeSeverity;
+
+        switch (severity)
+        {
+        case ERROR:
+            sonarQubeSeverity = Severity.MAJOR;
+            break;
+        case WARNING:
+            sonarQubeSeverity = Severity.MINOR;
+            break;
+        case INFO:
+            sonarQubeSeverity = Severity.INFO;
+            break;
+        case NONE:
+            sonarQubeSeverity = Severity.INFO;
+            break;
+        default:
+            sonarQubeSeverity = Severity.MINOR;
+        }
+
+        return sonarQubeSeverity;
     }
 }

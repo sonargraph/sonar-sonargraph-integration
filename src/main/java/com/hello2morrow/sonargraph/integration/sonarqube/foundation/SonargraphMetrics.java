@@ -34,6 +34,7 @@ public class SonargraphMetrics
 
     public static final Metric<?> STRUCTURAL_DEBT_COST = new Metric.Builder(createMetricKey("STRUCTURAL_DEBT_COST"), "Structural Debt Cost",
             Metric.ValueType.FLOAT).setDescription("Estimated Cost to Repair Structural Erosion").setQualitative(true)
+            .setDirection(Metric.DIRECTION_WORST)
             .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH).setHidden(false).create();
 
     public static final Metric<?> CURRENT_VIRTUAL_MODEL = new Metric.Builder(createMetricKey("CURRENT_VIRTUAL_MODEL"),
@@ -127,9 +128,9 @@ public class SonargraphMetrics
         //utility class
     }
 
-    public static String createRuleKey(final String categoryName)
+    public static String createRuleKey(final String name)
     {
-        return StringUtility.convertMixedCaseStringToConstantName(categoryName);
+        return StringUtility.convertMixedCaseStringToConstantName(name).replace(" ", "_");
     }
 
     public static String createMetricKey(final String constantName)

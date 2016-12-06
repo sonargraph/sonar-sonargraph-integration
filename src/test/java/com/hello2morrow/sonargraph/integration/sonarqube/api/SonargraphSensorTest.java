@@ -119,12 +119,12 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         assertTrue("Metric not found!", sonargraphRulesRepository.getLoadedMetrics().containsKey(coreTotalLines));
         assertTrue("Successfully analyzed report!", true);
         final Map<String, Measure<?>> measures = TestHelper.getMeasures();
-        assertEquals("Wrong value for system metric 'total lines'", 446,
+        assertEquals("Wrong value for system metric 'total lines'", 454,
                 measures.get(sonargraphRulesRepository.getLoadedMetrics().get(coreTotalLines).key()).getValue().intValue());
 
-        assertEquals("Wrong value for Highest NCCD", 1.0, measures.get(SonargraphMetrics.MAX_MODULE_NCCD.key()).getValue().doubleValue(), 0.02);
+        assertEquals("Wrong value for Highest NCCD", 1.2, measures.get(SonargraphMetrics.MAX_MODULE_NCCD.key()).getValue().doubleValue(), 0.02);
 
-        assertEquals("Wrong value for critical unresolved issues", 23,
+        assertEquals("Wrong value for critical unresolved issues", 25,
                 measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key()).getValue().intValue());
 
         assertEquals("Wrong structural debt cost", 238, measures.get(SonargraphMetrics.STRUCTURAL_DEBT_COST.key()).getValue().doubleValue(), 0.2);
@@ -133,12 +133,12 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
     @Test
     public void testAnalyseSystemMetricsOfReportWithSingleModule()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_SINGLE_MODULE);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_CRM);
 
         final Project project = mock(Project.class);
-        doReturn("hello2morrow:AlarmClock").when(project).key();
-        doReturn("AlarmClock").when(project).name();
-        doReturn(Qualifiers.PROJECT).when(project).getQualifier();
+        doReturn("com.hello2morrow:crm-domain-example").when(project).key();
+        doReturn("crm-domain-example").when(project).name();
+        doReturn(Qualifiers.MODULE).when(project).getQualifier();
         doReturn(Boolean.TRUE).when(project).isRoot();
 
         sensor.analyse(project, sensorContext);
@@ -146,14 +146,14 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         final String coreStatements = SonargraphMetrics.createMetricKeyFromStandardName("CoreStatements");
         assertTrue("Metric not found!", sonargraphRulesRepository.getLoadedMetrics().containsKey(coreStatements));
         assertTrue("Successfully analyzed report!", true);
-        assertEquals("Wrong value for system metric 'core statements'", 148,
+        assertEquals("Wrong value for system metric 'core statements'", 2873,
                 TestHelper.getMeasures().get(sonargraphRulesRepository.getLoadedMetrics().get(coreStatements).key()).getValue().intValue());
     }
 
     @Test
     public void testHandleDuplicateRuleNotActivated()
     {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_PATH_SINGLE_MODULE);
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_CRM);
         rulesProfile = TestHelper.initRulesProfile(SonargraphMetrics.createRuleKey("DuplicateCode"));
         sensor = new SonargraphSensor(this, rulesProfile, settings, moduleFileSystem, TestHelper.initPerspectives());
 
@@ -168,7 +168,7 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         final String coreStatements = SonargraphMetrics.createMetricKeyFromStandardName("CoreStatements");
         assertTrue("Metric not found!", sonargraphRulesRepository.getLoadedMetrics().containsKey(coreStatements));
         assertTrue("Successfully analyzed report!", true);
-        assertEquals("Wrong value for system metric 'core statements'", 148,
+        assertEquals("Wrong value for system metric 'core statements'", 2873,
                 TestHelper.getMeasures().get(sonargraphRulesRepository.getLoadedMetrics().get(coreStatements).key()).getValue().intValue());
     }
 
@@ -191,10 +191,10 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         assertTrue("Successfully analyzed report!", true);
 
         final Map<String, Measure<?>> measures = TestHelper.getMeasures();
-        assertEquals("Wrong value for module metric 'coreRacd' (double values are rounded to first decimal place", 28.4,
+        assertEquals("Wrong value for module metric 'coreRacd' (double values are rounded to first decimal place", 40.8,
                 measures.get(sonargraphRulesRepository.getLoadedMetrics().get(coreRacd).key()).getValue().floatValue(), 0.01);
 
-        assertEquals("Wrong value for module issues", 20, measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key())
+        assertEquals("Wrong value for module issues", 22, measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key())
                 .getValue().intValue());
 
         assertTrue("Unassigned components percent must be > 0", measures.get(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT.key()).getValue()
@@ -217,7 +217,7 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         assertTrue(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
 
         final Map<String, Measure<?>> measures = TestHelper.getMeasures();
-        assertEquals("Wrong number of issues", 13, measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key()).getValue()
+        assertEquals("Wrong number of issues", 25, measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key()).getValue()
                 .intValue());
 
         final int isArchitectureEnabled = measures.get(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE.key()).getIntValue();
@@ -229,7 +229,7 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         final String metricKey = SonargraphMetrics.createMetricKeyFromStandardName(IMetricId.StandardName.CORE_VIOLATIONS_PARSER_DEPENDENCIES
                 .getStandardName());
         final Metric<?> metric = sonargraphRulesRepository.getLoadedMetrics().get(metricKey);
-        assertEquals("Wrong number of architecture violations", 8, measures.get(metric.key()).getValue().intValue());
+        assertEquals("Wrong number of architecture violations", 19, measures.get(metric.key()).getValue().intValue());
     }
 
     @Test
