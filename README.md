@@ -29,6 +29,7 @@ A detailed description of the capabilities and configuration can be found here: 
 3. Start the SonarQube server.
 4. Change the current quality profile or create a new one that include at least one of the "Sonargraph Integration" rules. Assign your project to this profile.
 5. Change the dashboard configuration to include the "Sonargraph Integration" widgets.
+   NOTE: Project dashboards have been dropped since SonarQube version 6.1.
 6. For the full functionality of Sonargraph, you need an "Architect" license. If you don't have one, just register on our <a href="">hello2morrow web site</a> and request a trial license.  
    Alternatively, use a free Sonargraph Explorer license with reduced feature set (no architecture checks, no scripts execution, etc.) 
 7. Configure your build to run SonargraphBuild **prior** to the SonarQube scanner.  
