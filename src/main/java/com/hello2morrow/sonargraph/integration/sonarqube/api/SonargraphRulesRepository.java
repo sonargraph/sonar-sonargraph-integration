@@ -212,14 +212,19 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             final NewRule rule = repository.createRule(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics
                     .createRuleKey(type.getName()));
             rule.setName(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + type.getPresentationName());
-            final String description = (type.getDescription().length() > 0 ? type.getDescription() : type.getPresentationName()) + ", category "
-                    + type.getCategory().getPresentationName();
-            rule.setHtmlDescription(description);
+            final String description = "Description '" + (type.getDescription().length() > 0 ? type.getDescription() : type.getPresentationName())
+                    + "', category '" + type.getCategory().getPresentationName() + "'";
             final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, type.getCategory().getName().toLowerCase()));
             if (type.getProvider() != null)
             {
-                final String cleaned = type.getProvider().getPresentationName().toLowerCase().replace("./", "");
+                final String provider = type.getProvider().getPresentationName();
+                final String cleaned = provider.toLowerCase().replace("./", "");
                 tags.addAll(Arrays.asList(cleaned.split("/")));
+                rule.setHtmlDescription(description + ", provided by '" + provider + "'");
+            }
+            else
+            {
+                rule.setHtmlDescription(description);
             }
             rule.addTags(tags.toArray(new String[] {}));
             rule.setSeverity(convertSeverity(type.getSeverity()));
