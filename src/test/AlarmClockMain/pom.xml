@@ -32,11 +32,12 @@
 		<module>AlarmClock</module>
 	</modules>
 
-<!-- 
     <properties>
-      <sonar.sonargraph_integration.basedirectory.path>D:/temp</sonar.sonargraph_integration.basedirectory.path>
+<!-- 
+      <sonar.sonargraph_integration.basedirectory.path></sonar.sonargraph_integration.basedirectory.path>
+      <sonar.sonargraph_integration.report.path>D:/00_repos/sonar-sonargraph-integration/src/test/AlarmClockMain/sonargraph-sonar-report/AlarmClockMain.xml</sonar.sonargraph_integration.report.path>
+--> 
     </properties>
--->
 	<pluginRepositories>
 		<pluginRepository>
 			<id>maven-central-repository</id>
@@ -52,19 +53,19 @@
 			<plugin>
                 <groupId>com.hello2morrow</groupId>
                 <artifactId>sonargraph-maven-plugin</artifactId>
-                <version>9.0.2</version>
+                <version>9.1.0</version>
                 <configuration>
+                  <activationCode>1452-BE2A-E349-D107</activationCode>
+                  <installationDirectory>D:\00_repos\00_e4-sgng\products\SonargraphBuild\dist\release\SonargraphBuild</installationDirectory>
                   <!-- 
-                  <activationCode>_REPLACE_ME</activationCode>
-                  <installationDirectory>D:\02_programs\SG8\release\SonargraphBuild-8.9.1.379_2016-06-03</installationDirectory>
                   <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
                   -->
                   <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
                   <reportFormat>xml, html</reportFormat>
-                  <prepareForSonarQube>true</prepareForSonarQube>
+                  <prepareForSonarQube>true</prepareForSonarQube> 
                   <logLevel>info</logLevel>
-                  <reportDirectory>${baseDir}</reportDirectory>
-                  <reportName>AlarmClockMain</reportName>
+                  <reportDirectory>${basedir}/sonargraph-sonar-report</reportDirectory>
+                  <reportFileName>AlarmClockMain</reportFileName>
                   <reportType>full</reportType>
                   <sonargraphBuildVersion>same</sonargraphBuildVersion>
                   <!--  autoUpdate>true</autoUpdate -->

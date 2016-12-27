@@ -6,7 +6,7 @@
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
   <packaging>sonar-plugin</packaging>
-  <version>1.1.4</version>
+  <version>2.0.0</version>
 
   <name>SonarQube Sonargraph 8 Integration Plugin</name>
   <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 8.7 and higher.</description>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>1.1.4</version>
+      <version>2.0.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

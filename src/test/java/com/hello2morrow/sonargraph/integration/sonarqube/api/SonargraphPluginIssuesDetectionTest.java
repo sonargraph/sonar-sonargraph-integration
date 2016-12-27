@@ -38,7 +38,7 @@ public class SonargraphPluginIssuesDetectionTest extends AbstractSonargraphSenso
         doReturn(Boolean.TRUE).when(project).isModule();
 
         sensor.analyse(project, sensorContext);
-        assertEquals("Wrong number of workspace warnings", 10, sensor.getNumberOfWorkspaceWarnings());
+        assertEquals("Wrong number of workspace warnings", 2, sensor.getNumberOfWorkspaceWarnings());
         assertEquals("Wrong number of issues", 0, TestHelper.getNumberOfIssues("WORKSPACE"));
     }
 
@@ -46,20 +46,20 @@ public class SonargraphPluginIssuesDetectionTest extends AbstractSonargraphSenso
     public void testHandleScriptIssues()
     {
         final Project project = mock(Project.class);
-        doReturn("Foundation").when(project).key();
-        doReturn("Foundation").when(project).name();
+        doReturn("AlarmClock").when(project).key();
+        doReturn("AlarmClock").when(project).name();
         doReturn(Qualifiers.MODULE).when(project).getQualifier();
         doReturn(Boolean.FALSE).when(project).isRoot();
         doReturn(Boolean.TRUE).when(project).isModule();
 
         sensor.analyse(project, sensorContext);
-        assertEquals("Wrong number of issues", 1, TestHelper.getNumberOfIssues("SCRIPT_BASED"));
+        assertEquals("Wrong number of issues", 3, TestHelper.getNumberOfIssues("POTENTIALLY_DEAD_METHOD"));
     }
 
     @Override
     protected String getReport()
     {
-        return TestHelper.REPORT_PATH_WORKSPACE_ISSUES;
+        return TestHelper.REPORT_PATH_MULTI_MODULES;
     }
 
     @Override

@@ -153,8 +153,7 @@ public final class SonargraphSensor implements Sensor
         }
 
         final File reportFile = reportFileOptional.get();
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading Sonargraph metrics report from: "
-                + reportFile.getAbsolutePath());
+        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading Sonargraph report from: " + reportFile.getAbsolutePath());
         loadReportResult = loadReport(project, reportFile, settings);
         if (loadReportResult.isFailure())
         {
@@ -269,7 +268,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
                 .filter((final IMetricLevel level) -> level.getName().equals(IMetricLevel.MODULE)).findAny();
 
-        if (project.isModule())
+        if (project.isModule() && optionalMetricLevel.isPresent())
         {
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
@@ -354,30 +353,32 @@ public final class SonargraphSensor implements Sensor
     private void processIssues(final IModuleInfoProcessor infoProcessor, final Predicate<IIssue> issueFilter)
     {
         final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
-        final Map<String, ActiveRule> categoryToRuleMap = new HashMap<>();
-        final List<String> categories = issueMap.values().stream().flatMap((final List<IIssue> issues) -> issues.stream())
-                .map((final IIssue issue) -> issue.getIssueType().getCategory().getName()).distinct().collect(Collectors.toList());
+        final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
+        final List<String> types = issueMap.values().stream().flatMap((final List<IIssue> issues) -> issues.stream())
+                .map((final IIssue issue) -> issue.getIssueType().getName()).distinct().collect(Collectors.toList());
 
-        for (final String category : categories)
+        for (final String type : types)
         {
-            final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphMetrics.createRuleKey(category));
+            final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphMetrics.createRuleKey(type));
+            final String ruleKey = SonargraphMetrics.createRuleKey(type);
             if (rule == null)
             {
-                LOG.info("Rule '" + SonargraphMetrics.createRuleKey(category) + "' is not activated.");
+                LOG.info("Rule '" + ruleKey + "' is not activated.");
                 continue;
             }
-            categoryToRuleMap.put(category, rule);
+            issueTypeToRuleMap.put(ruleKey, rule);
         }
 
         for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : issueMap.entrySet())
         {
-            addIssuesToSourceFile(categoryToRuleMap, infoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
+            addIssuesToSourceFile(issueTypeToRuleMap, infoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
         }
     }
 
-    private void addIssuesToSourceFile(final Map<String, ActiveRule> categoryToRuleMap, final String baseDir, final ISourceFile sourceFile,
+    private void addIssuesToSourceFile(final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final ISourceFile sourceFile,
             final List<IIssue> issues)
     {
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
         assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
         final String sourceRelPath = sourceFile.getRelativePath();
@@ -392,8 +393,8 @@ public final class SonargraphSensor implements Sensor
 
         for (final IIssue issue : issues)
         {
-            final String categoryName = issue.getIssueType().getCategory().getName();
-            final ActiveRule rule = categoryToRuleMap.get(categoryName);
+            final String issueTypeName = SonargraphMetrics.createRuleKey(issue.getIssueType().getName());
+            final ActiveRule rule = issueTypeToRuleMap.get(issueTypeName);
             if (rule == null)
             {
                 LOG.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", issue.getIssueType()
@@ -407,17 +408,17 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                handleIssue(resource, issue, rule);
+                handleIssue(issue, resource.get(), rule);
             }
         }
     }
 
-    private void handleIssue(final Optional<InputPath> resource, final IIssue issue, final ActiveRule rule)
+    private void handleIssue(final IIssue issue, final InputPath resource, final ActiveRule rule)
     {
-        final Issuable issuable = perspectives.as(Issuable.class, resource.get());
+        final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create Issuable for resource '" + resource.get().absolutePath());
+            LOG.error("Failed to create Issuable for resource '" + resource.absolutePath());
             return;
         }
 
@@ -428,7 +429,7 @@ public final class SonargraphSensor implements Sensor
             issueBuilder.severity(rule.getSeverity().toString());
         }
 
-        final String msg = issue.getIssueType().getCategory().getPresentationName() + ": " + issue.getDescription() + " ["
+        final String msg = issue.getIssueType().getPresentationName() + ": " + issue.getDescription() + " ["
                 + issue.getIssueProvider().getPresentationName() + "]";
         issueBuilder.message(msg);
         final int line = issue.getLineNumber();
@@ -551,7 +552,7 @@ public final class SonargraphSensor implements Sensor
         numberOfWorkspaceWarnings = infoProcessor.getIssues(
                 (final IIssue issue) -> !issue.hasResolution()
                         && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, new Double(numberOfWorkspaceWarnings)));
+        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
 
         final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
         if (numberOfComponentsMetric.isPresent())
@@ -687,6 +688,8 @@ public final class SonargraphSensor implements Sensor
             LOG.debug("Load report from " + reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
+
+        LOG.debug("No report found at: " + reportFile.getAbsolutePath());
         return Optional.empty();
     }
 
