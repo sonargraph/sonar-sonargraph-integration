@@ -10,7 +10,8 @@ Compatible with Sonargraph 8.7 and higher versions.
 Requires Java 8 runtime.
 Currently only supports Sonargraph systems containing Java modules. 
 
-Check the GitHub Wiki for information about compatibilities with SonarQube versions and Sonargraph versions.  
+Check the <a href="https://github.com/sonargraph/sonar-sonargraph-integration/wiki/Sonargraph-8--Integration-with-SonarQube">GitHub Wiki</a> for information about compatibilities with SonarQube versions and Sonargraph versions.
+  
 
 ## Description / Features
 This plugin for [SonarQube](http://www.sonarsource.com/) can be used to check the conformance of your code base to a 
@@ -23,13 +24,16 @@ comprehensibility of your code.
 
 A detailed description of the capabilities and configuration can be found here: <a href="http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html">http://eclipse.hello2morrow.com/doc/build/content/sonarqube_integration.html</a> 
 
+Since plugin version 2.0, individual SonarQube rules are created for each Sonargraph issue type.
+If you have created custom issues via Scripts (check out <a href="http://blog.hello2morrow.com/2015/04/dead-code-detection">http://blog.hello2morrow.com/2015/04/dead-code-detection/</a> for an example), export the metric meta-data once those issues have been detected.
+
 ## Getting Started ##
 1. Download the latest SonarQube version.
 2. Download the latest Sonargraph plugin and copy it into &lt;sonarqube-inst&gt;/extensions/plugins (or use the Update Center, once it is available there).
 3. Start the SonarQube server.
 4. Change the current quality profile or create a new one that include at least one of the "Sonargraph Integration" rules. Assign your project to this profile.
 5. Change the dashboard configuration to include the "Sonargraph Integration" widgets.
-   NOTE: Project dashboards have been dropped since SonarQube version 6.1.
+   **NOTE: Project dashboards have been dropped since SonarQube version 6.1.**
 6. For the full functionality of Sonargraph, you need an "Architect" license. If you don't have one, just register on our <a href="">hello2morrow web site</a> and request a trial license.  
    Alternatively, use a free Sonargraph Explorer license with reduced feature set (no architecture checks, no scripts execution, etc.) 
 7. Configure your build to run SonargraphBuild **prior** to the SonarQube scanner.  
