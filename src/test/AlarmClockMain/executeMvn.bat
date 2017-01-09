@@ -16,4 +16,4 @@
 @REM limitations under the License.
 @REM
 
-mvn clean package sonargraph:create-report sonar:sonar -e
+mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonargraph:create-report sonar:sonar -e
