@@ -290,14 +290,17 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         {
             if (inputStream == null)
             {
-                LOG.error("{}", errorMsg);
+                LOG.error(errorMsg);
                 return Optional.empty();
             }
 
             final OperationResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, defaultMetaDataPath);
             if (result.isFailure())
             {
-                LOG.error("{}: {}", errorMsg, result.toString());
+                if (LOG.isErrorEnabled())
+                {
+                    LOG.error("{}: {}", errorMsg, result.toString());
+                }
                 return Optional.empty();
             }
             configuredMetaDataPath = defaultMetaDataPath;
@@ -330,7 +333,10 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                 {
                     return Optional.ofNullable(result.getOutcome());
                 }
-                LOG.error("Failed to load configuration from '{}': {}", metaDataConfigurationPath, result.toString());
+                if (LOG.isErrorEnabled())
+                {
+                    LOG.error("Failed to load configuration from '{}': {}", metaDataConfigurationPath, result.toString());
+                }
             }
             catch (final Exception ex)
             {

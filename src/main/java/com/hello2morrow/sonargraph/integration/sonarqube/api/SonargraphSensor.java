@@ -221,8 +221,11 @@ public final class SonargraphSensor implements Sensor
         }
         if (result.isFailure())
         {
-            LOG.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
-            LOG.error("{}", result.toString());
+            if (LOG.isErrorEnabled())
+            {
+                LOG.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
+                LOG.error("{}", result.toString());
+            }
         }
         return result;
     }
@@ -314,13 +317,15 @@ public final class SonargraphSensor implements Sensor
         {
             final StringJoiner joiner = new StringJoiner(", ");
             unconfiguredMetrics.stream().forEach(joiner::add);
-
-            LOG.warn(
-                    "The following Sonargraph metrics have not been configured: \n    "
-                            + "{}"
-                            + "\n    If you want to persist the values for these metrics in SonarQube, "
-                            + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.",
-                    joiner.toString());
+            if (LOG.isWarnEnabled())
+            {
+                LOG.warn(
+                        "The following Sonargraph metrics have not been configured: \n    "
+                                + "{}"
+                                + "\n    If you want to persist the values for these metrics in SonarQube, "
+                                + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.",
+                        joiner.toString());
+            }
         }
 
         sensorContext.saveMeasure(new Measure<String>(SonargraphMetrics.CURRENT_VIRTUAL_MODEL, controller.getSoftwareSystem().getVirtualModel()));
@@ -419,7 +424,10 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create Issuable for resource '{}'", resource.absolutePath());
+            if (LOG.isErrorEnabled())
+            {
+                LOG.error("Failed to create Issuable for resource '{}'", resource.absolutePath());
+            }
             return;
         }
 
@@ -464,7 +472,10 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create issuable for resource '{}'", resource.absolutePath());
+            if (LOG.isErrorEnabled())
+            {
+                LOG.error("Failed to create issuable for resource '{}'", resource.absolutePath());
+            }
             return;
         }
         final IssueBuilder issueBuilder = issuable.newIssueBuilder();
