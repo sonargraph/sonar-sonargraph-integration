@@ -113,13 +113,28 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     next.getPresentationName(), next.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(next))
                     .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH);
 
-            if (next.getBestValue() != Double.NaN)
+            if (!next.getBestValue().equals(Double.NaN) && !next.getBestValue().equals(Double.POSITIVE_INFINITY)
+                    && !next.getBestValue().equals(Double.NEGATIVE_INFINITY))
             {
                 metric.setBestValue(next.getBestValue());
             }
-            if (next.getWorstValue() != Double.NaN)
+            if (!next.getWorstValue().equals(Double.NaN) && !next.getWorstValue().equals(Double.POSITIVE_INFINITY)
+                    && !next.getWorstValue().equals(Double.NEGATIVE_INFINITY))
             {
                 metric.setWorstValue(next.getWorstValue());
+            }
+
+            if (next.getBestValue() > next.getWorstValue())
+            {
+                metric.setDirection(Metric.DIRECTION_BETTER);
+            }
+            else if (next.getBestValue() < next.getWorstValue())
+            {
+                metric.setDirection(Metric.DIRECTION_WORST);
+            }
+            else
+            {
+                metric.setDirection(Metric.DIRECTION_NONE);
             }
             metrics.add(metric.create());
         }

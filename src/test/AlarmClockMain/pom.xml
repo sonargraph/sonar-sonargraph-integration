@@ -53,13 +53,15 @@
 			<plugin>
                 <groupId>com.hello2morrow</groupId>
                 <artifactId>sonargraph-maven-plugin</artifactId>
-                <version>9.1.0</version>
+                <version>9.1.1</version>
                 <configuration>
-                  <activationCode>1452-BE2A-E349-D107</activationCode>
-                  <installationDirectory>D:\00_repos\00_e4-sgng\products\SonargraphBuild\dist\release\SonargraphBuild</installationDirectory>
-                  <!-- 
+                <!--
+                  <activationCode>36E2-0F3E-643F-B4F2</activationCode>
+                -->
+                <!--
                   <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
-                  -->
+                 -->
+                  <installationDirectory>D:\00_repos\00_e4-sgng\products\SonargraphBuild\dist\release\SonargraphBuild</installationDirectory>
                   <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
                   <reportFormat>xml, html</reportFormat>
                   <prepareForSonarQube>true</prepareForSonarQube> 

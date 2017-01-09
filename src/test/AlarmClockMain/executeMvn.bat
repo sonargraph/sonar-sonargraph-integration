@@ -16,4 +16,4 @@
 @REM limitations under the License.
 @REM
 
-mvn clean package sonargraph:create-report sonar:sonar
+mvn clean package sonargraph:create-report sonar:sonar -e
