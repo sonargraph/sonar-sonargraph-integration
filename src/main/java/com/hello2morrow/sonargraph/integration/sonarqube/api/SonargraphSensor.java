@@ -118,8 +118,8 @@ public final class SonargraphSensor implements Sensor
         if (!Utilities.areSonargraphRulesActive(this.profile))
         {
             LOG.warn(SEPARATOR);
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skipping project " + project.getName() + " [" + project.getKey()
-                    + "], since no Sonargraph rules are activated in current SonarQube quality profile [" + profile.getName() + "].");
+            LOG.warn("{}: Skipping project {} [{}], since no Sonargraph rules are activated in current SonarQube quality profile [{}].",
+                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey(), profile.getName());
             LOG.warn(SEPARATOR);
             return false;
         }
@@ -127,8 +127,8 @@ public final class SonargraphSensor implements Sensor
         if (!determineReportFile(fileSystem, settings).isPresent())
         {
             LOG.warn(SEPARATOR);
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skipping project " + project.getName() + " [" + project.getKey()
-                    + "], since no Sonargraph report is found.");
+            LOG.warn("{}: Skipping project {} [{}], since no Sonargraph report is found.", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    project.getName(), project.getKey());
             LOG.warn(SEPARATOR);
             return false;
         }
@@ -138,22 +138,21 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void analyse(final Project project, final SensorContext sensorContext)
     {
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Execute for module " + project.getName() + " [" + project.getKey()
-                + "]");
+        LOG.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
 
         controller = new ControllerFactory().createController();
         numberOfWorkspaceWarnings = 0;
         final Optional<File> reportFileOptional = determineReportFile(fileSystem, settings);
         if (!reportFileOptional.isPresent())
         {
-            LOG.error(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to read Sonargraph report!");
+            LOG.error("{}: Failed to read Sonargraph report!", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
             loadReportResult = new OperationResult("Loading Sonargraph report");
             loadReportResult.addError(IOMessageCause.FILE_NOT_FOUND, "No Sonargraph report found!");
             return;
         }
 
         final File reportFile = reportFileOptional.get();
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading Sonargraph report from: " + reportFile.getAbsolutePath());
+        LOG.info("{}: Reading Sonargraph report from: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
         loadReportResult = loadReport(project, reportFile, settings);
         if (loadReportResult.isFailure())
         {
@@ -163,8 +162,8 @@ public final class SonargraphSensor implements Sensor
         final ISoftwareSystem system = controller.getSoftwareSystem();
         if (system.getModules().size() == 0)
         {
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME
-                    + ": No modules defined for Sonargraph system, please check the workspace definition!");
+            LOG.warn("{}: No modules defined for Sonargraph system, please check the workspace definition!",
+                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
             return;
         }
 
@@ -213,7 +212,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<File> baseDirectory = determineBaseDirectory(settings);
         if (baseDirectory.isPresent())
         {
-            LOG.info("Changing Sonargraph baseDirectory to: " + baseDirectory.get().getAbsolutePath());
+            LOG.info("Changing Sonargraph baseDirectory to: {}", baseDirectory.get().getAbsolutePath());
             result.addMessagesFrom(controller.loadSystemReport(reportFile, baseDirectory.get()));
         }
         else
@@ -222,8 +221,8 @@ public final class SonargraphSensor implements Sensor
         }
         if (result.isFailure())
         {
-            LOG.error("Failed to execute Sonargraph plugin for " + project.getName() + " [" + project.getKey() + "]");
-            LOG.error(result.toString());
+            LOG.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
+            LOG.error("{}", result.toString());
         }
         return result;
     }
@@ -252,8 +251,8 @@ public final class SonargraphSensor implements Sensor
         final Optional<IModule> moduleOptional = determineModuleName(project, system);
         if (!moduleOptional.isPresent())
         {
-            LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module found in report for " + project.getName() + " ["
-                    + project.getKey() + "]");
+            LOG.info("{}: No module found in report for {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
+                    project.getKey());
             return;
         }
 
@@ -301,14 +300,14 @@ public final class SonargraphSensor implements Sensor
             final Optional<IMetricValue> value = infoProcessor.getMetricValueForElement(next, level, container.getFqName());
             if (value.isPresent())
             {
-                LOG.debug("Processing metric id: " + next.getName() + ", metricKey: " + metricKey);
+                LOG.debug("Processing metric id: {}, metricKey: {}", next.getName(), metricKey);
                 final Measure<Double> measure = new Measure<>(metricKey);
                 measure.setValue(value.get().getValue().doubleValue());
                 sensorContext.saveMeasure(measure);
             }
             else
             {
-                LOG.error("No value found for metric '" + next.getPresentationName() + "'. Please check the meta-data configuration for Sonargraph!");
+                LOG.error("No value found for metric '{}'. Please check the meta-data configuration for Sonargraph!", next.getPresentationName());
             }
         }
         if (!unconfiguredMetrics.isEmpty())
@@ -316,10 +315,12 @@ public final class SonargraphSensor implements Sensor
             final StringJoiner joiner = new StringJoiner(", ");
             unconfiguredMetrics.stream().forEach(joiner::add);
 
-            LOG.warn("The following Sonargraph metrics have not been configured: \n    "
-                    + joiner.toString()
-                    + "\n    If you want to persist the values for these metrics in SonarQube, "
-                    + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.");
+            LOG.warn(
+                    "The following Sonargraph metrics have not been configured: \n    "
+                            + "{}"
+                            + "\n    If you want to persist the values for these metrics in SonarQube, "
+                            + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.",
+                    joiner.toString());
         }
 
         sensorContext.saveMeasure(new Measure<String>(SonargraphMetrics.CURRENT_VIRTUAL_MODEL, controller.getSoftwareSystem().getVirtualModel()));
@@ -363,7 +364,7 @@ public final class SonargraphSensor implements Sensor
             final String ruleKey = SonargraphMetrics.createRuleKey(type);
             if (rule == null)
             {
-                LOG.info("Rule '" + ruleKey + "' is not activated.");
+                LOG.info("Rule '{}' is not activated.", ruleKey);
                 continue;
             }
             issueTypeToRuleMap.put(ruleKey, rule);
@@ -387,7 +388,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
-            LOG.error("Failed to locate resource '" + sourceFile.getFqName() + "' at '" + sourceFileLocation + "'");
+            LOG.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
             return;
         }
 
@@ -418,7 +419,7 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create Issuable for resource '" + resource.absolutePath());
+            LOG.error("Failed to create Issuable for resource '{}'", resource.absolutePath());
             return;
         }
 
@@ -463,7 +464,7 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create issuable for resource '" + resource.absolutePath() + "'");
+            LOG.error("Failed to create issuable for resource '{}'", resource.absolutePath());
             return;
         }
         final IssueBuilder issueBuilder = issuable.newIssueBuilder();
@@ -625,7 +626,7 @@ public final class SonargraphSensor implements Sensor
 
         final double numberOfAffectedParserDepencencies = applicableRefactorings.stream()
                 .mapToInt(IResolution::getNumberOfAffectedParserDependencies).sum();
-        LOG.debug("Detected " + numberOfAffectedParserDepencencies + " parser dependencies affected by refactorings");
+        LOG.debug("Detected {} parser dependencies affected by refactorings", numberOfAffectedParserDepencencies);
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS,
                 numberOfAffectedParserDepencencies));
     }
@@ -685,11 +686,11 @@ public final class SonargraphSensor implements Sensor
 
         if (fileExistsAndIsReadable(reportFile))
         {
-            LOG.debug("Load report from " + reportFile.getAbsolutePath());
+            LOG.debug("Load report from: {}", reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
 
-        LOG.debug("No report found at: " + reportFile.getAbsolutePath());
+        LOG.debug("No report found at: {}", reportFile.getAbsolutePath());
         return Optional.empty();
     }
 

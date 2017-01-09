@@ -58,9 +58,9 @@
                 <!--
                   <activationCode>36E2-0F3E-643F-B4F2</activationCode>
                 -->
-                <!--
-                  <licenseFile>C:/Users/Ingmar/AppData/Roaming/hello2morrow/Sonargraph/SonargraphArchitectAndBuild.license</licenseFile>
-                 -->
+                
+                  <licenseFile>C:\Users\Ingmar\AppData\Roaming\hello2morrow\Sonargraph\Standalone\Sonargraph.license</licenseFile>
+                
                   <installationDirectory>D:\00_repos\00_e4-sgng\products\SonargraphBuild\dist\release\SonargraphBuild</installationDirectory>
                   <systemDirectory>${basedir}/AlarmClockMain.sonargraph</systemDirectory>
                   <reportFormat>xml, html</reportFormat>

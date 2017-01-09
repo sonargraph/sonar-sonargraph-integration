@@ -86,8 +86,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             {
                 return Collections.unmodifiableList(metrics);
             }
-            LOG.info("Configured path for meta-data changed from '" + configuredMetaDataPath + "' to '" + metaDataConfigurationPath
-                    + "'. Reloading metric configuration.");
+            LOG.info("Configured path for meta-data changed from '{}' to '{}'. Reloading metric configuration.", configuredMetaDataPath,
+                    metaDataConfigurationPath);
         }
 
         final IMetaDataController controller = new ControllerFactory().createMetaDataController();
@@ -113,29 +113,9 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     next.getPresentationName(), next.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(next))
                     .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH);
 
-            if (!next.getBestValue().equals(Double.NaN) && !next.getBestValue().equals(Double.POSITIVE_INFINITY)
-                    && !next.getBestValue().equals(Double.NEGATIVE_INFINITY))
-            {
-                metric.setBestValue(next.getBestValue());
-            }
-            if (!next.getWorstValue().equals(Double.NaN) && !next.getWorstValue().equals(Double.POSITIVE_INFINITY)
-                    && !next.getWorstValue().equals(Double.NEGATIVE_INFINITY))
-            {
-                metric.setWorstValue(next.getWorstValue());
-            }
-
-            if (next.getBestValue() > next.getWorstValue())
-            {
-                metric.setDirection(Metric.DIRECTION_BETTER);
-            }
-            else if (next.getBestValue() < next.getWorstValue())
-            {
-                metric.setDirection(Metric.DIRECTION_WORST);
-            }
-            else
-            {
-                metric.setDirection(Metric.DIRECTION_NONE);
-            }
+            setBestValue(next, metric);
+            setWorstValue(next, metric);
+            setMetricDirection(next, metric);
             metrics.add(metric.create());
         }
         //Additional metrics for structural debt widget
@@ -174,6 +154,40 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         return Collections.unmodifiableList(metrics);
     }
 
+    private void setMetricDirection(final IMetricId next, final Metric.Builder metric)
+    {
+        if (next.getBestValue() > next.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_BETTER);
+        }
+        else if (next.getBestValue() < next.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_WORST);
+        }
+        else
+        {
+            metric.setDirection(Metric.DIRECTION_NONE);
+        }
+    }
+
+    private void setWorstValue(final IMetricId next, final Metric.Builder metric)
+    {
+        if (!next.getWorstValue().equals(Double.NaN) && !next.getWorstValue().equals(Double.POSITIVE_INFINITY)
+                && !next.getWorstValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setWorstValue(next.getWorstValue());
+        }
+    }
+
+    private void setBestValue(final IMetricId next, final Metric.Builder metric)
+    {
+        if (!next.getBestValue().equals(Double.NaN) && !next.getBestValue().equals(Double.POSITIVE_INFINITY)
+                && !next.getBestValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setBestValue(next.getBestValue());
+        }
+    }
+
     private static void getMetricsForLevel(final IExportMetaData metaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
     {
         for (final IMetricId next : metaData.getMetricIdsForLevel(level))
@@ -199,8 +213,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             //configuration did not change - still default
             return false;
         }
-        LOG.info("Configured path for meta-data changed from '" + configuredMetaDataPath + "' to '" + metaDataConfigurationPath
-                + "'. Reloading metric configuration.");
+        LOG.info("Configured path for meta-data changed from '{}' to '{}'. Reloading metric configuration.", configuredMetaDataPath,
+                metaDataConfigurationPath);
         return true;
     }
 
@@ -213,7 +227,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
 
         if (!result.isPresent())
         {
-            LOG.error("Failed to load configuration for Sonargraph repository from '" + metaDataConfigurationPath + "'");
+            LOG.error("Failed to load configuration for Sonargraph repository from '{}'", metaDataConfigurationPath);
             return;
         }
 
@@ -276,14 +290,14 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         {
             if (inputStream == null)
             {
-                LOG.error(errorMsg);
+                LOG.error("{}", errorMsg);
                 return Optional.empty();
             }
 
             final OperationResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, defaultMetaDataPath);
             if (result.isFailure())
             {
-                LOG.error(errorMsg + ": " + result.toString());
+                LOG.error("{}: {}", errorMsg, result.toString());
                 return Optional.empty();
             }
             configuredMetaDataPath = defaultMetaDataPath;
@@ -302,7 +316,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         final File configurationDir = new File(metaDataConfigurationPath);
         if (!configurationDir.exists() || !configurationDir.isDirectory())
         {
-            LOG.error("Cannot load meta-data from directory '" + metaDataConfigurationPath + "'. It does not exist.");
+            LOG.error("Cannot load meta-data from directory '{}'. It does not exist.", metaDataConfigurationPath);
             return Optional.empty();
         }
 
@@ -316,11 +330,11 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                 {
                     return Optional.ofNullable(result.getOutcome());
                 }
-                LOG.error("Failed to load configuration from '" + metaDataConfigurationPath + "': " + result.toString());
+                LOG.error("Failed to load configuration from '{}': {}", metaDataConfigurationPath, result.toString());
             }
             catch (final Exception ex)
             {
-                LOG.error("Failed to load configuration from '" + metaDataConfigurationPath + "'", ex);
+                LOG.error("Failed to load configuration from '{}'", metaDataConfigurationPath, ex);
             }
         }
         return Optional.empty();
