@@ -169,8 +169,7 @@ public final class SonargraphSensor implements Sensor
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
         final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
-                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION))
-                .collect(Collectors.toMap((final Metric m) -> m.key(), (final Metric m) -> m));
+                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, (final Metric m) -> m));
 
         processFeatures(sensorContext);
         if (project.isRoot())
@@ -219,13 +218,10 @@ public final class SonargraphSensor implements Sensor
         {
             result.addMessagesFrom(controller.loadSystemReport(reportFile));
         }
-        if (result.isFailure())
+        if (result.isFailure() && LOG.isErrorEnabled())
         {
-            if (LOG.isErrorEnabled())
-            {
-                LOG.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
-                LOG.error("{}", result.toString());
-            }
+            LOG.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
+            LOG.error(result.toString());
         }
         return result;
     }
@@ -360,7 +356,7 @@ public final class SonargraphSensor implements Sensor
     {
         final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
         final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
-        final List<String> types = issueMap.values().stream().flatMap((final List<IIssue> issues) -> issues.stream())
+        final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream)
                 .map((final IIssue issue) -> issue.getIssueType().getName()).distinct().collect(Collectors.toList());
 
         for (final String type : types)
@@ -617,20 +613,19 @@ public final class SonargraphSensor implements Sensor
         final double numberOfResolutions = infoProcessor.getResolutions(null).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_RESOLUTIONS, numberOfResolutions));
 
-        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions((final IResolution r) -> !r.isApplicable()).size();
+        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions(r -> !r.isApplicable()).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS, numberOfUnapplicableResolutions));
 
-        final double numberOfTasks = infoProcessor.getResolutions((final IResolution r) -> r.isTask()).size();
+        final double numberOfTasks = infoProcessor.getResolutions(IResolution::isTask).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_TASKS, numberOfTasks));
 
-        final double numberOfUnapplicableTasks = infoProcessor.getResolutions((final IResolution r) -> r.isTask() && !r.isApplicable()).size();
+        final double numberOfUnapplicableTasks = infoProcessor.getResolutions(r -> r.isTask() && !r.isApplicable()).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS, numberOfUnapplicableTasks));
 
-        final List<IResolution> refactorings = infoProcessor.getResolutions((final IResolution r) -> r.getType() == ResolutionType.REFACTORING);
+        final List<IResolution> refactorings = infoProcessor.getResolutions(r -> r.getType() == ResolutionType.REFACTORING);
         final double numberOfRefactorings = refactorings.size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_REFACTORINGS, numberOfRefactorings));
-        final List<IResolution> applicableRefactorings = refactorings.stream().filter((final IResolution r) -> r.isApplicable())
-                .collect(Collectors.toList());
+        final List<IResolution> applicableRefactorings = refactorings.stream().filter(IResolution::isApplicable).collect(Collectors.toList());
 
         final double numberOfUnapplicableRefactorings = numberOfRefactorings - applicableRefactorings.size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS, numberOfUnapplicableRefactorings));

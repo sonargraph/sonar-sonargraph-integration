@@ -393,10 +393,9 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         case WARNING:
             sonarQubeSeverity = Severity.MINOR;
             break;
-        case INFO:
-            sonarQubeSeverity = Severity.INFO;
-            break;
         case NONE:
+            //$FALL-THROUGH$
+        case INFO:
             sonarQubeSeverity = Severity.INFO;
             break;
         default:
