@@ -157,7 +157,8 @@ public final class TestHelper
         final String[] paths = new String[] { "AlarmClock/src/main/java/com/h2m/alarm/presentation/Main.java",
                 "AlarmClock/src/main/java/com/h2m/alarm/model/AlarmClock.java", "Foundation/src/main/java/com/h2m/common/test/C1.java",
                 "AlarmClock/src/main/java/com/h2m/alarm/p2/C2.java", "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmHandler.java",
-                "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmToFile.java" };
+                "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmToFile.java",
+                "AlarmClock/src/main/java/com/h2m/alarm/presentation/AlarmToConsole.java" };
         for (final String next : paths)
         {
             final String path = basePath + "/" + next;

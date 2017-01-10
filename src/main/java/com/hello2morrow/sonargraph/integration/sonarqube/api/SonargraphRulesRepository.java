@@ -103,6 +103,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         final Map<String, IMetricLevel> metricLevels = metaData.getMetricLevels();
 
         final Map<String, IMetricId> metricMap = new HashMap<>();
+
+        //We are currently only interested in metrics on System and Module levels
         getMetricsForLevel(metaData, metricLevels.get(IMetricLevel.SYSTEM), metricMap);
         getMetricsForLevel(metaData, metricLevels.get(IMetricLevel.MODULE), metricMap);
 
@@ -244,17 +246,9 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             final String description = "Description '" + (type.getDescription().length() > 0 ? type.getDescription() : type.getPresentationName())
                     + "', category '" + type.getCategory().getPresentationName() + "'";
             final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, type.getCategory().getName().toLowerCase()));
-            if (type.getProvider() != null)
-            {
-                final String provider = type.getProvider().getPresentationName();
-                final String cleaned = provider.toLowerCase().replace("./", "");
-                tags.addAll(Arrays.asList(cleaned.split("/")));
-                rule.setHtmlDescription(description + ", provided by '" + provider + "'");
-            }
-            else
-            {
-                rule.setHtmlDescription(description);
-            }
+
+            //currently, there is no direct link between an issueType and its provider
+            rule.setHtmlDescription(description);
             rule.addTags(tags.toArray(new String[] {}));
             rule.setSeverity(convertSeverity(type.getSeverity()));
         }

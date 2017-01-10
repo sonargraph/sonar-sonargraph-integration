@@ -36,12 +36,15 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.java.Java;
 
+import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
 public class SonargraphSensorTest extends AbstractSonargraphSensorTest
 {
+    private static final String DUPLICATE_ISSUE_RULE = SonargraphMetrics.createRuleKey("DuplicateCodeBlock");
+
     @Override
     protected String getReport()
     {
@@ -139,28 +142,6 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         doReturn("com.hello2morrow:crm-domain-example").when(project).key();
         doReturn("crm-domain-example").when(project).name();
         doReturn(Qualifiers.MODULE).when(project).getQualifier();
-        doReturn(Boolean.TRUE).when(project).isRoot();
-
-        sensor.analyse(project, sensorContext);
-        assertTrue(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
-        final String coreStatements = SonargraphMetrics.createMetricKeyFromStandardName("CoreStatements");
-        assertTrue("Metric not found!", sonargraphRulesRepository.getLoadedMetrics().containsKey(coreStatements));
-        assertTrue("Successfully analyzed report!", true);
-        assertEquals("Wrong value for system metric 'core statements'", 2873,
-                TestHelper.getMeasures().get(sonargraphRulesRepository.getLoadedMetrics().get(coreStatements).key()).getValue().intValue());
-    }
-
-    @Test
-    public void testHandleDuplicateRuleNotActivated()
-    {
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, TestHelper.REPORT_CRM);
-        rulesProfile = TestHelper.initRulesProfile(SonargraphMetrics.createRuleKey("DuplicateCode"));
-        sensor = new SonargraphSensor(this, rulesProfile, settings, moduleFileSystem, TestHelper.initPerspectives());
-
-        final Project project = mock(Project.class);
-        doReturn("hello2morrow:AlarmClock").when(project).key();
-        doReturn("AlarmClock").when(project).name();
-        doReturn(Qualifiers.PROJECT).when(project).getQualifier();
         doReturn(Boolean.TRUE).when(project).isRoot();
 
         sensor.analyse(project, sensorContext);
@@ -271,5 +252,43 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         final Project project = mock(Project.class);
         sensor.analyse(project, sensorContext);
         assertFalse(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
+    }
+
+    @Test
+    public void testMetricValuesNotPresent()
+    {
+        final Project project = mock(Project.class);
+        doReturn("hello2morrow:AlarmClockMain").when(project).key();
+        doReturn("AlarmClockMain").when(project).name();
+        doReturn(Qualifiers.PROJECT).when(project).getQualifier();
+        doReturn(Boolean.TRUE).when(project).isRoot();
+
+        initSensor("./src/test/resources/metadata_reduced");
+        sensor.analyse(project, sensorContext);
+        assertTrue(sensor.getProcessReportResult().toString(), sensor.getProcessReportResult().isSuccess());
+
+        final Map<String, Measure<?>> measures = TestHelper.getMeasures();
+        assertEquals("Wrong number of issues", 25, measures.get(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION.key()).getValue()
+                .intValue());
+        assertEquals("Wrong number of lines of code", 262, measures.get(SonargraphMetrics.createMetricKeyFromStandardName("CoreLinesOfCode"))
+                .getValue().intValue());
+
+        assertNull("Metric value not expected", measures.get(SonargraphMetrics.createMetricKeyFromStandardName("CoreComponents")));
+    }
+
+    @Test
+    public void testNoModulesInReport()
+    {
+        final Project project = mock(Project.class);
+        doReturn("hello2morrow:AlarmClockMain").when(project).key();
+        doReturn("AlarmClockMain").when(project).name();
+        doReturn(Qualifiers.PROJECT).when(project).getQualifier();
+        doReturn(Boolean.TRUE).when(project).isRoot();
+
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, "./src/test/report/AlarmClockMain_withoutModules.xml");
+        sensor.analyse(project, sensorContext);
+
+        final OperationResult result = sensor.getProcessReportResult();
+        assertTrue("Report with no modules must contain warning: " + result.toString(), result.containsWarning());
     }
 }

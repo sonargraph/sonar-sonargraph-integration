@@ -57,6 +57,8 @@ import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProc
 import com.hello2morrow.sonargraph.integration.access.foundation.IOMessageCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.NumberUtility;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
+import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
+import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IElementContainer;
@@ -81,6 +83,23 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
 {
+    public enum ReportProcessingMessageCause implements IMessageCause
+    {
+        NO_MODULES;
+
+        @Override
+        public String getStandardName()
+        {
+            return StringUtility.convertConstantNameToStandardName(name());
+        }
+
+        @Override
+        public String getPresentationName()
+        {
+            return StringUtility.convertConstantNameToPresentationName(name());
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
     private static final String SEPARATOR = "----------------------------------------------------------------";
     private static final String SONARGRAPH_TARGET_DIR = "sonargraph";
@@ -162,8 +181,9 @@ public final class SonargraphSensor implements Sensor
         final ISoftwareSystem system = controller.getSoftwareSystem();
         if (system.getModules().size() == 0)
         {
-            LOG.warn("{}: No modules defined for Sonargraph system, please check the workspace definition!",
-                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+            final String msg = "No modules defined for Sonargraph system, please check the workspace definition!";
+            LOG.warn("{}: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, msg);
+            loadReportResult.addWarning(ReportProcessingMessageCause.NO_MODULES, msg);
             return;
         }
 
