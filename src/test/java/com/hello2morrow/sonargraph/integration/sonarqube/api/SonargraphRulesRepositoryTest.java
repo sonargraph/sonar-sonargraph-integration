@@ -24,6 +24,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.After;
 import org.junit.Test;
@@ -38,8 +39,11 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPl
 
 public class SonargraphRulesRepositoryTest
 {
+    private static final double TOLERANCE = 0.0001;
     private static final String META_DATA_PATH = "./src/test/resources/metadata";
     private static final String META_DATA_MERGED_PATH = "./src/test/resources/metadata_merge";
+    private static final String META_DATA_CORRUPT_PATH = "./src/test/resources/metadata_corrupt";
+
     private SonargraphRulesRepository m_rulesDefinition;
 
     @After
@@ -58,10 +62,52 @@ public class SonargraphRulesRepositoryTest
         verifyRules(m_rulesDefinition);
     }
 
+    @SuppressWarnings("rawtypes")
     @Test
     public void testCreateRulesFromDirectory()
     {
-        verifyRules(new SonargraphRulesRepository(TestHelper.initSettings(META_DATA_PATH)));
+        final SonargraphRulesRepository rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings(META_DATA_PATH));
+        verifyRules(rulesDefinition);
+
+        final List<Metric> metrics = rulesDefinition.getMetrics();
+
+        metrics.stream().forEach(m -> System.out.println(m.getKey()));
+        {
+            final String relCyclicityId = SonargraphMetrics.createMetricKeyFromStandardName("JavaRelativeCyclicityPackages");
+            final Optional<Metric> relCyclicityOpt = metrics.stream().filter(m -> m.getKey().equals(relCyclicityId)).findFirst();
+            assertTrue("Metric not found", relCyclicityOpt.isPresent());
+            final Metric relCyclicityMetric = relCyclicityOpt.get();
+            assertEquals("Wrong bestValue", 0.0, relCyclicityMetric.getBestValue(), TOLERANCE);
+            assertNull("Wrong worstValue", relCyclicityMetric.getWorstValue());
+            assertEquals("Wrong direction", Metric.DIRECTION_WORST, relCyclicityMetric.getDirection().intValue());
+        }
+        {
+            final String componentsId = SonargraphMetrics.createMetricKeyFromStandardName("CoreComponents");
+            final Optional<Metric> componentsOpt = metrics.stream().filter(m -> m.getKey().equals(componentsId)).findFirst();
+            assertTrue("Metric not found", componentsOpt.isPresent());
+            final Metric components = componentsOpt.get();
+            assertNull("Wrong bestValue", components.getBestValue());
+            assertNull("Wrong worstValue", components.getWorstValue());
+            assertEquals("Wrong direction", Metric.DIRECTION_NONE, components.getDirection().intValue());
+        }
+        {
+            final String phantasticId = SonargraphMetrics.createMetricKeyFromStandardName("Phantastic");
+            final Optional<Metric> phantasticOpt = metrics.stream().filter(m -> m.getKey().equals(phantasticId)).findFirst();
+            assertTrue("Metric not found", phantasticOpt.isPresent());
+            final Metric phantastic = phantasticOpt.get();
+            assertEquals("Wrong bestValue", 0.0, phantastic.getBestValue(), TOLERANCE);
+            assertEquals("Wrong worstValue", 1.0, phantastic.getWorstValue(), TOLERANCE);
+            assertEquals("Wrong direction", Metric.DIRECTION_WORST, phantastic.getDirection().intValue());
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Test
+    public void testLoadCorruptConfigurationFromPath()
+    {
+        m_rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings(META_DATA_CORRUPT_PATH));
+        final List<Metric> metrics = m_rulesDefinition.getMetrics();
+        assertEquals("Wrong number of metrics", 65, metrics.size());
     }
 
     @SuppressWarnings("rawtypes")

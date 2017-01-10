@@ -53,11 +53,24 @@ public abstract class AbstractSonargraphSensorTest implements MetricFinder
     @Before
     public void initSensor()
     {
+        initSensor(null);
+    }
+
+    protected void initSensor(final String metaDataPath)
+    {
+        if (metaDataPath == null)
+        {
+            settings = TestHelper.initSettings();
+        }
+        else
+        {
+            settings = TestHelper.initSettings(metaDataPath);
+        }
+
+        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, getReport());
         rulesProfile = TestHelper.initRulesProfile();
         sensorContext = TestHelper.initSensorContext();
         moduleFileSystem = TestHelper.initModuleFileSystem(getBasePath());
-        settings = TestHelper.initSettings();
-        settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, getReport());
 
         sonargraphRulesRepository = new SonargraphRulesRepository(settings);
         metrics = new ArrayList<>();

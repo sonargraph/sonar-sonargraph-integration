@@ -5,11 +5,11 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
+  <version>2.0.1</version>
   <packaging>sonar-plugin</packaging>
-  <version>2.0.0</version>
 
   <name>SonarQube Sonargraph 8 Integration Plugin</name>
-  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 8.7 and higher.</description>
+  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 9.1.1 and higher.</description>
 
   <inceptionYear>2015</inceptionYear>
   <organization>
@@ -160,30 +160,30 @@
           </execution>
         </executions>
       </plugin>
-      <!-- 
       <plugin>
         <groupId>org.jacoco</groupId>
         <artifactId>jacoco-maven-plugin</artifactId>
         <version>0.7.5.201505241946</version>
         <executions>
-            <execution>
-                <id>default-prepare-agent</id>
-                <goals>
-                    <goal>prepare-agent</goal>
-                </goals>
-            </execution>
-            <execution>
-                <id>default-prepare-agent-integration</id>
-                <goals>
-                    <goal>prepare-agent-integration</goal>
-                </goals>
-            </execution>
-            <execution>
-                <id>default-report</id>
-                <goals>
-                    <goal>report</goal>
-                </goals>
-            </execution>
+          <execution>
+            <id>default-prepare-agent</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-prepare-agent-integration</id>
+            <goals>
+              <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <!-- 
             <execution>
                 <id>default-report-integration</id>
                 <goals>
@@ -195,10 +195,28 @@
                 <goals>
                     <goal>check</goal>
                 </goals>
+                <configuration>
+                    <rules>
+                      <rule>
+                        <element>CLASS</element>
+                        <excludes>
+                          <exclude>*Test</exclude>
+                          <exclude>TestHelper</exclude>
+                        </excludes>
+                        <limits>
+                          <limit>
+                            <counter>LINE</counter>
+                            <value>COVEREDRATIO</value>
+                            <minimum>0.50</minimum>
+                          </limit>
+                        </limits>
+                      </rule>
+                    </rules>
+                </configuration>
             </execution>
+          -->
         </executions>
        </plugin>
-       -->
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>

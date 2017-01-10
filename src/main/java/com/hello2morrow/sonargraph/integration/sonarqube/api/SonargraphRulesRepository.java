@@ -55,7 +55,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     private static final String DEFAULT_META_DATA_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final String RULE_TAG_SONARGRAPH = "sonargraph-integration";
 
-    private List<Metric<? extends Serializable>> metrics;
+    private List<Metric<? extends Serializable>> sqMetrics;
     private String configuredMetaDataPath;
 
     private final Settings settings;
@@ -80,14 +80,14 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     {
         final String metaDataConfigurationPath = getMetaDataPath(settings);
 
-        if (metrics != null)
+        if (sqMetrics != null)
         {
             if (!configurationChanged())
             {
-                return Collections.unmodifiableList(metrics);
+                return Collections.unmodifiableList(sqMetrics);
             }
-            LOG.info("Configured path for meta-data changed from '" + configuredMetaDataPath + "' to '" + metaDataConfigurationPath
-                    + "'. Reloading metric configuration.");
+            LOG.info("Configured path for meta-data changed from '{}' to '{}'. Reloading metric configuration.", configuredMetaDataPath,
+                    metaDataConfigurationPath);
         }
 
         final IMetaDataController controller = new ControllerFactory().createMetaDataController();
@@ -98,11 +98,13 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             return Collections.emptyList();
         }
 
-        metrics = new ArrayList<>();
+        sqMetrics = new ArrayList<>();
         final IExportMetaData metaData = metaDataOptional.get();
         final Map<String, IMetricLevel> metricLevels = metaData.getMetricLevels();
 
         final Map<String, IMetricId> metricMap = new HashMap<>();
+
+        //We are currently only interested in metrics on System and Module levels
         getMetricsForLevel(metaData, metricLevels.get(IMetricLevel.SYSTEM), metricMap);
         getMetricsForLevel(metaData, metricLevels.get(IMetricLevel.MODULE), metricMap);
 
@@ -113,50 +115,79 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     next.getPresentationName(), next.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(next))
                     .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH);
 
-            if (next.getBestValue() != Double.NaN)
-            {
-                metric.setBestValue(next.getBestValue());
-            }
-            if (next.getWorstValue() != Double.NaN)
-            {
-                metric.setWorstValue(next.getWorstValue());
-            }
-            metrics.add(metric.create());
+            setBestValue(next, metric);
+            setWorstValue(next, metric);
+            setMetricDirection(next, metric);
+            sqMetrics.add(metric.create());
         }
         //Additional metrics for structural debt widget
-        metrics.add(SonargraphMetrics.STRUCTURAL_DEBT_COST);
+        sqMetrics.add(SonargraphMetrics.STRUCTURAL_DEBT_COST);
 
-        metrics.add(SonargraphMetrics.CURRENT_VIRTUAL_MODEL);
+        sqMetrics.add(SonargraphMetrics.CURRENT_VIRTUAL_MODEL);
 
-        metrics.add(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE);
-        metrics.add(SonargraphMetrics.NUMBER_OF_TASKS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS);
+        sqMetrics.add(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_TASKS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_RESOLUTIONS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_RESOLUTIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_REFACTORINGS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS);
 
         //Additional metrics for structure widget
-        metrics.add(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT);
-        metrics.add(SonargraphMetrics.MAX_MODULE_NCCD);
+        sqMetrics.add(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT);
+        sqMetrics.add(SonargraphMetrics.MAX_MODULE_NCCD);
 
         //Additional metrics for architecture widget
-        metrics.add(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE);
-        metrics.add(SonargraphMetrics.NUMBER_OF_ISSUES);
-        metrics.add(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION);
+        sqMetrics.add(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_ISSUES);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION);
 
-        metrics.add(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT);
-        metrics.add(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT);
+        sqMetrics.add(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT);
+        sqMetrics.add(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
 
-        return Collections.unmodifiableList(metrics);
+        return Collections.unmodifiableList(sqMetrics);
+    }
+
+    private void setMetricDirection(final IMetricId id, final Metric.Builder metric)
+    {
+        if (id.getBestValue() > id.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_BETTER);
+        }
+        else if (id.getBestValue() < id.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_WORST);
+        }
+        else
+        {
+            metric.setDirection(Metric.DIRECTION_NONE);
+        }
+    }
+
+    private void setWorstValue(final IMetricId id, final Metric.Builder metric)
+    {
+        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setWorstValue(id.getWorstValue());
+        }
+    }
+
+    private void setBestValue(final IMetricId id, final Metric.Builder metric)
+    {
+        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setBestValue(id.getBestValue());
+        }
     }
 
     private static void getMetricsForLevel(final IExportMetaData metaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
@@ -184,8 +215,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             //configuration did not change - still default
             return false;
         }
-        LOG.info("Configured path for meta-data changed from '" + configuredMetaDataPath + "' to '" + metaDataConfigurationPath
-                + "'. Reloading metric configuration.");
+        LOG.info("Configured path for meta-data changed from '{}' to '{}'. Reloading metric configuration.", configuredMetaDataPath,
+                metaDataConfigurationPath);
         return true;
     }
 
@@ -198,7 +229,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
 
         if (!result.isPresent())
         {
-            LOG.error("Failed to load configuration for Sonargraph repository from '" + metaDataConfigurationPath + "'");
+            LOG.error("Failed to load configuration for Sonargraph repository from '{}'", metaDataConfigurationPath);
             return;
         }
 
@@ -215,17 +246,9 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             final String description = "Description '" + (type.getDescription().length() > 0 ? type.getDescription() : type.getPresentationName())
                     + "', category '" + type.getCategory().getPresentationName() + "'";
             final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, type.getCategory().getName().toLowerCase()));
-            if (type.getProvider() != null)
-            {
-                final String provider = type.getProvider().getPresentationName();
-                final String cleaned = provider.toLowerCase().replace("./", "");
-                tags.addAll(Arrays.asList(cleaned.split("/")));
-                rule.setHtmlDescription(description + ", provided by '" + provider + "'");
-            }
-            else
-            {
-                rule.setHtmlDescription(description);
-            }
+
+            //currently, there is no direct link between an issueType and its provider
+            rule.setHtmlDescription(description);
             rule.addTags(tags.toArray(new String[] {}));
             rule.setSeverity(convertSeverity(type.getSeverity()));
         }
@@ -268,7 +291,10 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             final OperationResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, defaultMetaDataPath);
             if (result.isFailure())
             {
-                LOG.error(errorMsg + ": " + result.toString());
+                if (LOG.isErrorEnabled())
+                {
+                    LOG.error("{}: {}", errorMsg, result.toString());
+                }
                 return Optional.empty();
             }
             configuredMetaDataPath = defaultMetaDataPath;
@@ -287,7 +313,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         final File configurationDir = new File(metaDataConfigurationPath);
         if (!configurationDir.exists() || !configurationDir.isDirectory())
         {
-            LOG.error("Cannot load meta-data from directory '" + metaDataConfigurationPath + "'. It does not exist.");
+            LOG.error("Cannot load meta-data from directory '{}'. It does not exist.", metaDataConfigurationPath);
             return Optional.empty();
         }
 
@@ -301,11 +327,14 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                 {
                     return Optional.ofNullable(result.getOutcome());
                 }
-                LOG.error("Failed to load configuration from '" + metaDataConfigurationPath + "': " + result.toString());
+                if (LOG.isErrorEnabled())
+                {
+                    LOG.error("Failed to load configuration from '{}': {}", metaDataConfigurationPath, result.toString());
+                }
             }
             catch (final Exception ex)
             {
-                LOG.error("Failed to load configuration from '" + metaDataConfigurationPath + "'", ex);
+                LOG.error("Failed to load configuration from '{}'", metaDataConfigurationPath, ex);
             }
         }
         return Optional.empty();
@@ -313,20 +342,20 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
 
     void clearLoadedMetrics()
     {
-        metrics = null;
+        sqMetrics = null;
         configuredMetaDataPath = null;
     }
 
     @SuppressWarnings("rawtypes")
     public Map<String, Metric> getLoadedMetrics()
     {
-        if (metrics == null)
+        if (sqMetrics == null)
         {
             LOG.error("No metric definitions have been loaded yet");
             return Collections.emptyMap();
         }
-        final Map<String, Metric> copy = new HashMap<>(metrics.size());
-        for (final Metric next : metrics)
+        final Map<String, Metric> copy = new HashMap<>(sqMetrics.size());
+        for (final Metric next : sqMetrics)
         {
             copy.put(next.getKey(), next);
         }
@@ -358,10 +387,9 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         case WARNING:
             sonarQubeSeverity = Severity.MINOR;
             break;
-        case INFO:
-            sonarQubeSeverity = Severity.INFO;
-            break;
         case NONE:
+            //$FALL-THROUGH$
+        case INFO:
             sonarQubeSeverity = Severity.INFO;
             break;
         default:

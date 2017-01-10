@@ -57,6 +57,8 @@ import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProc
 import com.hello2morrow.sonargraph.integration.access.foundation.IOMessageCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.NumberUtility;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
+import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
+import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IElementContainer;
@@ -81,7 +83,24 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
 {
-    private static final Logger LOG = LoggerFactory.getLogger(SonargraphSensor.class);
+    public enum ReportProcessingMessageCause implements IMessageCause
+    {
+        NO_MODULES;
+
+        @Override
+        public String getStandardName()
+        {
+            return StringUtility.convertConstantNameToStandardName(name());
+        }
+
+        @Override
+        public String getPresentationName()
+        {
+            return StringUtility.convertConstantNameToPresentationName(name());
+        }
+    }
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphSensor.class);
     private static final String SEPARATOR = "----------------------------------------------------------------";
     private static final String SONARGRAPH_TARGET_DIR = "sonargraph";
     private static final String SONARGRAPH_SONARQUBE_REPORT_FILENAME = "sonargraph-sonarqube-report.xml";
@@ -117,73 +136,72 @@ public final class SonargraphSensor implements Sensor
     {
         if (!Utilities.areSonargraphRulesActive(this.profile))
         {
-            LOG.warn(SEPARATOR);
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skipping project " + project.getName() + " [" + project.getKey()
-                    + "], since no Sonargraph rules are activated in current SonarQube quality profile [" + profile.getName() + "].");
-            LOG.warn(SEPARATOR);
+            LOGGER.warn(SEPARATOR);
+            LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph rules are activated in current SonarQube quality profile [{}].",
+                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey(), profile.getName());
+            LOGGER.warn(SEPARATOR);
             return false;
         }
 
         if (!determineReportFile(fileSystem, settings).isPresent())
         {
-            LOG.warn(SEPARATOR);
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skipping project " + project.getName() + " [" + project.getKey()
-                    + "], since no Sonargraph report is found.");
-            LOG.warn(SEPARATOR);
+            LOGGER.warn(SEPARATOR);
+            LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph report is found.", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    project.getName(), project.getKey());
+            LOGGER.warn(SEPARATOR);
             return false;
         }
         return true;
     }
 
     @Override
-    public void analyse(final Project project, final SensorContext sensorContext)
+    public void analyse(final Project proj, final SensorContext context)
     {
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Execute for module " + project.getName() + " [" + project.getKey()
-                + "]");
+        LOGGER.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, proj.getName(), proj.getKey());
 
         controller = new ControllerFactory().createController();
         numberOfWorkspaceWarnings = 0;
-        final Optional<File> reportFileOptional = determineReportFile(fileSystem, settings);
-        if (!reportFileOptional.isPresent())
+        final Optional<File> reportFileOpt = determineReportFile(fileSystem, settings);
+        if (!reportFileOpt.isPresent())
         {
-            LOG.error(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to read Sonargraph report!");
+            LOGGER.error("{}: Failed to read Sonargraph report!", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
             loadReportResult = new OperationResult("Loading Sonargraph report");
             loadReportResult.addError(IOMessageCause.FILE_NOT_FOUND, "No Sonargraph report found!");
             return;
         }
 
-        final File reportFile = reportFileOptional.get();
-        LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading Sonargraph report from: " + reportFile.getAbsolutePath());
-        loadReportResult = loadReport(project, reportFile, settings);
+        final File reportFile = reportFileOpt.get();
+        LOGGER.info("{}: Reading Sonargraph report from: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
+        loadReportResult = loadReport(proj, reportFile, settings);
         if (loadReportResult.isFailure())
         {
             return;
         }
 
-        final ISoftwareSystem system = controller.getSoftwareSystem();
-        if (system.getModules().size() == 0)
+        final ISoftwareSystem sonargraphSystem = controller.getSoftwareSystem();
+        if (sonargraphSystem.getModules().size() == 0)
         {
-            LOG.warn(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME
-                    + ": No modules defined for Sonargraph system, please check the workspace definition!");
+            final String msg = "No modules defined for Sonargraph system, please check the workspace definition!";
+            LOGGER.warn("{}: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, msg);
+            loadReportResult.addWarning(ReportProcessingMessageCause.NO_MODULES, msg);
             return;
         }
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings("unchecked")
         final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
-                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION))
-                .collect(Collectors.toMap((final Metric m) -> m.key(), (final Metric m) -> m));
+                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, m -> m));
 
-        processFeatures(sensorContext);
-        if (project.isRoot())
+        processFeatures(context);
+        if (proj.isRoot())
         {
-            processSystemMetrics(metrics, sensorContext);
+            processSystemMetrics(metrics, context);
         }
-        processModule(metrics, project, sensorContext, system);
+        processModule(metrics, proj, context, sonargraphSystem);
 
-        LOG.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
+        LOGGER.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, proj.getName(), proj.getKey());
         if (numberOfWorkspaceWarnings > 0)
         {
-            LOG.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
+            LOGGER.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
                     + "Please check that all root directories of the Sonargraph workspace are correct "
                     + "and that class files have been generated before executing Sonargraph to create a report.",
                     SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, numberOfWorkspaceWarnings);
@@ -193,14 +211,14 @@ public final class SonargraphSensor implements Sensor
     private void processFeatures(final SensorContext sensorContext)
     {
         final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();
-        for (final IFeature next : systemInfoProcessor.getFeatures())
+        for (final IFeature feature : systemInfoProcessor.getFeatures())
         {
-            if (next.getName().equals(IFeature.ARCHITECTURE) && next.isLicensed())
+            if (feature.getName().equals(IFeature.ARCHITECTURE) && feature.isLicensed())
             {
                 sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE, 1.0));
             }
 
-            if (next.getName().equals(IFeature.VIRTUAL_MODELS) && next.isLicensed())
+            if (feature.getName().equals(IFeature.VIRTUAL_MODELS) && feature.isLicensed())
             {
                 sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE, 1.0));
             }
@@ -213,17 +231,17 @@ public final class SonargraphSensor implements Sensor
         final Optional<File> baseDirectory = determineBaseDirectory(settings);
         if (baseDirectory.isPresent())
         {
-            LOG.info("Changing Sonargraph baseDirectory to: " + baseDirectory.get().getAbsolutePath());
+            LOGGER.info("Changing Sonargraph baseDirectory to: {}", baseDirectory.get().getAbsolutePath());
             result.addMessagesFrom(controller.loadSystemReport(reportFile, baseDirectory.get()));
         }
         else
         {
             result.addMessagesFrom(controller.loadSystemReport(reportFile));
         }
-        if (result.isFailure())
+        if (result.isFailure() && LOGGER.isErrorEnabled())
         {
-            LOG.error("Failed to execute Sonargraph plugin for " + project.getName() + " [" + project.getKey() + "]");
-            LOG.error(result.toString());
+            LOGGER.error("Failed to execute Sonargraph plugin for {} [{}]", project.getName(), project.getKey());
+            LOGGER.error(result.toString());
         }
         return result;
     }
@@ -239,7 +257,7 @@ public final class SonargraphSensor implements Sensor
 
         final Map<INamedElement, IMetricValue> nccdValues = infoProcessor.getMetricValues(IMetricLevel.MODULE,
                 IMetricId.StandardName.CORE_NCCD.getStandardName());
-        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble((final IMetricValue v) -> v.getValue().doubleValue()).max();
+        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble(v -> v.getValue().doubleValue()).max();
         if (highestNccd.isPresent())
         {
             sensorContext.saveMeasure(new Measure<Double>(SonargraphMetrics.MAX_MODULE_NCCD, highestNccd.getAsDouble()));
@@ -252,8 +270,8 @@ public final class SonargraphSensor implements Sensor
         final Optional<IModule> moduleOptional = determineModuleName(project, system);
         if (!moduleOptional.isPresent())
         {
-            LOG.info(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module found in report for " + project.getName() + " ["
-                    + project.getKey() + "]");
+            LOGGER.info("{}: No module found in report for {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
+                    project.getKey());
             return;
         }
 
@@ -266,71 +284,77 @@ public final class SonargraphSensor implements Sensor
     {
         final IModuleInfoProcessor moduleInfoProcessor = controller.createModuleInfoProcessor(module);
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
-                .filter((final IMetricLevel level) -> level.getName().equals(IMetricLevel.MODULE)).findAny();
+                .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
 
         if (project.isModule() && optionalMetricLevel.isPresent())
         {
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
 
-        processIssues(moduleInfoProcessor, (final IIssue issue) -> !issue.hasResolution()
-                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
         processIssues(
                 moduleInfoProcessor,
-                (final IIssue issue) -> issue.hasResolution()
+                issue -> !issue.hasResolution()
+                        && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
+        processIssues(
+                moduleInfoProcessor,
+                issue -> issue.hasResolution()
                         && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.TODO.getStandardName()));
         processIssues(
                 moduleInfoProcessor,
-                (final IIssue issue) -> issue.hasResolution()
+                issue -> issue.hasResolution()
                         && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.REFACTORING.getStandardName()));
     }
 
-    private void processProjectMetrics(final SensorContext sensorContext, final IElementContainer container, final IInfoProcessor infoProcessor,
+    private void processProjectMetrics(final SensorContext context, final IElementContainer container, final IInfoProcessor infoProcessor,
             final Map<String, Metric<?>> metrics, final IMetricLevel level)
     {
         final List<String> unconfiguredMetrics = new ArrayList<>();
-        for (final IMetricId next : infoProcessor.getMetricIdsForLevel(level))
+        for (final IMetricId metricId : infoProcessor.getMetricIdsForLevel(level))
         {
-            final String metricKey = SonargraphMetrics.createMetricKeyFromStandardName(next.getName());
-            if (!isConfiguredMetric(metrics, next))
+            final String metricKey = SonargraphMetrics.createMetricKeyFromStandardName(metricId.getName());
+            if (!isConfiguredMetric(metrics, metricId))
             {
-                unconfiguredMetrics.add(next.getName());
+                unconfiguredMetrics.add(metricId.getName());
                 continue;
             }
 
-            final Optional<IMetricValue> value = infoProcessor.getMetricValueForElement(next, level, container.getFqName());
+            final Optional<IMetricValue> value = infoProcessor.getMetricValueForElement(metricId, level, container.getFqName());
             if (value.isPresent())
             {
-                LOG.debug("Processing metric id: " + next.getName() + ", metricKey: " + metricKey);
+                LOGGER.debug("Processing metric id: {}, metricKey: {}", metricId.getName(), metricKey);
                 final Measure<Double> measure = new Measure<>(metricKey);
                 measure.setValue(value.get().getValue().doubleValue());
-                sensorContext.saveMeasure(measure);
+                context.saveMeasure(measure);
             }
             else
             {
-                LOG.error("No value found for metric '" + next.getPresentationName() + "'. Please check the meta-data configuration for Sonargraph!");
+                LOGGER.error("No value found for metric '{}'. Please check the meta-data configuration for Sonargraph!", metricId.getPresentationName());
             }
         }
         if (!unconfiguredMetrics.isEmpty())
         {
             final StringJoiner joiner = new StringJoiner(", ");
             unconfiguredMetrics.stream().forEach(joiner::add);
-
-            LOG.warn("The following Sonargraph metrics have not been configured: \n    "
-                    + joiner.toString()
-                    + "\n    If you want to persist the values for these metrics in SonarQube, "
-                    + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.");
+            if (LOGGER.isWarnEnabled())
+            {
+                LOGGER.warn(
+                        "The following Sonargraph metrics have not been configured: \n    "
+                                + "{}"
+                                + "\n    If you want to persist the values for these metrics in SonarQube, "
+                                + "go to the plugin's configuration in the SonarQube web server and specify the directory where the exported report meta-data files can be found.",
+                        joiner.toString());
+            }
         }
 
-        sensorContext.saveMeasure(new Measure<String>(SonargraphMetrics.CURRENT_VIRTUAL_MODEL, controller.getSoftwareSystem().getVirtualModel()));
+        context.saveMeasure(new Measure<String>(SonargraphMetrics.CURRENT_VIRTUAL_MODEL, controller.getSoftwareSystem().getVirtualModel()));
 
-        calculateStructuralCost(sensorContext, infoProcessor);
-        calculateMetricsForStructuralDebtWidget(sensorContext, infoProcessor);
-        calculateMetricsForArchitectureWidget(metrics, sensorContext, level, infoProcessor);
-        calculateMetricsForStructureWidget(sensorContext, level, infoProcessor, container);
+        calculateStructuralCost(context, infoProcessor);
+        calculateMetricsForStructuralDebtWidget(context, infoProcessor);
+        calculateMetricsForArchitectureWidget(metrics, context, level, infoProcessor);
+        calculateMetricsForStructureWidget(context, level, infoProcessor, container);
     }
 
-    private void calculateStructuralCost(final SensorContext sensorContext, final IInfoProcessor infoProcessor)
+    private void calculateStructuralCost(final SensorContext context, final IInfoProcessor infoProcessor)
     {
         final Float indexCost = this.settings.getFloat(SonargraphPluginBase.COST_PER_INDEX_POINT);
         if (indexCost == null)
@@ -345,7 +369,7 @@ public final class SonargraphSensor implements Sensor
             final double cost = (double) indexCost * value.get().getValue().intValue();
             if (cost >= 0)
             {
-                sensorContext.saveMeasure(new Measure<Double>(SonargraphMetrics.STRUCTURAL_DEBT_COST, cost));
+                context.saveMeasure(new Measure<Double>(SonargraphMetrics.STRUCTURAL_DEBT_COST, cost));
             }
         }
     }
@@ -354,8 +378,8 @@ public final class SonargraphSensor implements Sensor
     {
         final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
         final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
-        final List<String> types = issueMap.values().stream().flatMap((final List<IIssue> issues) -> issues.stream())
-                .map((final IIssue issue) -> issue.getIssueType().getName()).distinct().collect(Collectors.toList());
+        final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream).map(issue -> issue.getIssueType().getName()).distinct()
+                .collect(Collectors.toList());
 
         for (final String type : types)
         {
@@ -363,7 +387,7 @@ public final class SonargraphSensor implements Sensor
             final String ruleKey = SonargraphMetrics.createRuleKey(type);
             if (rule == null)
             {
-                LOG.info("Rule '" + ruleKey + "' is not activated.");
+                LOGGER.info("Rule '{}' is not activated.", ruleKey);
                 continue;
             }
             issueTypeToRuleMap.put(ruleKey, rule);
@@ -387,7 +411,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
-            LOG.error("Failed to locate resource '" + sourceFile.getFqName() + "' at '" + sourceFileLocation + "'");
+            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
             return;
         }
 
@@ -397,7 +421,7 @@ public final class SonargraphSensor implements Sensor
             final ActiveRule rule = issueTypeToRuleMap.get(issueTypeName);
             if (rule == null)
             {
-                LOG.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", issue.getIssueType()
+                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", issue.getIssueType()
                         .getPresentationName());
                 continue;
             }
@@ -418,7 +442,10 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create Issuable for resource '" + resource.absolutePath());
+            if (LOGGER.isErrorEnabled())
+            {
+                LOGGER.error("Failed to create Issuable for resource '{}'", resource.absolutePath());
+            }
             return;
         }
 
@@ -463,14 +490,17 @@ public final class SonargraphSensor implements Sensor
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
-            LOG.error("Failed to create issuable for resource '" + resource.absolutePath() + "'");
+            if (LOGGER.isErrorEnabled())
+            {
+                LOGGER.error("Failed to create issuable for resource '{}'", resource.absolutePath());
+            }
             return;
         }
-        final IssueBuilder issueBuilder = issuable.newIssueBuilder();
-        issueBuilder.ruleKey(rule.getRule().ruleKey());
+        final IssueBuilder builder = issuable.newIssueBuilder();
+        builder.ruleKey(rule.getRule().ruleKey());
         if (rule.getSeverity() != null)
         {
-            issueBuilder.severity(rule.getSeverity().toString());
+            builder.severity(rule.getSeverity().toString());
         }
 
         final StringBuilder msg = new StringBuilder();
@@ -485,13 +515,13 @@ public final class SonargraphSensor implements Sensor
                     .append(next.getStartLine() + next.getBlockSize() - 1);
         }
 
-        issueBuilder.message(msg.toString());
-        issueBuilder.line(occurrence.getStartLine());
-        final Issue sqIssue = issueBuilder.build();
+        builder.message(msg.toString());
+        builder.line(occurrence.getStartLine());
+        final Issue sqIssue = builder.build();
         issuable.addIssue(sqIssue);
     }
 
-    private static void calculateMetricsForStructureWidget(final SensorContext sensorContext, final IMetricLevel level,
+    private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level,
             final IInfoProcessor infoProcessor, final IElementContainer container)
     {
         final String packagesMetricId = IJavaMetricId.StandardName.JAVA_PACKAGES.getStandardName();
@@ -499,7 +529,7 @@ public final class SonargraphSensor implements Sensor
         final String cyclicPackagesMetricId = IJavaMetricId.StandardName.JAVA_CYCLIC_PACKAGES.getStandardName();
         final Optional<IMetricId> cyclicPackagesMetric = infoProcessor.getMetricId(level, cyclicPackagesMetricId);
 
-        LOG.debug("Adding cyclic packages metric");
+        LOGGER.debug("Adding cyclic packages metric");
         if (packagesMetric.isPresent() && cyclicPackagesMetric.isPresent())
         {
             final Optional<IMetricValue> numberOfPackagesOptional = infoProcessor.getMetricValueForElement(packagesMetric.get(), level,
@@ -513,55 +543,56 @@ public final class SonargraphSensor implements Sensor
             final double numberOfCyclicPackages = numberOfCyclicPackagesOptional.get().getValue().doubleValue();
 
             final double cylicPackagesPercent = NumberUtility.round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
-            sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
+            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
         }
     }
 
-    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
+    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext context,
             final IMetricLevel level, final IInfoProcessor infoProcessor)
     {
         assert metrics != null : "Parameter 'metrics' of method 'calculateMetricsForArchitectureWidget' must not be null";
-        assert sensorContext != null : "Parameter 'sensorContext' of method 'calculateMetricsForArchitectureWidget' must not be null";
+        assert context != null : "Parameter 'sensorContext' of method 'calculateMetricsForArchitectureWidget' must not be null";
         assert level != null : "Parameter 'level' of method 'calculateMetricsForArchitectureWidget' must not be null";
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'calculateMetricsForArchitectureWidget' must not be null";
 
         final double numberOfIssues = infoProcessor.getIssues(null).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_ISSUES, numberOfIssues));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_ISSUES, numberOfIssues));
 
         final double numberOfUnresolvedCriticalIssues = infoProcessor.getIssues(
-                (final IIssue i) -> !i.hasResolution()
-                        && (i.getIssueType().getSeverity() == Severity.WARNING || i.getIssueType().getSeverity() == Severity.ERROR)).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION,
+                issue -> !issue.hasResolution()
+                        && (issue.getIssueType().getSeverity() == Severity.WARNING || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION,
                 numberOfUnresolvedCriticalIssues));
 
         final double numberOfUnresolvedThresholdViolations = infoProcessor.getIssues(
-                (final IIssue issue) -> !issue.hasResolution()
+                issue -> !issue.hasResolution()
                         && IIssueCategory.StandardName.THRESHOLD_VIOLATION.getStandardName().equals(issue.getIssueType().getCategory().getName()))
                 .size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS, numberOfUnresolvedThresholdViolations));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS, numberOfUnresolvedThresholdViolations));
 
         final double numberOfIgnoredCriticalIssues = infoProcessor.getResolutions(
-                (final IResolution r) -> r.getType() == ResolutionType.IGNORE
-                        && r.getIssues()
+                resolution -> resolution.getType() == ResolutionType.IGNORE
+                        && resolution
+                                .getIssues()
                                 .stream()
                                 .anyMatch(
                                         (final IIssue issue) -> issue.getIssueType().getSeverity() == Severity.WARNING
                                                 || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
 
         numberOfWorkspaceWarnings = infoProcessor.getIssues(
-                (final IIssue issue) -> !issue.hasResolution()
+                issue -> !issue.hasResolution()
                         && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
 
         final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
         if (numberOfComponentsMetric.isPresent())
         {
-            calculateArchitecturePercentages(metrics, sensorContext, infoProcessor);
+            calculateArchitecturePercentages(metrics, context, infoProcessor);
         }
     }
 
-    private static void calculateArchitecturePercentages(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
+    private static void calculateArchitecturePercentages(final Map<String, Metric<?>> metrics, final SensorContext context,
             final IInfoProcessor infoProcessor)
     {
         final Optional<IMetricValue> coreComponentsValue = infoProcessor.getMetricValue(IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
@@ -585,7 +616,7 @@ public final class SonargraphSensor implements Sensor
         {
             final double unassignedComponents = unassignedComponentsValue.get().getValue().doubleValue();
             final double unassignedComponentsPercent = NumberUtility.round((unassignedComponents / numberOfComponents) * 100.0, 2);
-            sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
+            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
         }
 
         final Optional<Metric<?>> numberOfViolatingComponentsMetric = getSonarQubeMetric(metrics,
@@ -596,37 +627,36 @@ public final class SonargraphSensor implements Sensor
         {
             final double numberOfViolatingComponents = violatingComponentsValue.get().getValue().doubleValue();
             final double violatingComponentsPercent = NumberUtility.round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
-            sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
+            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
         }
     }
 
-    private void calculateMetricsForStructuralDebtWidget(final SensorContext sensorContext, final IInfoProcessor infoProcessor)
+    private void calculateMetricsForStructuralDebtWidget(final SensorContext context, final IInfoProcessor infoProcessor)
     {
         final double numberOfResolutions = infoProcessor.getResolutions(null).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_RESOLUTIONS, numberOfResolutions));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_RESOLUTIONS, numberOfResolutions));
 
-        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions((final IResolution r) -> !r.isApplicable()).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS, numberOfUnapplicableResolutions));
+        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions(r -> !r.isApplicable()).size();
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS, numberOfUnapplicableResolutions));
 
-        final double numberOfTasks = infoProcessor.getResolutions((final IResolution r) -> r.isTask()).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_TASKS, numberOfTasks));
+        final double numberOfTasks = infoProcessor.getResolutions(IResolution::isTask).size();
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_TASKS, numberOfTasks));
 
-        final double numberOfUnapplicableTasks = infoProcessor.getResolutions((final IResolution r) -> r.isTask() && !r.isApplicable()).size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS, numberOfUnapplicableTasks));
+        final double numberOfUnapplicableTasks = infoProcessor.getResolutions(r -> r.isTask() && !r.isApplicable()).size();
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS, numberOfUnapplicableTasks));
 
-        final List<IResolution> refactorings = infoProcessor.getResolutions((final IResolution r) -> r.getType() == ResolutionType.REFACTORING);
+        final List<IResolution> refactorings = infoProcessor.getResolutions(r -> r.getType() == ResolutionType.REFACTORING);
         final double numberOfRefactorings = refactorings.size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_REFACTORINGS, numberOfRefactorings));
-        final List<IResolution> applicableRefactorings = refactorings.stream().filter((final IResolution r) -> r.isApplicable())
-                .collect(Collectors.toList());
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_REFACTORINGS, numberOfRefactorings));
+        final List<IResolution> applicableRefactorings = refactorings.stream().filter(IResolution::isApplicable).collect(Collectors.toList());
 
         final double numberOfUnapplicableRefactorings = numberOfRefactorings - applicableRefactorings.size();
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS, numberOfUnapplicableRefactorings));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS, numberOfUnapplicableRefactorings));
 
         final double numberOfAffectedParserDepencencies = applicableRefactorings.stream()
                 .mapToInt(IResolution::getNumberOfAffectedParserDependencies).sum();
-        LOG.debug("Detected " + numberOfAffectedParserDepencencies + " parser dependencies affected by refactorings");
-        sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS,
+        LOGGER.debug("Detected {} parser dependencies affected by refactorings", numberOfAffectedParserDepencencies);
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS,
                 numberOfAffectedParserDepencencies));
     }
 
@@ -685,11 +715,11 @@ public final class SonargraphSensor implements Sensor
 
         if (fileExistsAndIsReadable(reportFile))
         {
-            LOG.debug("Load report from " + reportFile.getAbsolutePath());
+            LOGGER.debug("Load report from: {}", reportFile.getAbsolutePath());
             return Optional.of(reportFile);
         }
 
-        LOG.debug("No report found at: " + reportFile.getAbsolutePath());
+        LOGGER.debug("No report found at: {}", reportFile.getAbsolutePath());
         return Optional.empty();
     }
 
