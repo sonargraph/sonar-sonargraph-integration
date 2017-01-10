@@ -187,9 +187,9 @@ public final class SonargraphSensor implements Sensor
             return;
         }
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
+        @SuppressWarnings("unchecked")
         final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
-                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, (final Metric m) -> m));
+                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, m -> m));
 
         processFeatures(sensorContext);
         if (project.isRoot())
@@ -257,7 +257,7 @@ public final class SonargraphSensor implements Sensor
 
         final Map<INamedElement, IMetricValue> nccdValues = infoProcessor.getMetricValues(IMetricLevel.MODULE,
                 IMetricId.StandardName.CORE_NCCD.getStandardName());
-        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble((final IMetricValue v) -> v.getValue().doubleValue()).max();
+        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble(v -> v.getValue().doubleValue()).max();
         if (highestNccd.isPresent())
         {
             sensorContext.saveMeasure(new Measure<Double>(SonargraphMetrics.MAX_MODULE_NCCD, highestNccd.getAsDouble()));
@@ -284,22 +284,24 @@ public final class SonargraphSensor implements Sensor
     {
         final IModuleInfoProcessor moduleInfoProcessor = controller.createModuleInfoProcessor(module);
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
-                .filter((final IMetricLevel level) -> level.getName().equals(IMetricLevel.MODULE)).findAny();
+                .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
 
         if (project.isModule() && optionalMetricLevel.isPresent())
         {
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
 
-        processIssues(moduleInfoProcessor, (final IIssue issue) -> !issue.hasResolution()
-                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
         processIssues(
                 moduleInfoProcessor,
-                (final IIssue issue) -> issue.hasResolution()
+                issue -> !issue.hasResolution()
+                        && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
+        processIssues(
+                moduleInfoProcessor,
+                issue -> issue.hasResolution()
                         && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.TODO.getStandardName()));
         processIssues(
                 moduleInfoProcessor,
-                (final IIssue issue) -> issue.hasResolution()
+                issue -> issue.hasResolution()
                         && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.REFACTORING.getStandardName()));
     }
 
@@ -376,8 +378,8 @@ public final class SonargraphSensor implements Sensor
     {
         final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
         final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
-        final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream)
-                .map((final IIssue issue) -> issue.getIssueType().getName()).distinct().collect(Collectors.toList());
+        final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream).map(issue -> issue.getIssueType().getName()).distinct()
+                .collect(Collectors.toList());
 
         for (final String type : types)
         {
@@ -557,20 +559,21 @@ public final class SonargraphSensor implements Sensor
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_ISSUES, numberOfIssues));
 
         final double numberOfUnresolvedCriticalIssues = infoProcessor.getIssues(
-                (final IIssue i) -> !i.hasResolution()
-                        && (i.getIssueType().getSeverity() == Severity.WARNING || i.getIssueType().getSeverity() == Severity.ERROR)).size();
+                issue -> !issue.hasResolution()
+                        && (issue.getIssueType().getSeverity() == Severity.WARNING || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION,
                 numberOfUnresolvedCriticalIssues));
 
         final double numberOfUnresolvedThresholdViolations = infoProcessor.getIssues(
-                (final IIssue issue) -> !issue.hasResolution()
+                issue -> !issue.hasResolution()
                         && IIssueCategory.StandardName.THRESHOLD_VIOLATION.getStandardName().equals(issue.getIssueType().getCategory().getName()))
                 .size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS, numberOfUnresolvedThresholdViolations));
 
         final double numberOfIgnoredCriticalIssues = infoProcessor.getResolutions(
-                (final IResolution r) -> r.getType() == ResolutionType.IGNORE
-                        && r.getIssues()
+                resolution -> resolution.getType() == ResolutionType.IGNORE
+                        && resolution
+                                .getIssues()
                                 .stream()
                                 .anyMatch(
                                         (final IIssue issue) -> issue.getIssueType().getSeverity() == Severity.WARNING
@@ -578,7 +581,7 @@ public final class SonargraphSensor implements Sensor
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
 
         numberOfWorkspaceWarnings = infoProcessor.getIssues(
-                (final IIssue issue) -> !issue.hasResolution()
+                issue -> !issue.hasResolution()
                         && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
         sensorContext.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
 

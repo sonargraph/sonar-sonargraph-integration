@@ -43,8 +43,6 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPl
 
 public class SonargraphSensorTest extends AbstractSonargraphSensorTest
 {
-    private static final String DUPLICATE_ISSUE_RULE = SonargraphMetrics.createRuleKey("DuplicateCodeBlock");
-
     @Override
     protected String getReport()
     {

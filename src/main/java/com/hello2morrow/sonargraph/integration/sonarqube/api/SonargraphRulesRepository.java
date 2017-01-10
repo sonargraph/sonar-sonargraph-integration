@@ -156,13 +156,13 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         return Collections.unmodifiableList(metrics);
     }
 
-    private void setMetricDirection(final IMetricId next, final Metric.Builder metric)
+    private void setMetricDirection(final IMetricId id, final Metric.Builder metric)
     {
-        if (next.getBestValue() > next.getWorstValue())
+        if (id.getBestValue() > id.getWorstValue())
         {
             metric.setDirection(Metric.DIRECTION_BETTER);
         }
-        else if (next.getBestValue() < next.getWorstValue())
+        else if (id.getBestValue() < id.getWorstValue())
         {
             metric.setDirection(Metric.DIRECTION_WORST);
         }
@@ -172,21 +172,21 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         }
     }
 
-    private void setWorstValue(final IMetricId next, final Metric.Builder metric)
+    private void setWorstValue(final IMetricId id, final Metric.Builder metric)
     {
-        if (!next.getWorstValue().equals(Double.NaN) && !next.getWorstValue().equals(Double.POSITIVE_INFINITY)
-                && !next.getWorstValue().equals(Double.NEGATIVE_INFINITY))
+        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
         {
-            metric.setWorstValue(next.getWorstValue());
+            metric.setWorstValue(id.getWorstValue());
         }
     }
 
-    private void setBestValue(final IMetricId next, final Metric.Builder metric)
+    private void setBestValue(final IMetricId id, final Metric.Builder metric)
     {
-        if (!next.getBestValue().equals(Double.NaN) && !next.getBestValue().equals(Double.POSITIVE_INFINITY)
-                && !next.getBestValue().equals(Double.NEGATIVE_INFINITY))
+        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
         {
-            metric.setBestValue(next.getBestValue());
+            metric.setBestValue(id.getBestValue());
         }
     }
 

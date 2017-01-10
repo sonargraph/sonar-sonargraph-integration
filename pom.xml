@@ -171,19 +171,19 @@
               <goal>prepare-agent</goal>
             </goals>
           </execution>
-        <execution>
-          <id>default-prepare-agent-integration</id>
-          <goals>
-            <goal>prepare-agent-integration</goal>
-          </goals>
-        </execution>
-        <execution>
-          <id>default-report</id>
-          <goals>
-            <goal>report</goal>
-          </goals>
-        </execution>
-            <!-- 
+          <execution>
+            <id>default-prepare-agent-integration</id>
+            <goals>
+               <goal>prepare-agent-integration</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>default-report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+          <!-- 
             <execution>
                 <id>default-report-integration</id>
                 <goals>
@@ -214,7 +214,7 @@
                     </rules>
                 </configuration>
             </execution>
-            -->
+          -->
         </executions>
        </plugin>
       <plugin>
