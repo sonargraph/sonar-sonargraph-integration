@@ -55,7 +55,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     private static final String DEFAULT_META_DATA_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final String RULE_TAG_SONARGRAPH = "sonargraph-integration";
 
-    private List<Metric<? extends Serializable>> metrics;
+    private List<Metric<? extends Serializable>> sqMetrics;
     private String configuredMetaDataPath;
 
     private final Settings settings;
@@ -80,11 +80,11 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     {
         final String metaDataConfigurationPath = getMetaDataPath(settings);
 
-        if (metrics != null)
+        if (sqMetrics != null)
         {
             if (!configurationChanged())
             {
-                return Collections.unmodifiableList(metrics);
+                return Collections.unmodifiableList(sqMetrics);
             }
             LOG.info("Configured path for meta-data changed from '{}' to '{}'. Reloading metric configuration.", configuredMetaDataPath,
                     metaDataConfigurationPath);
@@ -98,7 +98,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             return Collections.emptyList();
         }
 
-        metrics = new ArrayList<>();
+        sqMetrics = new ArrayList<>();
         final IExportMetaData metaData = metaDataOptional.get();
         final Map<String, IMetricLevel> metricLevels = metaData.getMetricLevels();
 
@@ -118,42 +118,42 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             setBestValue(next, metric);
             setWorstValue(next, metric);
             setMetricDirection(next, metric);
-            metrics.add(metric.create());
+            sqMetrics.add(metric.create());
         }
         //Additional metrics for structural debt widget
-        metrics.add(SonargraphMetrics.STRUCTURAL_DEBT_COST);
+        sqMetrics.add(SonargraphMetrics.STRUCTURAL_DEBT_COST);
 
-        metrics.add(SonargraphMetrics.CURRENT_VIRTUAL_MODEL);
+        sqMetrics.add(SonargraphMetrics.CURRENT_VIRTUAL_MODEL);
 
-        metrics.add(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE);
-        metrics.add(SonargraphMetrics.NUMBER_OF_TASKS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS);
+        sqMetrics.add(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_TASKS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_RESOLUTIONS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_RESOLUTIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_REFACTORINGS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS);
 
         //Additional metrics for structure widget
-        metrics.add(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT);
-        metrics.add(SonargraphMetrics.MAX_MODULE_NCCD);
+        sqMetrics.add(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT);
+        sqMetrics.add(SonargraphMetrics.MAX_MODULE_NCCD);
 
         //Additional metrics for architecture widget
-        metrics.add(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE);
-        metrics.add(SonargraphMetrics.NUMBER_OF_ISSUES);
-        metrics.add(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION);
+        sqMetrics.add(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_ISSUES);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION);
 
-        metrics.add(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT);
-        metrics.add(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT);
+        sqMetrics.add(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT);
+        sqMetrics.add(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT);
 
-        metrics.add(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS);
-        metrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS);
+        sqMetrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
 
-        return Collections.unmodifiableList(metrics);
+        return Collections.unmodifiableList(sqMetrics);
     }
 
     private void setMetricDirection(final IMetricId id, final Metric.Builder metric)
@@ -342,20 +342,20 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
 
     void clearLoadedMetrics()
     {
-        metrics = null;
+        sqMetrics = null;
         configuredMetaDataPath = null;
     }
 
     @SuppressWarnings("rawtypes")
     public Map<String, Metric> getLoadedMetrics()
     {
-        if (metrics == null)
+        if (sqMetrics == null)
         {
             LOG.error("No metric definitions have been loaded yet");
             return Collections.emptyMap();
         }
-        final Map<String, Metric> copy = new HashMap<>(metrics.size());
-        for (final Metric next : metrics)
+        final Map<String, Metric> copy = new HashMap<>(sqMetrics.size());
+        for (final Metric next : sqMetrics)
         {
             copy.put(next.getKey(), next);
         }
