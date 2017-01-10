@@ -157,54 +157,58 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void analyse(final Project project, final SensorContext sensorContext)
     {
-        LOG.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
-
-        controller = new ControllerFactory().createController();
-        numberOfWorkspaceWarnings = 0;
-        final Optional<File> reportFileOptional = determineReportFile(fileSystem, settings);
-        if (!reportFileOptional.isPresent())
         {
-            LOG.error("{}: Failed to read Sonargraph report!", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-            loadReportResult = new OperationResult("Loading Sonargraph report");
-            loadReportResult.addError(IOMessageCause.FILE_NOT_FOUND, "No Sonargraph report found!");
-            return;
-        }
+            LOG.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
+                    project.getKey());
 
-        final File reportFile = reportFileOptional.get();
-        LOG.info("{}: Reading Sonargraph report from: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
-        loadReportResult = loadReport(project, reportFile, settings);
-        if (loadReportResult.isFailure())
-        {
-            return;
-        }
+            controller = new ControllerFactory().createController();
+            numberOfWorkspaceWarnings = 0;
+            final Optional<File> reportFileOptional = determineReportFile(fileSystem, settings);
+            if (!reportFileOptional.isPresent())
+            {
+                LOG.error("{}: Failed to read Sonargraph report!", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+                loadReportResult = new OperationResult("Loading Sonargraph report");
+                loadReportResult.addError(IOMessageCause.FILE_NOT_FOUND, "No Sonargraph report found!");
+                return;
+            }
 
-        final ISoftwareSystem system = controller.getSoftwareSystem();
-        if (system.getModules().size() == 0)
-        {
-            final String msg = "No modules defined for Sonargraph system, please check the workspace definition!";
-            LOG.warn("{}: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, msg);
-            loadReportResult.addWarning(ReportProcessingMessageCause.NO_MODULES, msg);
-            return;
-        }
+            final File reportFile = reportFileOptional.get();
+            LOG.info("{}: Reading Sonargraph report from: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
+            loadReportResult = loadReport(project, reportFile, settings);
+            if (loadReportResult.isFailure())
+            {
+                return;
+            }
 
-        @SuppressWarnings("unchecked")
-        final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
-                .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, m -> m));
+            final ISoftwareSystem system = controller.getSoftwareSystem();
+            if (system.getModules().size() == 0)
+            {
+                final String msg = "No modules defined for Sonargraph system, please check the workspace definition!";
+                LOG.warn("{}: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, msg);
+                loadReportResult.addWarning(ReportProcessingMessageCause.NO_MODULES, msg);
+                return;
+            }
 
-        processFeatures(sensorContext);
-        if (project.isRoot())
-        {
-            processSystemMetrics(metrics, sensorContext);
-        }
-        processModule(metrics, project, sensorContext, system);
+            @SuppressWarnings("unchecked")
+            final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
+                    .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, m -> m));
 
-        LOG.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
-        if (numberOfWorkspaceWarnings > 0)
-        {
-            LOG.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
-                    + "Please check that all root directories of the Sonargraph workspace are correct "
-                    + "and that class files have been generated before executing Sonargraph to create a report.",
-                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, numberOfWorkspaceWarnings);
+            processFeatures(sensorContext);
+            if (project.isRoot())
+            {
+                processSystemMetrics(metrics, sensorContext);
+            }
+            processModule(metrics, project, sensorContext, system);
+
+            LOG.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
+                    project.getKey());
+            if (numberOfWorkspaceWarnings > 0)
+            {
+                LOG.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
+                        + "Please check that all root directories of the Sonargraph workspace are correct "
+                        + "and that class files have been generated before executing Sonargraph to create a report.",
+                        SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, numberOfWorkspaceWarnings);
+            }
         }
     }
 
