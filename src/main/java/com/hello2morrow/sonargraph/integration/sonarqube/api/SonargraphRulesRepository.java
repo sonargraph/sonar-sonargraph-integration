@@ -317,7 +317,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             return Optional.empty();
         }
 
-        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory()).collect(Collectors.toList());
+        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory() && f.getName().endsWith(".xml"))
+                .collect(Collectors.toList());
         if (!files.isEmpty())
         {
             try

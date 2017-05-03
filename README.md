@@ -48,5 +48,15 @@ If you have created custom issues via Scripts (check out <a href="http://blog.he
 9. If you have difficulties setting up the integration, check first the online documentation (it's searchable!). If that does not provide any answer, feel free to send an email to the <a href="https://groups.google.com/forum/#!forum/sonarqube">SonarQube Google group</a>
   or directly to support at hello2morrow.com. It certainly helps us to help you, if you include the console log in the email. 
   
+## Important ##
+The number of reported Sonargraph issues might be different in SonarQube for the following reasons: 
+As far as we know, SonarQube requires a physical resource to attach an issue. 
+There is no equivalent SonarQube resource for "logical" Sonargraph elements like "logical namespaces", so there are no SonarQube issues created for package cycles, for example. If you want to track package cycles, configure relevant metrics like "Number of cyclic packages", "Biggest Package Cycle Group", etc to be shown in a dashboard widget or make them part of your Quality Gate.
+
+On the other hand an individual SonarQube issue is attached to the source file of each duplicate code block occurrence of a Sonargraph duplicate code issue.
+The same applies to all source files involved in Sonargraph component cycle groups.             
+
+**Our recommendation:** Use SonarQube only as a reporting dashboard and use Sonargraph Architect/Explorer for detailed analysis.
+The usability and interactions for Sonargraph issues is much better in the rich-client application!             
  
 

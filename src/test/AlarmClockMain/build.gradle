@@ -77,6 +77,7 @@ sonargraphDynamicReport
     // This is a activation code for Sonargraph-Explorer Build which you can use for testing.
     // Replace with your own if you have one.
     activationCode = "36E2-0F3E-643F-B4F2"
+    prepareForSonarQube = "true"
         
     // Uncomment this if you are behind a proxy and Gradle is configured to use the proxy
     // useHttpProxyHost = true
