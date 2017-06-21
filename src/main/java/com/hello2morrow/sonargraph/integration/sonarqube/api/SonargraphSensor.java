@@ -76,9 +76,12 @@ import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
 import com.hello2morrow.sonargraph.integration.access.model.java.IJavaMetricId;
+import com.hello2morrow.sonargraph.integration.sonarqube.foundation.DuplicateFixResolutionIssue;
+import com.hello2morrow.sonargraph.integration.sonarqube.foundation.FixResolutionIssueType;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.PluginVersionReader;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
+import com.hello2morrow.sonargraph.integration.sonarqube.foundation.StandardFixResolutionIssue;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
@@ -146,8 +149,8 @@ public final class SonargraphSensor implements Sensor
         if (!determineReportFile(fileSystem, settings).isPresent())
         {
             LOGGER.warn(SEPARATOR);
-            LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph report is found.", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    project.getName(), project.getKey());
+            LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph report is found.",
+                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
             LOGGER.warn(SEPARATOR);
             return false;
         }
@@ -276,12 +279,6 @@ public final class SonargraphSensor implements Sensor
         }
 
         final IModule module = moduleOptional.get();
-        processModuleMetrics(metrics, project, sensorContext, module);
-    }
-
-    private void processModuleMetrics(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
-            final IModule module)
-    {
         final IModuleInfoProcessor moduleInfoProcessor = controller.createModuleInfoProcessor(module);
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
                 .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
@@ -303,6 +300,44 @@ public final class SonargraphSensor implements Sensor
                 moduleInfoProcessor,
                 issue -> issue.hasResolution()
                         && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.REFACTORING.getStandardName()));
+
+        processFixResolutions(moduleInfoProcessor);
+    }
+
+    private void processFixResolutions(final IModuleInfoProcessor infoProcessor)
+    {
+        final String ruleKey = SonargraphMetrics.createRuleKey(FixResolutionIssueType.FIX_RESOLUTION_RULE);
+        final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, ruleKey);
+        if (rule == null)
+        {
+            LOGGER.info("Rule '{}' is not activated, no issues for 'Fix' resolutions are created.", ruleKey);
+            return;
+        }
+        final Map<ISourceFile, Map<IResolution, List<IIssue>>> issueMap = infoProcessor
+                .getIssuesForResolutionsForSourceFiles(r -> r.getType() == ResolutionType.FIX);
+        final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
+        issueTypeToRuleMap.put(ruleKey, rule);
+        for (final Map.Entry<ISourceFile, Map<IResolution, List<IIssue>>> next : issueMap.entrySet())
+        {
+            final ISourceFile source = next.getKey();
+            final List<IIssue> issues = new ArrayList<>();
+            final Map<IResolution, List<IIssue>> resolutionToIssueMap = next.getValue();
+            for (final Map.Entry<IResolution, List<IIssue>> resolutionToIssue : resolutionToIssueMap.entrySet())
+            {
+                for (final IIssue issue : resolutionToIssue.getValue())
+                {
+                    if (issue instanceof IDuplicateCodeBlockIssue)
+                    {
+                        issues.add(new DuplicateFixResolutionIssue(resolutionToIssue.getKey(), (IDuplicateCodeBlockIssue) issue));
+                    }
+                    else
+                    {
+                        issues.add(new StandardFixResolutionIssue(resolutionToIssue.getKey(), issue));
+                    }
+                }
+            }
+            addIssuesToSourceFile(issueTypeToRuleMap, infoProcessor.getBaseDirectory(), source, issues);
+        }
     }
 
     private void processProjectMetrics(final SensorContext context, final IElementContainer container, final IInfoProcessor infoProcessor,
@@ -328,7 +363,8 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                LOGGER.error("No value found for metric '{}'. Please check the meta-data configuration for Sonargraph!", metricId.getPresentationName());
+                LOGGER.error("No value found for metric '{}'. Please check the meta-data configuration for Sonargraph!",
+                        metricId.getPresentationName());
             }
         }
         if (!unconfiguredMetrics.isEmpty())
@@ -377,6 +413,11 @@ public final class SonargraphSensor implements Sensor
     private void processIssues(final IModuleInfoProcessor infoProcessor, final Predicate<IIssue> issueFilter)
     {
         final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
+        addIssuesForActiveRules(infoProcessor, issueMap);
+    }
+
+    private void addIssuesForActiveRules(final IModuleInfoProcessor infoProcessor, final Map<ISourceFile, List<IIssue>> issueMap)
+    {
         final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
         final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream).map(issue -> issue.getIssueType().getName()).distinct()
                 .collect(Collectors.toList());
@@ -504,8 +545,16 @@ public final class SonargraphSensor implements Sensor
         }
 
         final StringBuilder msg = new StringBuilder();
-        msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
-                .append(": ").append(issue.getDescription()).append(": ");
+
+        if (issue instanceof DuplicateFixResolutionIssue)
+        {
+
+        }
+        else
+        {
+            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
+                    .append(": ").append(issue.getDescription()).append(": ");
+        }
         msg.append("\nLine ").append(occurrence.getStartLine()).append(" to ").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
                 .append(" is a duplicate of");
         for (final IDuplicateCodeBlockOccurrence next : others)
@@ -521,8 +570,8 @@ public final class SonargraphSensor implements Sensor
         issuable.addIssue(sqIssue);
     }
 
-    private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level,
-            final IInfoProcessor infoProcessor, final IElementContainer container)
+    private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
+            final IElementContainer container)
     {
         final String packagesMetricId = IJavaMetricId.StandardName.JAVA_PACKAGES.getStandardName();
         final Optional<IMetricId> packagesMetric = infoProcessor.getMetricId(level, packagesMetricId);
@@ -547,8 +596,8 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext context,
-            final IMetricLevel level, final IInfoProcessor infoProcessor)
+    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext context, final IMetricLevel level,
+            final IInfoProcessor infoProcessor)
     {
         assert metrics != null : "Parameter 'metrics' of method 'calculateMetricsForArchitectureWidget' must not be null";
         assert context != null : "Parameter 'sensorContext' of method 'calculateMetricsForArchitectureWidget' must not be null";
@@ -561,8 +610,7 @@ public final class SonargraphSensor implements Sensor
         final double numberOfUnresolvedCriticalIssues = infoProcessor.getIssues(
                 issue -> !issue.hasResolution()
                         && (issue.getIssueType().getSeverity() == Severity.WARNING || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
-        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION,
-                numberOfUnresolvedCriticalIssues));
+        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION, numberOfUnresolvedCriticalIssues));
 
         final double numberOfUnresolvedThresholdViolations = infoProcessor.getIssues(
                 issue -> !issue.hasResolution()

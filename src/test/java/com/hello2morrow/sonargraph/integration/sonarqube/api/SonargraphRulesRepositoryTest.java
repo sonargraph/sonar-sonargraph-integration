@@ -197,7 +197,7 @@ public class SonargraphRulesRepositoryTest
         assertNotNull(SonargraphPluginBase.PLUGIN_KEY, repository);
         assertEquals(Java.KEY, repository.language());
         final List<RulesDefinition.Rule> rules = repository.rules();
-        assertEquals("Wrong number of default rules", 58, rules.size());
+        assertEquals("Wrong number of default rules", 59, rules.size());
 
         final String[] ruleNames = new String[] { "UnresolvedRequiredArtifact", "ArchitectureViolation", "DuplicateCodeBlock",
                 "WorkspaceDependencyProblematic", "ThresholdViolation", };

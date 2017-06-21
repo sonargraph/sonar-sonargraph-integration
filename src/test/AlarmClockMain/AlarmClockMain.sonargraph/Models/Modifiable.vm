@@ -1,13 +1,29 @@
 <?xml version="1.0" ?>
-<virtualModel version="8.6.1.0">
+<virtualModel version="9.4.2.100">
     <resolutions>
-        <delete assignedTo="Ingmar" priority="Medium" date="2015-10-26T09:25:12.394Z" description="">
-            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="DeleteRefactoring" descriptor="8330b82c0bfdeb2dca1d74e763012aee"></type>
-            <elementPattern type="FullyQualifiedName">Workspace:Foundation:./Foundation/target/classes:com:h2m:common:observer:Observable.java</elementPattern>
-        </delete>
         <fix assignedTo="Ingmar" priority="Medium" date="2015-10-26T09:25:30.452Z" description="">
             <type class="Architecture" name="ArchitectureViolation" descriptor="./Layers.arc"></type>
             <dependencyPattern type="Wildcard" from="Workspace:AlarmClock:./AlarmClock/target/classes:com:h2m:alarm:model:AlarmClock.java:AlarmClock:AlarmClock()" to="Workspace:AlarmClock:./AlarmClock/target/classes:com:h2m:alarm:presentation:AlarmToFile.java:AlarmToFile:AlarmToFile()"></dependencyPattern>
+        </fix>
+        <fix assignedTo="John Doe" priority="Medium" date="2017-06-01T07:01:48.109Z" description="Fix this violation">
+            <type class="Architecture" name="ArchitectureViolation" descriptor="./Layers.arc"></type>
+            <dependencyPattern type="Wildcard" from="Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:model:AlarmClock.java:AlarmClock:AlarmClock()" to="Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:presentation:AlarmToFile.java:AlarmToFile"></dependencyPattern>
+        </fix>
+        <fix assignedTo="IK" priority="Medium" date="2017-06-20T14:20:36.820Z" description="Sample Fix Resolution">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="DuplicateCodeBlock"></type>
+            <elementPattern type="FullyQualifiedName">Files:BaseDirectory:SystemDirectory:Analyzers:DuplicateCode:./Modifiable.vm:e6d640a9915a85b0ead02a691deb1936|971cd1282934e5211370848a587c3b79</elementPattern>
+            <matching info="2 occurrences with 52 line(s) found in 2 file(s)">
+                <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:presentation:AlarmClock.java</elementPattern>
+                <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:presentation:Main.java</elementPattern>
+            </matching>
+        </fix>
+        <fix assignedTo="Ingmar" priority="Medium" date="2017-06-21T13:20:20.320Z" description="Extract method.">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="DuplicateCodeBlock"></type>
+            <elementPattern type="FullyQualifiedName">Files:BaseDirectory:SystemDirectory:Analyzers:DuplicateCode:./Modifiable.vm:9f6dac3569223fb88b09670514c163f9|971cd1282934e5211370848a587c3b79</elementPattern>
+            <matching info="2 occurrences with 52 line(s) found in 2 file(s)">
+                <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:model:AlarmClock.java</elementPattern>
+                <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:presentation:Main.java</elementPattern>
+            </matching>
         </fix>
     </resolutions>
 </virtualModel>
