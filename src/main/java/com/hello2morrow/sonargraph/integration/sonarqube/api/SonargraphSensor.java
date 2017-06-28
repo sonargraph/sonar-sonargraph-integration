@@ -446,8 +446,9 @@ public final class SonargraphSensor implements Sensor
         assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
         assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
-        final String sourceRelPath = sourceFile.getRelativePath();
 
+        //If relativePath then omit rootDirectoryRelPath
+        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
@@ -548,7 +549,7 @@ public final class SonargraphSensor implements Sensor
 
         if (issue instanceof DuplicateFixResolutionIssue)
         {
-
+            //TODO [IK]
         }
         else
         {
@@ -560,7 +561,9 @@ public final class SonargraphSensor implements Sensor
         for (final IDuplicateCodeBlockOccurrence next : others)
         {
             msg.append("\n");
-            msg.append(next.getSourceFile().getRelativePath()).append(", line ").append(next.getStartLine()).append(" to ")
+            msg.append(
+                    next.getSourceFile().getRelativePath() != null ? next.getSourceFile().getRelativePath() : next.getSourceFile()
+                            .getPresentationName()).append(", line ").append(next.getStartLine()).append(" to ")
                     .append(next.getStartLine() + next.getBlockSize() - 1);
         }
 

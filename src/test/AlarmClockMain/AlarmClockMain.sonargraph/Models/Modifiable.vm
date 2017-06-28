@@ -25,5 +25,21 @@
                 <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:presentation:Main.java</elementPattern>
             </matching>
         </fix>
+        <rename newName="AlarmClock2" language="Java" elementType="Component" assignedTo="" priority="Medium" date="2017-06-22T11:43:06.728Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="RenameRefactoring" descriptor="2d2fd994a6ff3bcbe295f1afa369ab06"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:model:AlarmClock.java</elementPattern>
+        </rename>
+        <move targetRootDirectory="Workspace:Foundation:./Foundation/src/main/java" moveToParentName="com.h2m.alarm" language="Java" elementType="Namespace" assignedTo="" priority="Medium" date="2017-06-23T10:21:06.181Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="MoveRefactoring" descriptor="376bbb0bbefd1cd72ae240b2f976461c"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:p1</elementPattern>
+        </move>
+        <fix assignedTo="Ingmar" priority="Medium" date="2017-06-23T10:21:41.109Z" description="Fix supertype reference.">
+            <type class="Script" name="Supertype uses subtype" descriptor="./Core/SuperTypeUsesSubType.scr:Warning"></type>
+            <dependencyPattern type="Wildcard" from="Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:p1:C1.java:C1" to="Workspace:AlarmClock:./AlarmClock/src/main/java:com:h2m:alarm:p2:C2.java:C2"></dependencyPattern>
+        </fix>
+        <rename newName="C1_2" language="Java" elementType="Component" assignedTo="" priority="Medium" date="2017-06-27T12:31:15.583Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="RenameRefactoring" descriptor="86253575c1e5e6265e52ee2944f0456c"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:Foundation:./Foundation/src/main/java:com:h2m:alarm:p1:C1.java</elementPattern>
+        </rename>
     </resolutions>
 </virtualModel>
