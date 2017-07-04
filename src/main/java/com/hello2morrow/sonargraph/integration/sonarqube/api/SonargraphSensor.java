@@ -550,7 +550,7 @@ public final class SonargraphSensor implements Sensor
 
         if (issue instanceof DuplicateFixResolutionIssue)
         {
-            //TODO [IK]
+            //TODO [DME]
         }
         else
         {
