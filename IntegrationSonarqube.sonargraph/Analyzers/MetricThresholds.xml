@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="9.4.2.100" analyzer="MetricThresholds">
+    <stringEntry value="0:1000" name="CoreLinesOfCode:SourceFile"></stringEntry>
+    <stringEntry value="0:15" name="CoreModifiedCcn:Routine"></stringEntry>
+</analyzerConfiguration>

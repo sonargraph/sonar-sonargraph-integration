@@ -13,7 +13,7 @@
 
   <inceptionYear>2015</inceptionYear>
   <organization>
-    <name>hello2morrow</name>
+    <name>hello2morrow GmbH</name>
     <url>http://www.hello2morrow.com</url>
   </organization>
   <licenses>
@@ -30,6 +30,10 @@
     <developer>
       <id>andreashoyerh2m</id>
       <name>Andreas Hoyer</name>
+    </developer>
+    <developer>
+      <id>dietmarmenges</id>
+      <name>Dietmar Menges</name>
     </developer>
   </developers>
 

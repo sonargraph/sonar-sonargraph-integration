@@ -515,6 +515,7 @@ public final class SonargraphSensor implements Sensor
     private void handleDuplicateCodeBlock(final IDuplicateCodeBlockIssue issue, final ISourceFile sourceFile, final InputPath resource,
             final ActiveRule rule)
     {
+        assert issue != null : "Parameter 'issue' of method 'handleDuplicateCodeBlock' must not be null";
         for (final IDuplicateCodeBlockOccurrence occurrence : issue.getOccurrences())
         {
             if (occurrence.getSourceFile().equals(sourceFile))
