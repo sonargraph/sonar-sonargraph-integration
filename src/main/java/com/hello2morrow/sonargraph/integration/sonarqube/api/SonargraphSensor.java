@@ -547,18 +547,11 @@ public final class SonargraphSensor implements Sensor
         }
 
         final StringBuilder msg = new StringBuilder();
-
-        if (issue instanceof DuplicateFixResolutionIssue)
-        {
-            //TODO [DME]
-        }
-        else
-        {
-            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
-                    .append(": ").append(issue.getDescription()).append(": ");
-        }
+        msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
+                .append(": ").append(issue.getDescription()).append(": ");
         msg.append("\nLine ").append(occurrence.getStartLine()).append(" to ").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
                 .append(" is a duplicate of");
+
         for (final IDuplicateCodeBlockOccurrence next : others)
         {
             msg.append("\n");

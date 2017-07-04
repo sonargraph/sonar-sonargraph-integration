@@ -44,7 +44,6 @@ import com.hello2morrow.sonargraph.integration.sonarqube.view.SonargraphStructur
         @Property(key = SonargraphPluginBase.REPORT_PATH, defaultValue = "", name = "Path of the Sonargraph report (empty means default value)", project = true, module = false, global = false) })
 public final class SonargraphPlugin extends SonarPlugin
 {
-
     @SuppressWarnings("rawtypes")
     @Override
     public List getExtensions()
@@ -52,7 +51,6 @@ public final class SonargraphPlugin extends SonarPlugin
         final List<Class<? extends Extension>> list = new ArrayList<>(5);
         list.add(SonargraphRulesRepository.class);
         list.add(SonargraphSensor.class);
-
         list.add(SonargraphArchitectureWidget.class);
         list.add(SonargraphStructureWidget.class);
         list.add(SonargraphStructuralDebtWidget.class);
