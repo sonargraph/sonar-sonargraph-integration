@@ -38,29 +38,29 @@ public class StandardFixResolutionIssue implements IIssue
     }
 
     @Override
-    public IIssueProvider getIssueProvider()
+    public final IIssueProvider getIssueProvider()
     {
         return new StandardFixIssueProvider();
     }
 
-    protected IResolution getResolution()
+    protected final IResolution getResolution()
     {
         return resolution;
     }
 
     @Override
-    public IIssueType getIssueType()
+    public final IIssueType getIssueType()
     {
         return new FixResolutionIssueType();
     }
 
     @Override
-    public boolean hasResolution()
+    public final boolean hasResolution()
     {
         return true;
     }
 
-    protected IIssue getIssue()
+    public final IIssue getIssue()
     {
         return issue;
     }

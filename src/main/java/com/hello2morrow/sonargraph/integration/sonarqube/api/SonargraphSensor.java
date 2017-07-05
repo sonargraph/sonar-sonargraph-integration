@@ -59,6 +59,7 @@ import com.hello2morrow.sonargraph.integration.access.foundation.NumberUtility;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
+import com.hello2morrow.sonargraph.integration.access.model.ICycleGroupIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IElementContainer;
@@ -498,8 +499,24 @@ public final class SonargraphSensor implements Sensor
             issueBuilder.severity(rule.getSeverity().toString());
         }
 
-        final String msg = issue.getIssueType().getPresentationName() + ": " + issue.getDescription() + " ["
-                + issue.getIssueProvider().getPresentationName() + "]";
+        final String msg;
+        if (issue instanceof ICycleGroupIssue)
+        {
+            msg = ((ICycleGroupIssue) issue).getPresentationName() + " " + issue.getDescription() + " ["
+                    + issue.getIssueProvider().getPresentationName() + "]";
+        }
+        else if (issue instanceof StandardFixResolutionIssue && ((StandardFixResolutionIssue) issue).getIssue() instanceof ICycleGroupIssue)
+        {
+            final ICycleGroupIssue cycleGroupIssue = (ICycleGroupIssue) ((StandardFixResolutionIssue) issue).getIssue();
+            msg = issue.getIssueType().getCategory().getPresentationName() + " [" + cycleGroupIssue.getPresentationName() + "] "
+                    + issue.getDescription() + " [" + cycleGroupIssue.getIssueProvider().getPresentationName() + "]";
+        }
+        else
+        {
+            msg = issue.getIssueType().getPresentationName() + " " + issue.getDescription() + " [" + issue.getIssueProvider().getPresentationName()
+                    + "]";
+        }
+
         issueBuilder.message(msg);
         final int line = issue.getLineNumber();
 
@@ -550,16 +567,16 @@ public final class SonargraphSensor implements Sensor
 
         if (issue instanceof DuplicateFixResolutionIssue)
         {
-            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
-                    .append(": ").append(issue.getDescription()).append(": ");
+            final IDuplicateCodeBlockIssue duplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) ((DuplicateFixResolutionIssue) issue).getIssue();
+            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("] ")
+                    .append(issue.getDescription()).append(" [").append(duplicateCodeBlockIssue.getIssueProvider().getPresentationName()).append("]");
         }
         else
         {
-            msg.append(issue.getPresentationName()).append(": ").append(issue.getDescription()).append(": ");
+            msg.append(issue.getPresentationName()).append(" ").append(issue.getDescription()).append(" [")
+                    .append(issue.getIssueProvider().getPresentationName()).append("]");
         }
 
-        msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
-                .append(": ").append(issue.getDescription()).append(": ");
         msg.append("\nLine ").append(occurrence.getStartLine()).append(" to ").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
                 .append(" is a duplicate of");
 
