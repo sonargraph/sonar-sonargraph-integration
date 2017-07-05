@@ -547,6 +547,17 @@ public final class SonargraphSensor implements Sensor
         }
 
         final StringBuilder msg = new StringBuilder();
+
+        if (issue instanceof DuplicateFixResolutionIssue)
+        {
+            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
+                    .append(": ").append(issue.getDescription()).append(": ");
+        }
+        else
+        {
+            msg.append(issue.getPresentationName()).append(": ").append(issue.getDescription()).append(": ");
+        }
+
         msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("]")
                 .append(": ").append(issue.getDescription()).append(": ");
         msg.append("\nLine ").append(occurrence.getStartLine()).append(" to ").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
