@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016 hello2morrow GmbH
+ * Copyright (C) 2016-2017 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,6 +46,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMergedExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
+import com.hello2morrow.sonargraph.integration.sonarqube.foundation.FixResolutionIssueType;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
@@ -253,7 +254,23 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             rule.setSeverity(convertSeverity(type.getSeverity()));
         }
 
+        //Add special rule for Fix resolution
+        createFixResolutionRule(repository);
+
         repository.done();
+    }
+
+    private void createFixResolutionRule(final NewRepository repository)
+    {
+        final NewRule rule = repository.createRule(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics
+                .createRuleKey(FixResolutionIssueType.FIX_RESOLUTION_RULE));
+        rule.setName(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + "Fix Resolution");
+        final String description = "'Fix' resolution for a Sonargraph issue";
+        final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, "fix"));
+
+        rule.setHtmlDescription(description);
+        rule.addTags(tags.toArray(new String[] {}));
+        rule.setSeverity(Severity.INFO);
     }
 
     private Optional<IExportMetaData> loadMetaDataForConfiguration(final IMetaDataController controller, final String metaDataConfigurationPath)
@@ -317,7 +334,8 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             return Optional.empty();
         }
 
-        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory()).collect(Collectors.toList());
+        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory() && f.getName().endsWith(".xml"))
+                .collect(Collectors.toList());
         if (!files.isEmpty())
         {
             try

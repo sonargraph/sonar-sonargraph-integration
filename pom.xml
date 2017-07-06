@@ -5,7 +5,7 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
-  <version>2.0.1</version>
+  <version>2.1.0</version>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarQube Sonargraph 8 Integration Plugin</name>
@@ -13,7 +13,7 @@
 
   <inceptionYear>2015</inceptionYear>
   <organization>
-    <name>hello2morrow</name>
+    <name>hello2morrow GmbH</name>
     <url>http://www.hello2morrow.com</url>
   </organization>
   <licenses>
@@ -31,6 +31,10 @@
       <id>andreashoyerh2m</id>
       <name>Andreas Hoyer</name>
     </developer>
+    <developer>
+      <id>dietmarmenges</id>
+      <name>Dietmar Menges</name>
+    </developer>
   </developers>
 
   <properties>
@@ -46,7 +50,7 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>2.0.0</version>
+      <version>3.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.codehaus.sonar</groupId>

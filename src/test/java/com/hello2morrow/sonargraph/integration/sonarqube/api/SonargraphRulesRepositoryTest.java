@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016 hello2morrow GmbH
+ * Copyright (C) 2016-2017 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -197,7 +197,7 @@ public class SonargraphRulesRepositoryTest
         assertNotNull(SonargraphPluginBase.PLUGIN_KEY, repository);
         assertEquals(Java.KEY, repository.language());
         final List<RulesDefinition.Rule> rules = repository.rules();
-        assertEquals("Wrong number of default rules", 58, rules.size());
+        assertEquals("Wrong number of default rules", 59, rules.size());
 
         final String[] ruleNames = new String[] { "UnresolvedRequiredArtifact", "ArchitectureViolation", "DuplicateCodeBlock",
                 "WorkspaceDependencyProblematic", "ThresholdViolation", };
