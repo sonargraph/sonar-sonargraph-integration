@@ -15,26 +15,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonargraph.integration.sonarqube.view;
+package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
 
-import static org.junit.Assert.assertTrue;
+import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 
-import org.junit.Test;
-import org.sonar.api.web.RubyRailsWidget;
-
-public class WidgetTest
+public class FixResolutionIssueCategory implements IIssueCategory
 {
-    @Test
-    public void test()
+    private static final long serialVersionUID = -3920499764178581468L;
+
+    @Override
+    public String getName()
     {
-        checkWidgetIdAndTitle(new SonargraphArchitectureWidget());
-        checkWidgetIdAndTitle(new SonargraphStructuralDebtWidget());
-        checkWidgetIdAndTitle(new SonargraphStructureWidget());
+        return "Fix";
     }
 
-    private void checkWidgetIdAndTitle(final RubyRailsWidget widget)
+    @Override
+    public String getPresentationName()
     {
-        assertTrue("Missing id", widget.getId().length() > 0);
-        assertTrue("Missing title", widget.getTitle().length() > 0);
+        return getName();
     }
 }

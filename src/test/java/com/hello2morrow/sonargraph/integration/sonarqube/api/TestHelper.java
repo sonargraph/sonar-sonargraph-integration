@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016 hello2morrow GmbH
+ * Copyright (C) 2016-2017 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,8 +61,10 @@ public final class TestHelper
     public static final String REPORT_PATH_MULTI_MODULES = "src/test/AlarmClockMain/AlarmClockMain.xml";
     public static final String REPORT_PATH_SINGLE_MODULE = "src/test/report/AlarmClock_Ant.xml";
     public static final String REPORT_CRM = new File("./src/test/report/CRM-Sonargraph-Report.xml").getAbsolutePath();
-    public static final String REPORT_EXPLORER = "src/test/explorer/AlarmClockMain.xml";
+    public static final String REPORT_EXPLORER = "src/test/report/explorer/AlarmClockMain.xml";
     public static final String REPORT_PATH_WORKSPACE_ISSUES = "src/test/report/AlarmClockMain_WorkpaceProblems.xml";
+
+    public static final String REPORT_WITH_FIX_RESOLUTIONS = "src/test/report/AlarmClockMain_Fix_Resolution.xml";
 
     private static Map<String, Measure<?>> s_systemMetrics;
     private static Map<String, Integer> s_ruleKeyToNumberOfIssuesMap;
