@@ -1,0 +1,11 @@
+SonarQube Sonargraph 8 Integration Plugin
+=========================================
+
+2.1.0
+=====
+
+New Features
+------------
+- Now the original location of a refactored element is used to add refactoring definitions.
+- Fix tasks are now available are rule.
+- Resolutions in general are supported. 
