@@ -26,7 +26,7 @@ final class StandardFixIssueProvider implements IIssueProvider
     @Override
     public String getName()
     {
-        return "Sonargraph";
+        return "Core";
     }
 
     @Override
