@@ -35,6 +35,7 @@ public final class Utilities
 
     private Utilities()
     {
+        super();
     }
 
     public static String getBuildUnitName(final String fqName)
@@ -135,6 +136,7 @@ public final class Utilities
 
     public static boolean areSonargraphRulesActive(final RulesProfile profile)
     {
+        assert profile != null : "Parameter 'profile' of method 'areSonargraphRulesActive' must not be null";
         return !profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
     }
 
@@ -148,5 +150,4 @@ public final class Utilities
         }
         return null;
     }
-
 }

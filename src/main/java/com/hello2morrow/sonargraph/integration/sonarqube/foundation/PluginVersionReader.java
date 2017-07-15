@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * The version is dynamically generated during build and this class extracts it from the generated properties file.
  * @author Ingmar
  */
-public class PluginVersionReader
+public final class PluginVersionReader
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(PluginVersionReader.class);
 
