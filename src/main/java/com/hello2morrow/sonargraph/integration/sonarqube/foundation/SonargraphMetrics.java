@@ -21,7 +21,7 @@ import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
 
-public class SonargraphMetrics
+public final class SonargraphMetrics
 {
     public static final String DOMAIN_SONARGRAPH = "Sonargraph Integration";
 
@@ -125,7 +125,7 @@ public class SonargraphMetrics
 
     private SonargraphMetrics()
     {
-        //utility class
+        super();
     }
 
     public static String createRuleKey(final String name)
@@ -142,5 +142,4 @@ public class SonargraphMetrics
     {
         return createMetricKey(StringUtility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", ""));
     }
-
 }

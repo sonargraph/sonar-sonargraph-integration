@@ -150,4 +150,22 @@ public final class Utilities
         }
         return null;
     }
+
+    public static String toLowerCase(String input, final boolean firstLower)
+    {
+        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
+
+        if (input.isEmpty())
+        {
+            return input;
+        }
+
+        if (input.length() == 1)
+        {
+            return firstLower ? input.toLowerCase() : input.toUpperCase();
+        }
+
+        input = input.toLowerCase();
+        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
+    }
 }

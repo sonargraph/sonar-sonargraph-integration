@@ -26,7 +26,7 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPl
 
 @WidgetCategory(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME)
 @Description("Reports metrics on the architectural quality of the project.")
-public class SonargraphArchitectureWidget extends AbstractRubyTemplate implements RubyRailsWidget
+public final class SonargraphArchitectureWidget extends AbstractRubyTemplate implements RubyRailsWidget
 {
     @Override
     protected String getTemplatePath()
