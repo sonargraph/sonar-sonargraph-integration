@@ -371,6 +371,98 @@ public final class SonargraphSensor implements Sensor
         return Optional.empty();
     }
 
+    private void addIssuesToSourceFile(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
+            final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
+    {
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
+        assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
+
+        //If relativePath then omit rootDirectoryRelPath
+        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        if (!resource.isPresent())
+        {
+            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
+            return;
+        }
+
+        for (final IIssue nextIssue : issues)
+        {
+            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphMetrics.createRuleKey(nextIssue.getIssueType().getName()));
+            if (nextRule == null)
+            {
+                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", nextIssue
+                        .getIssueType().getPresentationName());
+                continue;
+            }
+
+            if (nextIssue instanceof IDuplicateCodeBlockIssue)
+            {
+                final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
+                final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
+
+                for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
+                {
+                    if (nextOccurrence.getSourceFile().equals(sourceFile))
+                    {
+                        final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
+                        others.remove(nextOccurrence);
+                        createIssue(resource.get(), nextRule, nextOccurrence.getStartLine(),
+                                IssueMessageCreator.create(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others));
+                    }
+                }
+            }
+            else
+            {
+                createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+            }
+        }
+    }
+
+    private void addIssuesToNamedElement(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
+            final String baseDir, final INamedElement namedElement, final List<IIssue> issues)
+    {
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToNamedElement' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToNamedElement' must not be null";
+        assert namedElement != null : "Parameter 'namedElement' of method 'addIssuesToNamedElement' must not be null";
+
+        final String kind = namedElement.getKind();
+        if ("JavaPackageFragment".equals(kind) || "JavaLogicalModuleNamespace".equals(kind))
+        {
+            final String presentationName = namedElement.getPresentationName();
+            System.out.println(kind + ": " + presentationName);
+        }
+        /*
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
+
+        //If relativePath then omit rootDirectoryRelPath
+        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        if (!resource.isPresent())
+        {
+            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
+            return;
+        }
+
+        for (final IIssue nextIssue : issues)
+        {
+            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphMetrics.createRuleKey(nextIssue.getIssueType().getName()));
+            if (nextRule == null)
+            {
+                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", nextIssue
+                        .getIssueType().getPresentationName());
+                continue;
+            }
+
+            createIssue(resource.get(), nextRule, -1, IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+        }
+        */
+    }
+
     private void processModule(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
             final ISoftwareSystem softwareSysten, final Map<String, ActiveRule> issueTypeToRuleMap)
     {
@@ -398,12 +490,20 @@ public final class SonargraphSensor implements Sensor
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
 
-        final Map<ISourceFile, List<IIssue>> issueMap = moduleInfoProcessor.getIssuesForSourceFiles(issue -> !issue.isIgnored()
+        final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor.getIssuesForSourceFiles(issue -> !issue.isIgnored()
                 && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
-        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : issueMap.entrySet())
+        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
         {
             addIssuesToSourceFile(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(),
                     issuesPerSourceFile.getValue());
+        }
+
+        final Map<INamedElement, List<IIssue>> moduleElementIssueMap = moduleInfoProcessor.getIssuesForModuleElements(issue -> !issue.isIgnored()
+                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
+        for (final Entry<INamedElement, List<IIssue>> issuesPerNamedElement : moduleElementIssueMap.entrySet())
+        {
+            addIssuesToNamedElement(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerNamedElement.getKey(),
+                    issuesPerNamedElement.getValue());
         }
     }
 
@@ -506,57 +606,6 @@ public final class SonargraphSensor implements Sensor
             builder.line(line);
         }
         issuable.addIssue(builder.build());
-    }
-
-    private void addIssuesToSourceFile(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
-            final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
-    {
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
-        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
-        assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
-        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
-
-        //If relativePath then omit rootDirectoryRelPath
-        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
-        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
-        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
-        if (!resource.isPresent())
-        {
-            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
-            return;
-        }
-
-        for (final IIssue nextIssue : issues)
-        {
-            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphMetrics.createRuleKey(nextIssue.getIssueType().getName()));
-            if (nextRule == null)
-            {
-                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", nextIssue
-                        .getIssueType().getPresentationName());
-                continue;
-            }
-
-            if (nextIssue instanceof IDuplicateCodeBlockIssue)
-            {
-                final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
-                final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
-
-                for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
-                {
-                    if (nextOccurrence.getSourceFile().equals(sourceFile))
-                    {
-                        final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
-                        others.remove(nextOccurrence);
-                        createIssue(resource.get(), nextRule, nextOccurrence.getStartLine(),
-                                IssueMessageCreator.create(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others));
-                    }
-                }
-            }
-            else
-            {
-                createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
-            }
-        }
     }
 
     private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
