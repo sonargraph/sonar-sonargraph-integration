@@ -422,6 +422,7 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
+    /*
     private void addIssuesToNamedElement(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
             final String baseDir, final INamedElement namedElement, final List<IIssue> issues)
     {
@@ -435,7 +436,6 @@ public final class SonargraphSensor implements Sensor
             final String presentationName = namedElement.getPresentationName();
             System.out.println(kind + ": " + presentationName);
         }
-        /*
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
 
         //If relativePath then omit rootDirectoryRelPath
@@ -460,8 +460,8 @@ public final class SonargraphSensor implements Sensor
 
             createIssue(resource.get(), nextRule, -1, IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
         }
-        */
     }
+     */
 
     private void processModule(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
             final ISoftwareSystem softwareSysten, final Map<String, ActiveRule> issueTypeToRuleMap)
@@ -498,6 +498,7 @@ public final class SonargraphSensor implements Sensor
                     issuesPerSourceFile.getValue());
         }
 
+        /*
         final Map<INamedElement, List<IIssue>> moduleElementIssueMap = moduleInfoProcessor.getIssuesForModuleElements(issue -> !issue.isIgnored()
                 && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
         for (final Entry<INamedElement, List<IIssue>> issuesPerNamedElement : moduleElementIssueMap.entrySet())
@@ -505,6 +506,7 @@ public final class SonargraphSensor implements Sensor
             addIssuesToNamedElement(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerNamedElement.getKey(),
                     issuesPerNamedElement.getValue());
         }
+        */
     }
 
     private void processProjectMetrics(final SensorContext context, final IElementContainer container, final IInfoProcessor infoProcessor,

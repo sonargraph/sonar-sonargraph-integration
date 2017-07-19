@@ -85,18 +85,6 @@ public final class NamespaceRenameReportTest
             for (final Entry<INamedElement, List<IIssue>> nextEntry : issueMap.entrySet())
             {
                 fqNameToNamedElementIssues.put(nextEntry.getKey().getFqName(), new NamedElementEntry(nextEntry.getKey(), nextEntry.getValue()));
-                //                final boolean found = expectedFqNames.remove(namedElement.getFqName());
-                //                assertTrue("Not an expected element: " + namedElement.getFqName(), found);
-                //                assertEquals("Wrong fq name of element with issues", "Workspace:M1:./src:h2m", namedElement.getFqName());
-                //                final List<IIssue> issues = nextEntry.getValue();
-                //                assertEquals("2 issues expected", 2, issues.size());
-                //
-                //                final String kind = namedElement.getKind();
-                //                if ("JavaPackageFragment".equals(kind) || "JavaLogicalModuleNamespace".equals(kind))
-                //                {
-                //                    final String presentationName = namedElement.getPresentationName();
-                //                    System.out.println(kind + ": " + presentationName);
-                //                }
             }
 
             assertEquals("3 elements with issues expected", 3, fqNameToNamedElementIssues.size());
@@ -109,6 +97,10 @@ public final class NamespaceRenameReportTest
             final String second = "Logical module namespaces:M1:h2m:p1";
             nextNamedElementEntry = fqNameToNamedElementIssues.remove(second);
             assertNotNull("Element not found:" + second, nextNamedElementEntry);
+
+            //            final String kind = nextNamedElementEntry.getNamedElement().getKind();
+            //            final String presentationName = nextNamedElementEntry.getNamedElement().getPresentationName();
+            //            System.out.println(kind + ": " + presentationName);
 
             final String third = "Logical module namespaces:M1:h2m:p2";
             nextNamedElementEntry = fqNameToNamedElementIssues.remove(third);
