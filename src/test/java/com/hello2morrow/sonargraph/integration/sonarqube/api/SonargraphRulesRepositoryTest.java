@@ -59,7 +59,7 @@ public class SonargraphRulesRepositoryTest
     public void testCreateRulesFromPlugin()
     {
         m_rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings());
-        verifyRules(m_rulesDefinition);
+        verifyRules(m_rulesDefinition, 56);
     }
 
     @SuppressWarnings("rawtypes")
@@ -67,7 +67,7 @@ public class SonargraphRulesRepositoryTest
     public void testCreateRulesFromDirectory()
     {
         final SonargraphRulesRepository rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings(META_DATA_PATH));
-        verifyRules(rulesDefinition);
+        verifyRules(rulesDefinition, 58);
 
         final List<Metric> metrics = rulesDefinition.getMetrics();
 
@@ -137,7 +137,7 @@ public class SonargraphRulesRepositoryTest
     {
         final Settings settings = TestHelper.initSettings();
         m_rulesDefinition = new SonargraphRulesRepository(settings);
-        verifyRules(m_rulesDefinition);
+        verifyRules(m_rulesDefinition, 56);
         final List<Metric> original = m_rulesDefinition.getMetrics();
 
         settings.setProperty(SonargraphPluginBase.METADATA_PATH, META_DATA_MERGED_PATH);
@@ -152,7 +152,7 @@ public class SonargraphRulesRepositoryTest
     {
         final Settings settings = TestHelper.initSettings();
         m_rulesDefinition = new SonargraphRulesRepository(settings);
-        verifyRules(m_rulesDefinition);
+        verifyRules(m_rulesDefinition, 56);
         final List<Metric> original = m_rulesDefinition.getMetrics();
 
         settings.setProperty(SonargraphPluginBase.METADATA_PATH, "");
@@ -164,7 +164,7 @@ public class SonargraphRulesRepositoryTest
     @Test
     public void testCreateRulesFromInvalidFilePath()
     {
-        verifyRules(new SonargraphRulesRepository(TestHelper.initSettings("./not_existing_path")));
+        verifyRules(new SonargraphRulesRepository(TestHelper.initSettings("./not_existing_path")), 56);
     }
 
     @Test
@@ -188,7 +188,7 @@ public class SonargraphRulesRepositoryTest
         assertFalse("Metrics must have been loaded", m_rulesDefinition.getLoadedMetrics().isEmpty());
     }
 
-    private void verifyRules(final RulesDefinition rulesDefinition)
+    private void verifyRules(final RulesDefinition rulesDefinition, final int expectedRules)
     {
         final RulesDefinition.Context context = new RulesDefinition.Context();
         rulesDefinition.define(context);
@@ -197,7 +197,7 @@ public class SonargraphRulesRepositoryTest
         assertNotNull(SonargraphPluginBase.PLUGIN_KEY, repository);
         assertEquals(Java.KEY, repository.language());
         final List<RulesDefinition.Rule> rules = repository.rules();
-        assertEquals("Wrong number of default rules", 59, rules.size());
+        assertEquals("Wrong number of default rules", expectedRules, rules.size());
 
         final String[] ruleNames = new String[] { "UnresolvedRequiredArtifact", "ArchitectureViolation", "DuplicateCodeBlock",
                 "WorkspaceDependencyProblematic", "ThresholdViolation", };

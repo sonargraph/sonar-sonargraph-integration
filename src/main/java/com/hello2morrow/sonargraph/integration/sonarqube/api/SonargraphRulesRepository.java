@@ -46,7 +46,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMergedExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.FixResolutionIssueType;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
@@ -254,23 +253,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
             rule.setSeverity(convertSeverity(type.getSeverity()));
         }
 
-        //Add special rule for Fix resolution
-        createFixResolutionRule(repository);
-
         repository.done();
-    }
-
-    private void createFixResolutionRule(final NewRepository repository)
-    {
-        final NewRule rule = repository.createRule(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics
-                .createRuleKey(FixResolutionIssueType.FIX_RESOLUTION_RULE));
-        rule.setName(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + "Fix Resolution");
-        final String description = "'Fix' resolution for a Sonargraph issue";
-        final List<String> tags = new ArrayList<>(Arrays.asList(RULE_TAG_SONARGRAPH, "fix"));
-
-        rule.setHtmlDescription(description);
-        rule.addTags(tags.toArray(new String[] {}));
-        rule.setSeverity(Severity.INFO);
     }
 
     private Optional<IExportMetaData> loadMetaDataForConfiguration(final IMetaDataController controller, final String metaDataConfigurationPath)

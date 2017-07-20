@@ -1,0 +1,86 @@
+<?xml version="1.0" ?>
+<ns2:report xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" id="_0" systemId="f81a2e8e8c9804ce391a38bef0f6f51a" name="Test" version="9.4.3.100" systemPath="/Users/Dietmar/Documents/Workspaces/sgng-e4/Test/Test.sonargraph" timestamp="2017-07-17T17:36:38.689-05:00" currentVirtualModel="Modifiable.vm">
+    <metaData>
+        <issueProviders></issueProviders>
+        <issueCategories>
+            <category id="_1c" name="ArchitectureConsistency" presentationName="Architecture Consistency"></category>
+            <category id="_1d" name="ArchitectureDefinition" presentationName="Architecture Definition"></category>
+            <category id="_1e" name="ArchitectureViolation" presentationName="Architecture Violation"></category>
+            <category id="_1f" name="CycleGroup" presentationName="Cycle Group"></category>
+            <category id="_20" name="DuplicateCode" presentationName="Duplicate Code"></category>
+            <category id="_21" name="InstallationConfiguration" presentationName="Installation Configuration"></category>
+            <category id="_22" name="Refactoring" presentationName="Refactoring"></category>
+            <category id="_23" name="ScriptBased" presentationName="Script Based"></category>
+            <category id="_24" name="ScriptDefinition" presentationName="Script Definition"></category>
+            <category id="_25" name="SystemConfiguration" presentationName="System Configuration"></category>
+            <category id="_26" name="ThresholdViolation" presentationName="Threshold Violation"></category>
+            <category id="_27" name="Todo" presentationName="Todo"></category>
+            <category id="_28" name="Workspace" presentationName="Workspace"></category>
+        </issueCategories>
+        <issueTypes></issueTypes>
+        <metricProviders></metricProviders>
+        <metricCategories></metricCategories>
+        <metricLevels></metricLevels>
+        <metricIds></metricIds>
+    </metaData>
+    <features>
+        <feature name="Architecture" presentationName="Architecture" licensed="true"></feature>
+        <feature name="CohesionAndCouplingMetrics" presentationName="Cohesion And Coupling Metrics" licensed="true"></feature>
+        <feature name="CycleBreakUp" presentationName="Cycle Break Up" licensed="true"></feature>
+        <feature name="DuplicateCode" presentationName="Duplicate Code" licensed="true"></feature>
+        <feature name="Platform" presentationName="Platform" licensed="true"></feature>
+        <feature name="Refactorings" presentationName="Refactorings" licensed="true"></feature>
+        <feature name="Reporting" presentationName="Reporting" licensed="true"></feature>
+        <feature name="Scripts" presentationName="Scripts" licensed="true"></feature>
+        <feature name="ScriptsAutomated" presentationName="Scripts Automated" licensed="true"></feature>
+        <feature name="Snapshots" presentationName="Snapshots" licensed="true"></feature>
+        <feature name="Systems" presentationName="Systems" licensed="true"></feature>
+        <feature name="VirtualModels" presentationName="Virtual Models" licensed="true"></feature>
+    </features>
+    <analyzers>
+        <analyzer description="Checks for architecture violations" licensed="true" id="_1" name="ArchitectureCheck" presentationName="Architecture Check"></analyzer>
+        <analyzer description="Calculates number of violatong/ignored parser dependencies" licensed="true" id="_2" name="ArchitectureCheckMetrics" presentationName="Architecture Metrics"></analyzer>
+        <analyzer description="Calculates cohesion and coupling metrics" licensed="true" id="_3" name="CohesionAndCouplingMetrics" presentationName="Cohesion and Coupling Metrics"></analyzer>
+        <analyzer description="Analyzes component / compilation unit cycles on module level" licensed="true" id="_4" name="ComponentCyclesModule" presentationName="Component Cycles (Module)"></analyzer>
+        <analyzer description="Computes component cycle metrics on module level" licensed="true" id="_5" name="ComponentCyclesModuleMetrics" presentationName="Component Cycle Metrics (Module)"></analyzer>
+        <analyzer description="Analyzes component / compilation unit cycles on system level" licensed="true" id="_6" name="ComponentCyclesSystem" presentationName="Component Cycles (System)"></analyzer>
+        <analyzer description="Computes component cycle metrics on system level" licensed="true" id="_7" name="ComponentCyclesSystemMetrics" presentationName="Component Cycle Metrics (System)"></analyzer>
+        <analyzer description="Calculates John Lakos metrics on module level" licensed="true" id="_8" name="CumulateDependenciesModule" presentationName="Module Dependencies"></analyzer>
+        <analyzer description="Calculates John Lakos metrics on system level" licensed="true" id="_9" name="CumulateDependenciesSystem" presentationName="System Dependencies"></analyzer>
+        <analyzer description="Cumulates sizes" licensed="true" id="_a" name="CumulateSize" presentationName="Cumulate size"></analyzer>
+        <analyzer description="Analyzes directory cycles on module level" licensed="true" id="_b" name="DirectoryCyclesModule" presentationName="C/C++ Directory Cycles (Module)"></analyzer>
+        <analyzer description="Computes directory cycle metrics on module level" licensed="true" id="_c" name="DirectoryCyclesModuleMetrics" presentationName="C/C++ Directory Cycle Metrics (Module)"></analyzer>
+        <analyzer description="Analyzes directory cycles on system level" licensed="true" id="_d" name="DirectoryCyclesSystem" presentationName="C/C++ Directory Cycles (System)"></analyzer>
+        <analyzer description="Computes directory cycle metrics on system level" licensed="true" id="_e" name="DirectoryCyclesSystemMetrics" presentationName="C/C++ Directory Cycle Metrics (System)"></analyzer>
+        <analyzer description="Search duplicate code on system level" licensed="true" id="_f" name="DuplicateCode" presentationName="Duplicate Code"></analyzer>
+        <analyzer description="Calculates duplicate code metrics" licensed="true" id="_10" name="DuplicateCodeMetrics" presentationName="Duplicate Code Metrics"></analyzer>
+        <analyzer description="Checks for metric threshold violations" licensed="true" id="_11" name="MetricThresholds" presentationName="Metric Thresholds"></analyzer>
+        <analyzer description="Analyzes module cycles on system level" licensed="true" id="_12" name="ModuleCyclesSystem" presentationName="Module Cycles"></analyzer>
+        <analyzer description="Analyzes namespace cycles on module level" licensed="true" id="_13" name="NamespaceCyclesModule" presentationName="C# Namespace Cycles (Module)"></analyzer>
+        <analyzer description="Computes namespace cycle metrics on module level" licensed="true" id="_14" name="NamespaceCyclesModuleMetrics" presentationName="C# Namespace Cycle Metrics (Module)"></analyzer>
+        <analyzer description="Analyzes namespace cycles on system level" licensed="true" id="_15" name="NamespaceCyclesSystem" presentationName="C# Namespace Cycles (System)"></analyzer>
+        <analyzer description="Computes namespace cycle metrics on system level" licensed="true" id="_16" name="NamespaceCyclesSystemMetrics" presentationName="C# Namespace Cycle Metrics (System)"></analyzer>
+        <analyzer description="Analyzes package cycles on module level" licensed="true" id="_17" name="PackageCyclesModule" presentationName="Package Cycles (Module)"></analyzer>
+        <analyzer description="Computes package cycle metrcis on module level" licensed="true" id="_18" name="PackageCyclesModuleMetrics" presentationName="Package Cycle Metrics (Module)"></analyzer>
+        <analyzer description="Analyzes package cycles on system level" licensed="true" id="_19" name="PackageCyclesSystem" presentationName="Package Cycles (System)"></analyzer>
+        <analyzer description="Computes package cycle metrcis on system level" licensed="true" id="_1a" name="PackageCyclesSystemMetrics" presentationName="Package Cycle Metrics (System)"></analyzer>
+        <analyzer description="Runs scripts configured for automated execution" licensed="true" id="_1b" name="ScriptRunner" presentationName="Script Runner"></analyzer>
+    </analyzers>
+    <elementKinds>
+        <elementKind id="_2c" standardKind="JavaClassRootDirectoryPath" presentationKind="Java Class Root Directory/Archive"></elementKind>
+        <elementKind id="_30" standardKind="SoftwareSystem" presentationKind="System"></elementKind>
+        <elementKind id="_2e" standardKind="JavaSourceRootDirectoryPath" presentationKind="Java Source Root Directory/Archive"></elementKind>
+        <elementKind id="_2a" standardKind="JavaModule" presentationKind="Java Module"></elementKind>
+    </elementKinds>
+    <workspace>
+        <genericRoot kind="_30" fqName="Test" id="_2f" name="Test" presentationName="Test"></genericRoot>
+        <module description="" language="Java" kind="_2a" fqName="Workspace:M1" id="_29" name="M1" presentationName="M1">
+            <rootDirectory kind="_2c" fqName="Workspace:M1:Class|./bin" id="_2b" name="Class|./bin" presentationName="./bin"></rootDirectory>
+            <rootDirectory kind="_2e" fqName="Workspace:M1:./src" id="_2d" name="./src" presentationName="./src"></rootDirectory>
+        </module>
+    </workspace>
+    <systemElements ref="_0">
+        <element kind="_30" fqName="Test" id="_31" name="Test" presentationName="Test"></element>
+    </systemElements>
+    <systemMetricValues elementRef="_0"></systemMetricValues>
+</ns2:report>

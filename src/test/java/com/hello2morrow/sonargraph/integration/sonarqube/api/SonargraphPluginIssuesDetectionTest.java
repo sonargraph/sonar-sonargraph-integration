@@ -56,14 +56,6 @@ public class SonargraphPluginIssuesDetectionTest extends AbstractSonargraphSenso
     }
 
     @Test
-    public void testHandleScriptIssues()
-    {
-        sensor.analyse(initProject(), sensorContext);
-        assertEquals("Wrong number of issues", 3, TestHelper.getNumberOfIssues("POTENTIALLY_DEAD_METHOD"));
-        assertEquals("Wrong number of issues", 6, TestHelper.getNumberOfIssues(DUPLICATE_CODE_BLOCK));
-    }
-
-    @Test
     public void testHandleDuplicateRuleNotActivated()
     {
         rulesProfile = TestHelper.initRulesProfile(DUPLICATE_CODE_BLOCK);

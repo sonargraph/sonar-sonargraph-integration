@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.StringJoiner;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -43,7 +42,6 @@ import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.Measure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
@@ -59,13 +57,13 @@ import com.hello2morrow.sonargraph.integration.access.foundation.NumberUtility;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
-import com.hello2morrow.sonargraph.integration.access.model.ICycleGroupIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IElementContainer;
 import com.hello2morrow.sonargraph.integration.access.model.IFeature;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
+import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
@@ -77,12 +75,9 @@ import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
 import com.hello2morrow.sonargraph.integration.access.model.java.IJavaMetricId;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.DuplicateFixResolutionIssue;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.FixResolutionIssueType;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.PluginVersionReader;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.StandardFixResolutionIssue;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
@@ -134,7 +129,52 @@ public final class SonargraphSensor implements Sensor
         return sensorExecutionException;
     }
 
-    /* called from maven */
+    private static boolean fileExistsAndIsReadable(final File reportFile)
+    {
+        return reportFile.exists() && reportFile.canRead();
+    }
+
+    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
+    {
+        final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
+        final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
+        final File reportFile;
+        if (reportPathOld != null)
+        {
+            reportFile = fileSystem.resolvePath(reportPathOld);
+        }
+        else if (reportPath != null)
+        {
+            reportFile = fileSystem.resolvePath(reportPath);
+        }
+        else
+        {
+            //try Maven path
+            final File mavenDefaultLocation = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
+                    SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
+            if (fileExistsAndIsReadable(mavenDefaultLocation))
+            {
+                reportFile = mavenDefaultLocation;
+            }
+            else
+            {
+                //try Gradle path
+                reportFile = Paths.get(fileSystem.workDir().getParentFile().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
+                        SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
+            }
+        }
+
+        if (fileExistsAndIsReadable(reportFile))
+        {
+            LOGGER.debug("Load report from: {}", reportFile.getAbsolutePath());
+            return Optional.of(reportFile);
+        }
+
+        LOGGER.debug("No report found at: {}", reportFile.getAbsolutePath());
+        return Optional.empty();
+    }
+
+    /* Called from Maven */
     @Override
     public boolean shouldExecuteOnProject(final Project project)
     {
@@ -159,9 +199,12 @@ public final class SonargraphSensor implements Sensor
     }
 
     @Override
-    public void analyse(final Project proj, final SensorContext context)
+    public void analyse(final Project project, final SensorContext context)
     {
-        LOGGER.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, proj.getName(), proj.getKey());
+        assert project != null : "Parameter 'project' of method 'analyse' must not be null";
+        assert context != null : "Parameter 'context' of method 'analyse' must not be null";
+
+        LOGGER.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
 
         controller = new ControllerFactory().createController();
         numberOfWorkspaceWarnings = 0;
@@ -176,14 +219,14 @@ public final class SonargraphSensor implements Sensor
 
         final File reportFile = reportFileOpt.get();
         LOGGER.info("{}: Reading Sonargraph report from: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
-        loadReportResult = loadReport(proj, reportFile, settings);
+        loadReportResult = loadReport(project, reportFile, settings);
         if (loadReportResult.isFailure())
         {
             return;
         }
 
-        final ISoftwareSystem sonargraphSystem = controller.getSoftwareSystem();
-        if (sonargraphSystem.getModules().size() == 0)
+        final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
+        if (softwareSystem.getModules().size() == 0)
         {
             final String msg = "No modules defined for Sonargraph system, please check the workspace definition!";
             LOGGER.warn("{}: {}", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, msg);
@@ -195,14 +238,31 @@ public final class SonargraphSensor implements Sensor
         final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
                 .filter(m -> m.key().startsWith(SonargraphPluginBase.ABBREVIATION)).collect(Collectors.toMap(Metric::key, m -> m));
 
-        processFeatures(context);
-        if (proj.isRoot())
+        final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();
+        processFeatures(context, systemInfoProcessor);
+        if (project.isRoot())
         {
-            processSystemMetrics(metrics, context);
+            processSystemMetrics(metrics, context, systemInfoProcessor, softwareSystem);
         }
-        processModule(metrics, proj, context, sonargraphSystem);
 
-        LOGGER.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, proj.getName(), proj.getKey());
+        final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
+        for (final IIssueType nextIssueType : systemInfoProcessor.getIssueTypes())
+        {
+            final String nextIssueTypeName = nextIssueType.getName();
+            final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphMetrics.createRuleKey(nextIssueTypeName));
+            final String ruleKey = SonargraphMetrics.createRuleKey(nextIssueTypeName);
+            if (rule == null)
+            {
+                LOGGER.info("Rule '{}' is not activated.", ruleKey);
+                continue;
+            }
+            issueTypeToRuleMap.put(ruleKey, rule);
+        }
+
+        processModule(metrics, project, context, softwareSystem, issueTypeToRuleMap);
+
+        LOGGER.info("{}: Finished processing of {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
+                project.getKey());
         if (numberOfWorkspaceWarnings > 0)
         {
             LOGGER.warn("{}: Found {} workspace warnings. Sonargraph metrics might not be correct. "
@@ -212,9 +272,11 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processFeatures(final SensorContext sensorContext)
+    private void processFeatures(final SensorContext sensorContext, final ISystemInfoProcessor systemInfoProcessor)
     {
-        final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();
+        assert sensorContext != null : "Parameter 'sensorContext' of method 'processFeatures' must not be null";
+        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processFeatures' must not be null";
+
         for (final IFeature feature : systemInfoProcessor.getFeatures())
         {
             if (feature.getName().equals(IFeature.ARCHITECTURE) && feature.isLicensed())
@@ -229,8 +291,21 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
+    private static Optional<File> determineBaseDirectory(final Settings settings)
+    {
+        final String baseDirectory = settings.getString(SonargraphPluginBase.SYSTEM_BASE_DIRECTORY);
+        if (baseDirectory == null || baseDirectory.trim().isEmpty())
+        {
+            return Optional.empty();
+        }
+        final File baseDir = Paths.get(baseDirectory).toAbsolutePath().normalize().toFile();
+        return Optional.of(baseDir);
+    }
+
     private OperationResult loadReport(final Project project, final File reportFile, final Settings settings)
     {
+        assert settings != null : "Parameter 'settings' of method 'loadReport' must not be null";
+
         final OperationResult result = new OperationResult("Reading Sonargraph report from: " + reportFile.getAbsolutePath());
         final Optional<File> baseDirectory = determineBaseDirectory(settings);
         if (baseDirectory.isPresent())
@@ -250,16 +325,20 @@ public final class SonargraphSensor implements Sensor
         return result;
     }
 
-    private void processSystemMetrics(final Map<String, Metric<?>> metrics, final SensorContext sensorContext)
+    private void processSystemMetrics(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
+            final ISystemInfoProcessor systemInfoProcessor, final ISoftwareSystem softwareSystem)
     {
-        final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
-        final ISystemInfoProcessor infoProcessor = controller.createSystemInfoProcessor();
-        final Optional<IMetricLevel> systemLevel = infoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
+        assert metrics != null : "Parameter 'metrics' of method 'processSystemMetrics' must not be null";
+        assert sensorContext != null : "Parameter 'sensorContext' of method 'processSystemMetrics' must not be null";
+        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processSystemMetrics' must not be null";
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processSystemMetrics' must not be null";
+
+        final Optional<IMetricLevel> systemLevel = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
         assert systemLevel.isPresent() : "Metric level 'system' not found";
 
-        processProjectMetrics(sensorContext, softwareSystem, infoProcessor, metrics, systemLevel.get());
+        processProjectMetrics(sensorContext, softwareSystem, systemInfoProcessor, metrics, systemLevel.get());
 
-        final Map<INamedElement, IMetricValue> nccdValues = infoProcessor.getMetricValues(IMetricLevel.MODULE,
+        final Map<INamedElement, IMetricValue> nccdValues = systemInfoProcessor.getMetricValues(IMetricLevel.MODULE,
                 IMetricId.StandardName.CORE_NCCD.getStandardName());
         final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble(v -> v.getValue().doubleValue()).max();
         if (highestNccd.isPresent())
@@ -268,10 +347,132 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processModule(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
-            final ISoftwareSystem system)
+    private static Optional<IModule> determineModuleName(final Project project, final ISoftwareSystem softwareSystem)
     {
-        final Optional<IModule> moduleOptional = determineModuleName(project, system);
+        assert project != null : "Parameter 'project' of method 'determineModuleName' must not be null";
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'determineModuleName' must not be null";
+
+        final Map<String, IModule> modules = softwareSystem.getModules();
+
+        if (modules.size() == 1)
+        {
+            return Optional.of(modules.values().iterator().next());
+        }
+
+        for (final Entry<String, IModule> next : modules.entrySet())
+        {
+            final IModule module = next.getValue();
+            final String buName = Utilities.getBuildUnitName(module.getFqName());
+            if (Utilities.buildUnitMatchesAnalyzedProject(buName, project))
+            {
+                return Optional.of(module);
+            }
+        }
+        return Optional.empty();
+    }
+
+    private void addIssuesToSourceFile(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
+            final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
+    {
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
+        assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
+
+        //If relativePath then omit rootDirectoryRelPath
+        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        if (!resource.isPresent())
+        {
+            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
+            return;
+        }
+
+        for (final IIssue nextIssue : issues)
+        {
+            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphMetrics.createRuleKey(nextIssue.getIssueType().getName()));
+            if (nextRule == null)
+            {
+                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", nextIssue
+                        .getIssueType().getPresentationName());
+                continue;
+            }
+
+            if (nextIssue instanceof IDuplicateCodeBlockIssue)
+            {
+                final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
+                final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
+
+                for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
+                {
+                    if (nextOccurrence.getSourceFile().equals(sourceFile))
+                    {
+                        final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
+                        others.remove(nextOccurrence);
+                        createIssue(resource.get(), nextRule, nextOccurrence.getStartLine(),
+                                IssueMessageCreator.create(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others));
+                    }
+                }
+            }
+            else
+            {
+                createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+            }
+        }
+    }
+
+    /*
+    private void addIssuesToNamedElement(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
+            final String baseDir, final INamedElement namedElement, final List<IIssue> issues)
+    {
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToNamedElement' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToNamedElement' must not be null";
+        assert namedElement != null : "Parameter 'namedElement' of method 'addIssuesToNamedElement' must not be null";
+
+        final String kind = namedElement.getKind();
+        if ("JavaPackageFragment".equals(kind) || "JavaLogicalModuleNamespace".equals(kind))
+        {
+            final String presentationName = namedElement.getPresentationName();
+            System.out.println(kind + ": " + presentationName);
+        }
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
+
+        //If relativePath then omit rootDirectoryRelPath
+        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        if (!resource.isPresent())
+        {
+            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
+            return;
+        }
+
+        for (final IIssue nextIssue : issues)
+        {
+            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphMetrics.createRuleKey(nextIssue.getIssueType().getName()));
+            if (nextRule == null)
+            {
+                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", nextIssue
+                        .getIssueType().getPresentationName());
+                continue;
+            }
+
+            createIssue(resource.get(), nextRule, -1, IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+        }
+    }
+     */
+
+    private void processModule(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
+            final ISoftwareSystem softwareSysten, final Map<String, ActiveRule> issueTypeToRuleMap)
+    {
+        assert metrics != null : "Parameter 'metrics' of method 'processModule' must not be null";
+        assert project != null : "Parameter 'project' of method 'processModule' must not be null";
+        assert sensorContext != null : "Parameter 'sensorContext' of method 'processModule' must not be null";
+        assert softwareSysten != null : "Parameter 'softwareSysten' of method 'processModule' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'processModule' must not be null";
+
+        final Optional<IModule> moduleOptional = determineModuleName(project, softwareSysten);
         if (!moduleOptional.isPresent())
         {
             LOGGER.info("{}: No module found in report for {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(),
@@ -289,56 +490,23 @@ public final class SonargraphSensor implements Sensor
             processProjectMetrics(sensorContext, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
         }
 
-        processIssues(
-                moduleInfoProcessor,
-                issue -> !issue.hasResolution()
-                        && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
-        processIssues(
-                moduleInfoProcessor,
-                issue -> issue.hasResolution()
-                        && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.TODO.getStandardName()));
-        processIssues(
-                moduleInfoProcessor,
-                issue -> issue.hasResolution()
-                        && issue.getIssueType().getCategory().getName().equals(IIssueCategory.StandardName.REFACTORING.getStandardName()));
-
-        processFixResolutions(moduleInfoProcessor);
-    }
-
-    private void processFixResolutions(final IModuleInfoProcessor infoProcessor)
-    {
-        final String ruleKey = SonargraphMetrics.createRuleKey(FixResolutionIssueType.FIX_RESOLUTION_RULE);
-        final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, ruleKey);
-        if (rule == null)
+        final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor.getIssuesForSourceFiles(issue -> !issue.isIgnored()
+                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
+        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
         {
-            LOGGER.info("Rule '{}' is not activated, no issues for 'Fix' resolutions are created.", ruleKey);
-            return;
+            addIssuesToSourceFile(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(),
+                    issuesPerSourceFile.getValue());
         }
-        final Map<ISourceFile, Map<IResolution, List<IIssue>>> issueMap = infoProcessor
-                .getIssuesForResolutionsForSourceFiles(r -> r.getType() == ResolutionType.FIX);
-        final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
-        issueTypeToRuleMap.put(ruleKey, rule);
-        for (final Map.Entry<ISourceFile, Map<IResolution, List<IIssue>>> next : issueMap.entrySet())
+
+        /*
+        final Map<INamedElement, List<IIssue>> moduleElementIssueMap = moduleInfoProcessor.getIssuesForModuleElements(issue -> !issue.isIgnored()
+                && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
+        for (final Entry<INamedElement, List<IIssue>> issuesPerNamedElement : moduleElementIssueMap.entrySet())
         {
-            final ISourceFile source = next.getKey();
-            final List<IIssue> issues = new ArrayList<>();
-            final Map<IResolution, List<IIssue>> resolutionToIssueMap = next.getValue();
-            for (final Map.Entry<IResolution, List<IIssue>> resolutionToIssue : resolutionToIssueMap.entrySet())
-            {
-                for (final IIssue issue : resolutionToIssue.getValue())
-                {
-                    if (issue instanceof IDuplicateCodeBlockIssue)
-                    {
-                        issues.add(new DuplicateFixResolutionIssue(resolutionToIssue.getKey(), (IDuplicateCodeBlockIssue) issue));
-                    }
-                    else
-                    {
-                        issues.add(new StandardFixResolutionIssue(resolutionToIssue.getKey(), issue));
-                    }
-                }
-            }
-            addIssuesToSourceFile(issueTypeToRuleMap, infoProcessor.getBaseDirectory(), source, issues);
+            addIssuesToNamedElement(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerNamedElement.getKey(),
+                    issuesPerNamedElement.getValue());
         }
+        */
     }
 
     private void processProjectMetrics(final SensorContext context, final IElementContainer container, final IInfoProcessor infoProcessor,
@@ -411,142 +579,12 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processIssues(final IModuleInfoProcessor infoProcessor, final Predicate<IIssue> issueFilter)
+    private void createIssue(final InputPath resource, final ActiveRule rule, final int line, final String msg)
     {
-        final Map<ISourceFile, List<IIssue>> issueMap = infoProcessor.getIssuesForSourceFiles(issueFilter);
-        addIssuesForActiveRules(infoProcessor, issueMap);
-    }
+        assert resource != null : "Parameter 'resource' of method 'createIssue' must not be null";
+        assert rule != null : "Parameter 'rule' of method 'createIssue' must not be null";
+        assert msg != null && msg.length() > 0 : "Parameter 'msg' of method 'createIssue' must not be empty";
 
-    private void addIssuesForActiveRules(final IModuleInfoProcessor infoProcessor, final Map<ISourceFile, List<IIssue>> issueMap)
-    {
-        final Map<String, ActiveRule> issueTypeToRuleMap = new HashMap<>();
-        final List<String> types = issueMap.values().stream().flatMap(List<IIssue>::stream).map(issue -> issue.getIssueType().getName()).distinct()
-                .collect(Collectors.toList());
-
-        for (final String type : types)
-        {
-            final ActiveRule rule = profile.getActiveRule(SonargraphPluginBase.PLUGIN_KEY, SonargraphMetrics.createRuleKey(type));
-            final String ruleKey = SonargraphMetrics.createRuleKey(type);
-            if (rule == null)
-            {
-                LOGGER.info("Rule '{}' is not activated.", ruleKey);
-                continue;
-            }
-            issueTypeToRuleMap.put(ruleKey, rule);
-        }
-
-        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : issueMap.entrySet())
-        {
-            addIssuesToSourceFile(issueTypeToRuleMap, infoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
-        }
-    }
-
-    private void addIssuesToSourceFile(final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final ISourceFile sourceFile,
-            final List<IIssue> issues)
-    {
-        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
-        assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
-        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
-
-        //If relativePath then omit rootDirectoryRelPath
-        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
-        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
-        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
-        if (!resource.isPresent())
-        {
-            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
-            return;
-        }
-
-        for (final IIssue issue : issues)
-        {
-            final String issueTypeName = SonargraphMetrics.createRuleKey(issue.getIssueType().getName());
-            final ActiveRule rule = issueTypeToRuleMap.get(issueTypeName);
-            if (rule == null)
-            {
-                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile", issue.getIssueType()
-                        .getPresentationName());
-                continue;
-            }
-
-            if (issue instanceof IDuplicateCodeBlockIssue)
-            {
-                handleDuplicateCodeBlock((IDuplicateCodeBlockIssue) issue, sourceFile, resource.get(), rule);
-            }
-            else
-            {
-                handleIssue(issue, resource.get(), rule);
-            }
-        }
-    }
-
-    private void handleIssue(final IIssue issue, final InputPath resource, final ActiveRule rule)
-    {
-        final Issuable issuable = perspectives.as(Issuable.class, resource);
-        if (issuable == null)
-        {
-            if (LOGGER.isErrorEnabled())
-            {
-                LOGGER.error("Failed to create Issuable for resource '{}'", resource.absolutePath());
-            }
-            return;
-        }
-
-        final IssueBuilder issueBuilder = issuable.newIssueBuilder();
-        issueBuilder.ruleKey(rule.getRule().ruleKey());
-        if (rule.getSeverity() != null)
-        {
-            issueBuilder.severity(rule.getSeverity().toString());
-        }
-
-        final String msg;
-        if (issue instanceof ICycleGroupIssue)
-        {
-            msg = ((ICycleGroupIssue) issue).getPresentationName() + " " + issue.getDescription() + " ["
-                    + issue.getIssueProvider().getPresentationName() + "]";
-        }
-        else if (issue instanceof StandardFixResolutionIssue && ((StandardFixResolutionIssue) issue).getIssue() instanceof ICycleGroupIssue)
-        {
-            final ICycleGroupIssue cycleGroupIssue = (ICycleGroupIssue) ((StandardFixResolutionIssue) issue).getIssue();
-            msg = issue.getIssueType().getCategory().getPresentationName() + " [" + cycleGroupIssue.getPresentationName() + "] "
-                    + issue.getDescription() + " [" + cycleGroupIssue.getIssueProvider().getPresentationName() + "]";
-        }
-        else
-        {
-            msg = issue.getIssueType().getPresentationName() + " " + issue.getDescription() + " [" + issue.getIssueProvider().getPresentationName()
-                    + "]";
-        }
-
-        issueBuilder.message(msg);
-        final int line = issue.getLineNumber();
-
-        if (line > 0)
-        {
-            issueBuilder.line(line);
-        }
-
-        final Issue sqIssue = issueBuilder.build();
-        issuable.addIssue(sqIssue);
-    }
-
-    private void handleDuplicateCodeBlock(final IDuplicateCodeBlockIssue issue, final ISourceFile sourceFile, final InputPath resource,
-            final ActiveRule rule)
-    {
-        assert issue != null : "Parameter 'issue' of method 'handleDuplicateCodeBlock' must not be null";
-        for (final IDuplicateCodeBlockOccurrence occurrence : issue.getOccurrences())
-        {
-            if (occurrence.getSourceFile().equals(sourceFile))
-            {
-                final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(issue.getOccurrences());
-                others.remove(occurrence);
-                handleDuplicateBlockOccurrence(issue, occurrence, others, resource, rule);
-            }
-        }
-    }
-
-    private void handleDuplicateBlockOccurrence(final IDuplicateCodeBlockIssue issue, final IDuplicateCodeBlockOccurrence occurrence,
-            final List<IDuplicateCodeBlockOccurrence> others, final InputPath resource, final ActiveRule rule)
-    {
         final Issuable issuable = perspectives.as(Issuable.class, resource);
         if (issuable == null)
         {
@@ -556,6 +594,7 @@ public final class SonargraphSensor implements Sensor
             }
             return;
         }
+
         final IssueBuilder builder = issuable.newIssueBuilder();
         builder.ruleKey(rule.getRule().ruleKey());
         if (rule.getSeverity() != null)
@@ -563,36 +602,12 @@ public final class SonargraphSensor implements Sensor
             builder.severity(rule.getSeverity().toString());
         }
 
-        final StringBuilder msg = new StringBuilder();
-
-        if (issue instanceof DuplicateFixResolutionIssue)
+        builder.message(msg);
+        if (line > 0)
         {
-            final IDuplicateCodeBlockIssue duplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) ((DuplicateFixResolutionIssue) issue).getIssue();
-            msg.append(issue.getIssueType().getCategory().getPresentationName()).append(" [").append(issue.getPresentationName()).append("] ")
-                    .append(issue.getDescription()).append(" [").append(duplicateCodeBlockIssue.getIssueProvider().getPresentationName()).append("]");
+            builder.line(line);
         }
-        else
-        {
-            msg.append(issue.getPresentationName()).append(" ").append(issue.getDescription()).append(" [")
-                    .append(issue.getIssueProvider().getPresentationName()).append("]");
-        }
-
-        msg.append("\nLine ").append(occurrence.getStartLine()).append(" to ").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
-                .append(" is a duplicate of");
-
-        for (final IDuplicateCodeBlockOccurrence next : others)
-        {
-            msg.append("\n");
-            msg.append(
-                    next.getSourceFile().getRelativePath() != null ? next.getSourceFile().getRelativePath() : next.getSourceFile()
-                            .getPresentationName()).append(", line ").append(next.getStartLine()).append(" to ")
-                    .append(next.getStartLine() + next.getBlockSize() - 1);
-        }
-
-        builder.message(msg.toString());
-        builder.line(occurrence.getStartLine());
-        final Issue sqIssue = builder.build();
-        issuable.addIssue(sqIssue);
+        issuable.addIssue(builder.build());
     }
 
     private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
@@ -754,83 +769,6 @@ public final class SonargraphSensor implements Sensor
     OperationResult getProcessReportResult()
     {
         return loadReportResult;
-    }
-
-    private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
-    {
-        final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
-        final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
-        final File reportFile;
-        if (reportPathOld != null)
-        {
-            reportFile = fileSystem.resolvePath(reportPathOld);
-        }
-        else if (reportPath != null)
-        {
-            reportFile = fileSystem.resolvePath(reportPath);
-        }
-        else
-        {
-            //try maven path
-            final File mavenDefaultLocation = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
-                    SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
-            if (fileExistsAndIsReadable(mavenDefaultLocation))
-            {
-                reportFile = mavenDefaultLocation;
-            }
-            else
-            {
-                //try gradle path
-                reportFile = Paths.get(fileSystem.workDir().getParentFile().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
-                        SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
-            }
-        }
-
-        if (fileExistsAndIsReadable(reportFile))
-        {
-            LOGGER.debug("Load report from: {}", reportFile.getAbsolutePath());
-            return Optional.of(reportFile);
-        }
-
-        LOGGER.debug("No report found at: {}", reportFile.getAbsolutePath());
-        return Optional.empty();
-    }
-
-    private static boolean fileExistsAndIsReadable(final File reportFile)
-    {
-        return reportFile.exists() && reportFile.canRead();
-    }
-
-    private static Optional<File> determineBaseDirectory(final Settings settings)
-    {
-        final String baseDirectory = settings.getString(SonargraphPluginBase.SYSTEM_BASE_DIRECTORY);
-        if (baseDirectory == null || baseDirectory.trim().isEmpty())
-        {
-            return Optional.empty();
-        }
-        final File baseDir = Paths.get(baseDirectory).toAbsolutePath().normalize().toFile();
-        return Optional.of(baseDir);
-    }
-
-    private static Optional<IModule> determineModuleName(final Project project, final ISoftwareSystem system)
-    {
-        final Map<String, IModule> modules = system.getModules();
-
-        if (modules.size() == 1)
-        {
-            return Optional.of(modules.values().iterator().next());
-        }
-
-        for (final Entry<String, IModule> next : modules.entrySet())
-        {
-            final IModule module = next.getValue();
-            final String buName = Utilities.getBuildUnitName(module.getFqName());
-            if (Utilities.buildUnitMatchesAnalyzedProject(buName, project))
-            {
-                return Optional.of(module);
-            }
-        }
-        return Optional.empty();
     }
 
     int getNumberOfWorkspaceWarnings()
