@@ -1,6 +1,14 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+2.1.1
+=====
+
+New Features
+------------
+- Issues having resolutions additionally show all resolution info (assignee, priority, description).
+
+
 2.1.0
 =====
 
