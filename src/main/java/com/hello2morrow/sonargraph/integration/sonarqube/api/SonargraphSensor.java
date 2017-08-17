@@ -47,7 +47,7 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rules.ActiveRule;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
@@ -59,7 +59,6 @@ import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult
 import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
-import com.hello2morrow.sonargraph.integration.access.model.IElementContainer;
 import com.hello2morrow.sonargraph.integration.access.model.IFeature;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
@@ -69,6 +68,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
 import com.hello2morrow.sonargraph.integration.access.model.INamedElement;
+import com.hello2morrow.sonargraph.integration.access.model.INamedElementContainer;
 import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
@@ -136,6 +136,9 @@ public final class SonargraphSensor implements Sensor
 
     private static Optional<File> determineReportFile(final FileSystem fileSystem, final Settings settings)
     {
+        assert fileSystem != null : "Parameter 'fileSystem' of method 'determineReportFile' must not be null";
+        assert settings != null : "Parameter 'settings' of method 'determineReportFile' must not be null";
+
         final String reportPathOld = settings.getString(SonargraphPluginBase.REPORT_PATH_OLD);
         final String reportPath = settings.getString(SonargraphPluginBase.REPORT_PATH);
         final File reportFile;
@@ -206,7 +209,7 @@ public final class SonargraphSensor implements Sensor
 
         LOGGER.info("{}: Executing for module {} [{}]", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.getName(), project.getKey());
 
-        controller = new ControllerFactory().createController();
+        controller = ControllerAccess.createController();
         numberOfWorkspaceWarnings = 0;
         final Optional<File> reportFileOpt = determineReportFile(fileSystem, settings);
         if (!reportFileOpt.isPresent())
@@ -377,7 +380,7 @@ public final class SonargraphSensor implements Sensor
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
         assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
         assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
-        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
 
         //If relativePath then omit rootDirectoryRelPath
         final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
@@ -422,29 +425,18 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    /*
-    private void addIssuesToNamedElement(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
-            final String baseDir, final INamedElement namedElement, final List<IIssue> issues)
+    private void addIssuesToDirectory(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
+            final String baseDir, final String directory, final List<IIssue> issues)
     {
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToNamedElement' must not be null";
-        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToNamedElement' must not be null";
-        assert namedElement != null : "Parameter 'namedElement' of method 'addIssuesToNamedElement' must not be null";
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
+        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
+        assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'addIssuesToDirectory' must not be empty";
 
-        final String kind = namedElement.getKind();
-        if ("JavaPackageFragment".equals(kind) || "JavaLogicalModuleNamespace".equals(kind))
-        {
-            final String presentationName = namedElement.getPresentationName();
-            System.out.println(kind + ": " + presentationName);
-        }
-        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectoryPath();
-
-        //If relativePath then omit rootDirectoryRelPath
-        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
-        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final String sourceFileLocation = Paths.get(baseDir, directory).normalize().toString();
         final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
-            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
+            LOGGER.error("Failed to locate directory '{}'", directory);
             return;
         }
 
@@ -457,11 +449,9 @@ public final class SonargraphSensor implements Sensor
                         .getIssueType().getPresentationName());
                 continue;
             }
-
-            createIssue(resource.get(), nextRule, -1, IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+            createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
         }
     }
-     */
 
     private void processModule(final Map<String, Metric<?>> metrics, final Project project, final SensorContext sensorContext,
             final ISoftwareSystem softwareSysten, final Map<String, ActiveRule> issueTypeToRuleMap)
@@ -498,18 +488,16 @@ public final class SonargraphSensor implements Sensor
                     issuesPerSourceFile.getValue());
         }
 
-        /*
-        final Map<INamedElement, List<IIssue>> moduleElementIssueMap = moduleInfoProcessor.getIssuesForModuleElements(issue -> !issue.isIgnored()
+        final Map<String, List<IIssue>> directoryIssueMap = moduleInfoProcessor.getIssuesForDirectories(issue -> !issue.isIgnored()
                 && !IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName()));
-        for (final Entry<INamedElement, List<IIssue>> issuesPerNamedElement : moduleElementIssueMap.entrySet())
+        for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
         {
-            addIssuesToNamedElement(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerNamedElement.getKey(),
-                    issuesPerNamedElement.getValue());
+            addIssuesToDirectory(moduleInfoProcessor, issueTypeToRuleMap, moduleInfoProcessor.getBaseDirectory(), issuesPerDirectory.getKey(),
+                    issuesPerDirectory.getValue());
         }
-        */
     }
 
-    private void processProjectMetrics(final SensorContext context, final IElementContainer container, final IInfoProcessor infoProcessor,
+    private void processProjectMetrics(final SensorContext context, final INamedElementContainer container, final IInfoProcessor infoProcessor,
             final Map<String, Metric<?>> metrics, final IMetricLevel level)
     {
         final List<String> unconfiguredMetrics = new ArrayList<>();
@@ -611,7 +599,7 @@ public final class SonargraphSensor implements Sensor
     }
 
     private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
-            final IElementContainer container)
+            final INamedElementContainer container)
     {
         final String packagesMetricId = IJavaMetricId.StandardName.JAVA_PACKAGES.getStandardName();
         final Optional<IMetricId> packagesMetric = infoProcessor.getMetricId(level, packagesMetricId);

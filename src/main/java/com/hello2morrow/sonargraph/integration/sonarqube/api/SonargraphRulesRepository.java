@@ -38,7 +38,7 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
 import com.hello2morrow.sonargraph.integration.access.foundation.OperationResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
@@ -90,7 +90,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     metaDataConfigurationPath);
         }
 
-        final IMetaDataController controller = new ControllerFactory().createMetaDataController();
+        final IMetaDataController controller = ControllerAccess.createMetaDataController();
         final Optional<IExportMetaData> metaDataOptional = loadMetaDataForConfiguration(controller, metaDataConfigurationPath);
         if (!metaDataOptional.isPresent())
         {
@@ -223,7 +223,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     @Override
     public void define(final Context context)
     {
-        final IMetaDataController controller = new ControllerFactory().createMetaDataController();
+        final IMetaDataController controller = ControllerAccess.createMetaDataController();
         final String metaDataConfigurationPath = getMetaDataPath(settings);
         final Optional<IExportMetaData> result = loadMetaDataForConfiguration(controller, metaDataConfigurationPath);
 

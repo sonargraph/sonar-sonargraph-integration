@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor;
@@ -46,7 +46,7 @@ public final class MessageCreationTest
     @Test
     public void testMessageCreation()
     {
-        final ISonargraphSystemController controller = new ControllerFactory().createController();
+        final ISonargraphSystemController controller = ControllerAccess.createController();
         final OperationResult result = controller.loadSystemReport(new File(REPORT_PATH));
         assertTrue("Failed to load report", result.isSuccess());
 
