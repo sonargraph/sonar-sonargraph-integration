@@ -29,7 +29,7 @@ import com.hello2morrow.sonargraph.integration.access.controller.ControllerAcces
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor;
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
@@ -43,7 +43,7 @@ public final class EmptyReportTest
     public void testEmptyReport()
     {
         final ISonargraphSystemController controller = ControllerAccess.createController();
-        final OperationResult result = controller.loadSystemReport(new File(REPORT_PATH));
+        final Result result = controller.loadSystemReport(new File(REPORT_PATH));
         assertTrue("Failed to load report", result.isSuccess());
 
         final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();

@@ -25,7 +25,7 @@ import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
-import com.hello2morrow.sonargraph.integration.access.foundation.FileUtility;
+import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 
 public final class Utilities
 {
@@ -82,7 +82,7 @@ public final class Utilities
         assert fileSystem != null : "Parameter 'fileSystem' of method 'getResource' must not be null";
         assert absolutePath != null : "Parameter 'absolutePath' of method 'getResource' must not be null";
 
-        final String normalizedPath = FileUtility.convertPathToUniversalForm(absolutePath);
+        final String normalizedPath = Utility.convertPathToUniversalForm(absolutePath);
         return Optional.ofNullable(fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(normalizedPath)));
     }
 

@@ -17,25 +17,25 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
 
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
-import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result.ICause;
+import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 
 public final class SonargraphPluginBase
 {
-    public enum ConfigurationMessageCause implements IMessageCause
+    public enum ConfigurationMessageCause implements ICause
     {
         CONFIGURATION_ERROR;
 
         @Override
         public String getStandardName()
         {
-            return StringUtility.convertConstantNameToStandardName(name());
+            return Utility.convertConstantNameToStandardName(name());
         }
 
         @Override
         public String getPresentationName()
         {
-            return StringUtility.convertConstantNameToPresentationName(name());
+            return Utility.convertConstantNameToPresentationName(name());
         }
     }
 

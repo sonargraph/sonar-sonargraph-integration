@@ -52,11 +52,10 @@ import com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor;
-import com.hello2morrow.sonargraph.integration.access.foundation.IOMessageCause;
-import com.hello2morrow.sonargraph.integration.access.foundation.NumberUtility;
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult.IMessageCause;
-import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
+import com.hello2morrow.sonargraph.integration.access.foundation.ResultCause;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result.ICause;
+import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IFeature;
@@ -82,21 +81,30 @@ import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
 {
-    public enum ReportProcessingMessageCause implements IMessageCause
+    public enum ReportProcessingMessageCause implements ICause
     {
         NO_MODULES;
 
         @Override
         public String getStandardName()
         {
-            return StringUtility.convertConstantNameToStandardName(name());
+            return Utility.convertConstantNameToStandardName(name());
         }
 
         @Override
         public String getPresentationName()
         {
-            return StringUtility.convertConstantNameToPresentationName(name());
+            return Utility.convertConstantNameToPresentationName(name());
         }
+    }
+
+    private static double round(final double value, final int decimals)
+    {
+        final double decimalRounding = Math.pow(10, decimals);
+        double rounded = value * decimalRounding;
+        final double temp = Math.round(rounded);
+        rounded = temp / decimalRounding;
+        return rounded;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphSensor.class);
@@ -108,7 +116,7 @@ public final class SonargraphSensor implements Sensor
     private final Settings settings;
     private final FileSystem fileSystem;
     private final ResourcePerspectives perspectives;
-    private OperationResult loadReportResult;
+    private Result loadReportResult;
     private ISonargraphSystemController controller;
     private Exception sensorExecutionException;
     private final MetricFinder metricFinder;
@@ -215,8 +223,8 @@ public final class SonargraphSensor implements Sensor
         if (!reportFileOpt.isPresent())
         {
             LOGGER.error("{}: Failed to read Sonargraph report!", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-            loadReportResult = new OperationResult("Loading Sonargraph report");
-            loadReportResult.addError(IOMessageCause.FILE_NOT_FOUND, "No Sonargraph report found!");
+            loadReportResult = new Result("Loading Sonargraph report");
+            loadReportResult.addError(ResultCause.FILE_NOT_FOUND, "No Sonargraph report found!");
             return;
         }
 
@@ -305,11 +313,11 @@ public final class SonargraphSensor implements Sensor
         return Optional.of(baseDir);
     }
 
-    private OperationResult loadReport(final Project project, final File reportFile, final Settings settings)
+    private Result loadReport(final Project project, final File reportFile, final Settings settings)
     {
         assert settings != null : "Parameter 'settings' of method 'loadReport' must not be null";
 
-        final OperationResult result = new OperationResult("Reading Sonargraph report from: " + reportFile.getAbsolutePath());
+        final Result result = new Result("Reading Sonargraph report from: " + reportFile.getAbsolutePath());
         final Optional<File> baseDirectory = determineBaseDirectory(settings);
         if (baseDirectory.isPresent())
         {
@@ -619,7 +627,7 @@ public final class SonargraphSensor implements Sensor
             assert numberOfPackagesOptional.isPresent() : "If key " + cyclicPackagesMetricId + " is contained, the value must be present!";
             final double numberOfCyclicPackages = numberOfCyclicPackagesOptional.get().getValue().doubleValue();
 
-            final double cylicPackagesPercent = NumberUtility.round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
+            final double cylicPackagesPercent = round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
         }
     }
@@ -691,7 +699,7 @@ public final class SonargraphSensor implements Sensor
         if (numberOfUnassignedComponentsMetric.isPresent() && unassignedComponentsValue.isPresent())
         {
             final double unassignedComponents = unassignedComponentsValue.get().getValue().doubleValue();
-            final double unassignedComponentsPercent = NumberUtility.round((unassignedComponents / numberOfComponents) * 100.0, 2);
+            final double unassignedComponentsPercent = round((unassignedComponents / numberOfComponents) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
         }
 
@@ -702,7 +710,7 @@ public final class SonargraphSensor implements Sensor
         if (numberOfViolatingComponentsMetric.isPresent() && violatingComponentsValue.isPresent())
         {
             final double numberOfViolatingComponents = violatingComponentsValue.get().getValue().doubleValue();
-            final double violatingComponentsPercent = NumberUtility.round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
+            final double violatingComponentsPercent = round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
         }
     }
@@ -754,7 +762,7 @@ public final class SonargraphSensor implements Sensor
         return SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + " [" + PluginVersionReader.getInstance().getVersion() + "]";
     }
 
-    OperationResult getProcessReportResult()
+    Result getProcessReportResult()
     {
         return loadReportResult;
     }
