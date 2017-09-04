@@ -25,7 +25,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockO
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
+import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
 final class IssueMessageCreator
 {
@@ -49,7 +49,7 @@ final class IssueMessageCreator
             switch (type)
             {
             case FIX:
-                builder.append("[").append(Utilities.toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName())
+                builder.append("[").append(SonargraphPluginBase.toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName())
                         .append("]");
                 break;
             case REFACTORING:
@@ -65,7 +65,7 @@ final class IssueMessageCreator
             }
 
             builder.append(" assignee='").append(resolution.getAssignee()).append("'");
-            builder.append(" priority='").append(Utilities.toLowerCase(resolution.getPriority().toString(), false)).append("'");
+            builder.append(" priority='").append(SonargraphPluginBase.toLowerCase(resolution.getPriority().toString(), false)).append("'");
             builder.append(" description='").append(resolution.getDescription()).append("'");
             builder.append(" created='").append(resolution.getDate()).append("'");
         }

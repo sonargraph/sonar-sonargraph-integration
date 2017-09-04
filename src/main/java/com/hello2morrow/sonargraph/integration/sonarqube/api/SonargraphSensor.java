@@ -52,9 +52,9 @@ import com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor;
-import com.hello2morrow.sonargraph.integration.access.foundation.ResultCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result.ICause;
+import com.hello2morrow.sonargraph.integration.access.foundation.ResultCause;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
@@ -62,6 +62,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IFeature;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
+import com.hello2morrow.sonargraph.integration.access.model.IJavaMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
@@ -73,11 +74,9 @@ import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
-import com.hello2morrow.sonargraph.integration.access.model.java.IJavaMetricId;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.PluginVersionReader;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.Utilities;
 
 public final class SonargraphSensor implements Sensor
 {
@@ -96,15 +95,6 @@ public final class SonargraphSensor implements Sensor
         {
             return Utility.convertConstantNameToPresentationName(name());
         }
-    }
-
-    private static double round(final double value, final int decimals)
-    {
-        final double decimalRounding = Math.pow(10, decimals);
-        double rounded = value * decimalRounding;
-        final double temp = Math.round(rounded);
-        rounded = temp / decimalRounding;
-        return rounded;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphSensor.class);
@@ -189,7 +179,7 @@ public final class SonargraphSensor implements Sensor
     @Override
     public boolean shouldExecuteOnProject(final Project project)
     {
-        if (!Utilities.areSonargraphRulesActive(this.profile))
+        if (!SonargraphPluginBase.areSonargraphRulesActive(this.profile))
         {
             LOGGER.warn(SEPARATOR);
             LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph rules are activated in current SonarQube quality profile [{}].",
@@ -373,8 +363,8 @@ public final class SonargraphSensor implements Sensor
         for (final Entry<String, IModule> next : modules.entrySet())
         {
             final IModule module = next.getValue();
-            final String buName = Utilities.getBuildUnitName(module.getFqName());
-            if (Utilities.buildUnitMatchesAnalyzedProject(buName, project))
+            final String buName = SonargraphPluginBase.getBuildUnitName(module.getFqName());
+            if (SonargraphPluginBase.buildUnitMatchesAnalyzedProject(buName, project))
             {
                 return Optional.of(module);
             }
@@ -393,7 +383,7 @@ public final class SonargraphSensor implements Sensor
         //If relativePath then omit rootDirectoryRelPath
         final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
-        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        final Optional<InputPath> resource = SonargraphPluginBase.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
             LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
@@ -428,7 +418,7 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+                createIssue(resource.get(), nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
             }
         }
     }
@@ -441,7 +431,7 @@ public final class SonargraphSensor implements Sensor
         assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'addIssuesToDirectory' must not be empty";
 
         final String sourceFileLocation = Paths.get(baseDir, directory).normalize().toString();
-        final Optional<InputPath> resource = Utilities.getResource(fileSystem, sourceFileLocation);
+        final Optional<InputPath> resource = SonargraphPluginBase.getResource(fileSystem, sourceFileLocation);
         if (!resource.isPresent())
         {
             LOGGER.error("Failed to locate directory '{}'", directory);
@@ -457,7 +447,7 @@ public final class SonargraphSensor implements Sensor
                         .getIssueType().getPresentationName());
                 continue;
             }
-            createIssue(resource.get(), nextRule, nextIssue.getLineNumber(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+            createIssue(resource.get(), nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
         }
     }
 
@@ -627,7 +617,7 @@ public final class SonargraphSensor implements Sensor
             assert numberOfPackagesOptional.isPresent() : "If key " + cyclicPackagesMetricId + " is contained, the value must be present!";
             final double numberOfCyclicPackages = numberOfCyclicPackagesOptional.get().getValue().doubleValue();
 
-            final double cylicPackagesPercent = round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
+            final double cylicPackagesPercent = Utility.round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
         }
     }
@@ -699,7 +689,7 @@ public final class SonargraphSensor implements Sensor
         if (numberOfUnassignedComponentsMetric.isPresent() && unassignedComponentsValue.isPresent())
         {
             final double unassignedComponents = unassignedComponentsValue.get().getValue().doubleValue();
-            final double unassignedComponentsPercent = round((unassignedComponents / numberOfComponents) * 100.0, 2);
+            final double unassignedComponentsPercent = Utility.round((unassignedComponents / numberOfComponents) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
         }
 
@@ -710,7 +700,7 @@ public final class SonargraphSensor implements Sensor
         if (numberOfViolatingComponentsMetric.isPresent() && violatingComponentsValue.isPresent())
         {
             final double numberOfViolatingComponents = violatingComponentsValue.get().getValue().doubleValue();
-            final double violatingComponentsPercent = round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
+            final double violatingComponentsPercent = Utility.round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
             context.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
         }
     }
