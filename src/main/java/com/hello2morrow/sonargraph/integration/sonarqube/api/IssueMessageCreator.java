@@ -25,13 +25,30 @@ import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockO
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
-import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
 
 final class IssueMessageCreator
 {
     private IssueMessageCreator()
     {
         super();
+    }
+
+    public static String toLowerCase(String input, final boolean firstLower)
+    {
+        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
+
+        if (input.isEmpty())
+        {
+            return input;
+        }
+
+        if (input.length() == 1)
+        {
+            return firstLower ? input.toLowerCase() : input.toUpperCase();
+        }
+
+        input = input.toLowerCase();
+        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 
     private static String create(final IModuleInfoProcessor moduleInfoProcessor, final IIssue issue, final String detail)
@@ -49,8 +66,7 @@ final class IssueMessageCreator
             switch (type)
             {
             case FIX:
-                builder.append("[").append(SonargraphPluginBase.toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName())
-                        .append("]");
+                builder.append("[").append(toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName()).append("]");
                 break;
             case REFACTORING:
             case TODO:
@@ -65,7 +81,7 @@ final class IssueMessageCreator
             }
 
             builder.append(" assignee='").append(resolution.getAssignee()).append("'");
-            builder.append(" priority='").append(SonargraphPluginBase.toLowerCase(resolution.getPriority().toString(), false)).append("'");
+            builder.append(" priority='").append(toLowerCase(resolution.getPriority().toString(), false)).append("'");
             builder.append(" description='").append(resolution.getDescription()).append("'");
             builder.append(" created='").append(resolution.getDate()).append("'");
         }

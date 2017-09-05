@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.Sensor;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
@@ -179,7 +180,9 @@ public final class SonargraphSensor implements Sensor
     @Override
     public boolean shouldExecuteOnProject(final Project project)
     {
-        if (!SonargraphPluginBase.areSonargraphRulesActive(this.profile))
+        assert project != null : "Parameter 'project' of method 'shouldExecuteOnProject' must not be null";
+
+        if (profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty())
         {
             LOGGER.warn(SEPARATOR);
             LOGGER.warn("{}: Skipping project {} [{}], since no Sonargraph rules are activated in current SonarQube quality profile [{}].",
@@ -383,8 +386,10 @@ public final class SonargraphSensor implements Sensor
         //If relativePath then omit rootDirectoryRelPath
         final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
-        final Optional<InputPath> resource = SonargraphPluginBase.getResource(fileSystem, sourceFileLocation);
-        if (!resource.isPresent())
+
+        final InputPath inputPath = fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(
+                Utility.convertPathToUniversalForm(sourceFileLocation)));
+        if (inputPath == null)
         {
             LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
             return;
@@ -411,30 +416,31 @@ public final class SonargraphSensor implements Sensor
                     {
                         final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
                         others.remove(nextOccurrence);
-                        createIssue(resource.get(), nextRule, nextOccurrence.getStartLine(),
+                        createIssue(inputPath, nextRule, nextOccurrence.getStartLine(),
                                 IssueMessageCreator.create(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others));
                     }
                 }
             }
             else
             {
-                createIssue(resource.get(), nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+                createIssue(inputPath, nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
             }
         }
     }
 
     private void addIssuesToDirectory(final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> issueTypeToRuleMap,
-            final String baseDir, final String directory, final List<IIssue> issues)
+            final String baseDir, final String relDirectory, final List<IIssue> issues)
     {
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
         assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
-        assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'addIssuesToDirectory' must not be empty";
+        assert relDirectory != null && relDirectory.length() > 0 : "Parameter 'relDirectory' of method 'addIssuesToDirectory' must not be empty";
 
-        final String sourceFileLocation = Paths.get(baseDir, directory).normalize().toString();
-        final Optional<InputPath> resource = SonargraphPluginBase.getResource(fileSystem, sourceFileLocation);
-        if (!resource.isPresent())
+        final String directoryLocation = Paths.get(baseDir, relDirectory).normalize().toString();
+        final InputDir inputDir = fileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryLocation)));
+
+        if (inputDir == null)
         {
-            LOGGER.error("Failed to locate directory '{}'", directory);
+            LOGGER.error("Failed to locate directory resource: '" + directoryLocation + "'\nBaseDir: " + baseDir + "\nrelDirectory:'" + relDirectory);
             return;
         }
 
@@ -447,7 +453,7 @@ public final class SonargraphSensor implements Sensor
                         .getIssueType().getPresentationName());
                 continue;
             }
-            createIssue(resource.get(), nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
+            createIssue(inputDir, nextRule, nextIssue.getLine(), IssueMessageCreator.create(moduleInfoProcessor, nextIssue));
         }
     }
 

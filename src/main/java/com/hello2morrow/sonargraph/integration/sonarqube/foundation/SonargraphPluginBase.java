@@ -17,12 +17,6 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.Result.ICause;
@@ -47,9 +41,12 @@ public final class SonargraphPluginBase
         }
     }
 
+    private static final String SONARQUBE_SONARGRAPH = "sonarqube.sonargraph_ng.";
+    private static final String WORKSPACE_ID = "Workspace:";
+    private static final String GROUP_ARTIFACT_SEPARATOR = ":";
+
     public static final String PLUGIN_KEY = "sonargraphintegration";
     public static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
-
     //There is a max length of 64 characters for metric keys
     public static final String ABBREVIATION = "sg_i.";
     public static final String CONFIG_PREFIX = "sonar.sonargraph_integration.";
@@ -57,17 +54,10 @@ public final class SonargraphPluginBase
     public static final double COST_PER_INDEX_POINT_DEFAULT = 11.0;
     public static final String CURRENCY = CONFIG_PREFIX + "currency";
     public static final String CURRENCY_DEFAULT = "USD";
-
-    private static final String SONARQUBE_SONARGRAPH = "sonarqube.sonargraph_ng.";
     public static final String REPORT_PATH_OLD = SONARQUBE_SONARGRAPH + "report.path";
-
     public static final String REPORT_PATH = CONFIG_PREFIX + "report.path";
     public static final String METADATA_PATH = CONFIG_PREFIX + "exportmetadata.path";
-
-    private static final String WORKSPACE_ID = "Workspace:";
-    private static final String GROUP_ARTIFACT_SEPARATOR = ":";
     public static final String UNKNOWN = "<UNKNOWN>";
-
     /**
      * Allows to override the base path of the system contained in the XML report.
      * Useful, if the report has been generated on a different machine with a different physical base path.
@@ -94,41 +84,11 @@ public final class SonargraphPluginBase
         return UNKNOWN;
     }
 
-    public static boolean isAggregatingProject(final Project project)
-    {
-        if (project == null)
-        {
-            return false;
-        }
-        return project.getModules() != null && !project.getModules().isEmpty();
-    }
-
-    public static boolean isRootParentProject(final Project project)
-    {
-        boolean isRootParentProject = false;
-        if (project == null)
-        {
-            return false;
-        }
-        final List<Project> modules = project.getModules();
-        if (project.getParent() == null && modules != null && !modules.isEmpty())
-        {
-            isRootParentProject = true;
-        }
-        return isRootParentProject;
-    }
-
-    public static Optional<InputPath> getResource(final FileSystem fileSystem, final String absolutePath)
-    {
-        assert fileSystem != null : "Parameter 'fileSystem' of method 'getResource' must not be null";
-        assert absolutePath != null : "Parameter 'absolutePath' of method 'getResource' must not be null";
-
-        final String normalizedPath = Utility.convertPathToUniversalForm(absolutePath);
-        return Optional.ofNullable(fileSystem.inputFile(fileSystem.predicates().hasAbsolutePath(normalizedPath)));
-    }
-
     public static boolean buildUnitMatchesAnalyzedProject(final String buName, final Project project)
     {
+        assert buName != null : "Parameter 'buName' of method 'buildUnitMatchesAnalyzedProject' must not be null";
+        assert project != null : "Parameter 'project' of method 'buildUnitMatchesAnalyzedProject' must not be null";
+
         if (buName.equals(project.getName()))
         {
             return true;
@@ -173,40 +133,5 @@ public final class SonargraphPluginBase
         }
 
         return result;
-    }
-
-    public static boolean areSonargraphRulesActive(final RulesProfile profile)
-    {
-        assert profile != null : "Parameter 'profile' of method 'areSonargraphRulesActive' must not be null";
-        return !profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty();
-    }
-
-    public static String getSourceFilePath(final String groupParentPath, final String sourceFilePath)
-    {
-        final int lastIndexOf = sourceFilePath.lastIndexOf('/');
-        final String dirOfSourceFile = sourceFilePath.substring(0, lastIndexOf);
-        if (groupParentPath.endsWith(dirOfSourceFile))
-        {
-            return groupParentPath + sourceFilePath.substring(lastIndexOf);
-        }
-        return null;
-    }
-
-    public static String toLowerCase(String input, final boolean firstLower)
-    {
-        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
-
-        if (input.isEmpty())
-        {
-            return input;
-        }
-
-        if (input.length() == 1)
-        {
-            return firstLower ? input.toLowerCase() : input.toUpperCase();
-        }
-
-        input = input.toLowerCase();
-        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 }
