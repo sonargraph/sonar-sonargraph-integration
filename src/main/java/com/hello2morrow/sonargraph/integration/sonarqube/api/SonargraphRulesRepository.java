@@ -38,9 +38,9 @@ import org.sonar.api.measures.Metrics;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResultWithOutcome;
+import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMergedExportMetaData;
@@ -90,7 +90,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                     metaDataConfigurationPath);
         }
 
-        final IMetaDataController controller = new ControllerFactory().createMetaDataController();
+        final IMetaDataController controller = ControllerAccess.createMetaDataController();
         final Optional<IExportMetaData> metaDataOptional = loadMetaDataForConfiguration(controller, metaDataConfigurationPath);
         if (!metaDataOptional.isPresent())
         {
@@ -223,7 +223,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
     @Override
     public void define(final Context context)
     {
-        final IMetaDataController controller = new ControllerFactory().createMetaDataController();
+        final IMetaDataController controller = ControllerAccess.createMetaDataController();
         final String metaDataConfigurationPath = getMetaDataPath(settings);
         final Optional<IExportMetaData> result = loadMetaDataForConfiguration(controller, metaDataConfigurationPath);
 
@@ -288,7 +288,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
                 return Optional.empty();
             }
 
-            final OperationResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, defaultMetaDataPath);
+            final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, defaultMetaDataPath);
             if (result.isFailure())
             {
                 if (LOG.isErrorEnabled())
@@ -323,7 +323,7 @@ public final class SonargraphRulesRepository implements RulesDefinition, Metrics
         {
             try
             {
-                final OperationResultWithOutcome<IMergedExportMetaData> result = controller.mergeExportMetaDataFiles(files);
+                final ResultWithOutcome<IMergedExportMetaData> result = controller.mergeExportMetaDataFiles(files);
                 if (result.isSuccess())
                 {
                     return Optional.ofNullable(result.getOutcome());

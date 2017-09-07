@@ -19,7 +19,7 @@ package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
 
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonargraph.integration.access.foundation.StringUtility;
+import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 
 public final class SonargraphMetrics
 {
@@ -130,7 +130,7 @@ public final class SonargraphMetrics
 
     public static String createRuleKey(final String name)
     {
-        return StringUtility.convertMixedCaseStringToConstantName(name).replace(" ", "_");
+        return Utility.convertMixedCaseStringToConstantName(name).replace(" ", "_");
     }
 
     public static String createMetricKey(final String constantName)
@@ -140,6 +140,6 @@ public final class SonargraphMetrics
 
     public static String createMetricKeyFromStandardName(final String metricIdName)
     {
-        return createMetricKey(StringUtility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", ""));
+        return createMetricKey(Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", ""));
     }
 }

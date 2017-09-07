@@ -27,11 +27,11 @@ import java.util.Map.Entry;
 
 import org.junit.Test;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor;
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
@@ -46,8 +46,8 @@ public final class MessageCreationTest
     @Test
     public void testMessageCreation()
     {
-        final ISonargraphSystemController controller = new ControllerFactory().createController();
-        final OperationResult result = controller.loadSystemReport(new File(REPORT_PATH));
+        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final Result result = controller.loadSystemReport(new File(REPORT_PATH));
         assertTrue("Failed to load report", result.isSuccess());
 
         final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();

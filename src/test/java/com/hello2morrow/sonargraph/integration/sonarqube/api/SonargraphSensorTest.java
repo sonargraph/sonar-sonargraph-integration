@@ -36,7 +36,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.plugins.java.Java;
 
-import com.hello2morrow.sonargraph.integration.access.foundation.OperationResult;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result.Level;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics;
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase;
@@ -286,7 +287,7 @@ public class SonargraphSensorTest extends AbstractSonargraphSensorTest
         settings.setProperty(SonargraphPluginBase.REPORT_PATH_OLD, "./src/test/report/AlarmClockMain_withoutModules.xml");
         sensor.analyse(project, sensorContext);
 
-        final OperationResult result = sensor.getProcessReportResult();
-        assertTrue("Report with no modules must contain warning: " + result.toString(), result.containsWarning());
+        final Result result = sensor.getProcessReportResult();
+        assertTrue("Report with no modules must contain warning: " + result.toString(), result.contains(Level.WARNING));
     }
 }

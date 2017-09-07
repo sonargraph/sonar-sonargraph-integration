@@ -1,6 +1,13 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+2.1.2
+=====
+New Features
+------------
+- Now issues are added to directories and namespaces (which can be mapped to directories).
+
+
 2.1.1
 =====
 

@@ -17,20 +17,44 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.sonar.api.resources.Project;
 
 import com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphPluginBase.ConfigurationMessageCause;
 
-public class SonargraphPluginBaseTest
+public final class SonargraphPluginBaseTest
 {
-
     @Test
     public void test()
     {
         final ConfigurationMessageCause configurationError = SonargraphPluginBase.ConfigurationMessageCause.CONFIGURATION_ERROR;
         assertTrue("Missing presentation name", configurationError.getPresentationName().length() > 0);
         assertTrue("Missing standard name", configurationError.getStandardName().length() > 0);
+    }
+
+    @Test
+    public void testGetBuildUnitName()
+    {
+        assertEquals(SonargraphPluginBase.UNKNOWN, SonargraphPluginBase.getBuildUnitName(null));
+        assertEquals("AlarmClock", SonargraphPluginBase.getBuildUnitName("Workspace:AlarmClock"));
+        assertEquals(SonargraphPluginBase.UNKNOWN, SonargraphPluginBase.getBuildUnitName("ModuleName_Without_Workspace_Prefix"));
+    }
+
+    //    No module found in report for Build.Client [SGNG:SGNG:SGNG:Build.Client]
+    @Test
+    public void testBuildUnitMatchesAnalyzedProject()
+    {
+        final String buName = "Build.Client";
+
+        assertTrue("Match expected", SonargraphPluginBase.buildUnitMatchesAnalyzedProject(buName, new Project("Build.Client")));
+        assertTrue("Match expected",
+                SonargraphPluginBase.buildUnitMatchesAnalyzedProject(buName, new Project("SGNG:SGNG:Build.Client", null, buName)));
+        assertTrue("Match expected",
+                SonargraphPluginBase.buildUnitMatchesAnalyzedProject(buName, new Project("SGNG:SGNG:SGNG:Build Client", null, buName)));
+
+        assertTrue("Match expected", SonargraphPluginBase.buildUnitMatchesAnalyzedProject(buName, new Project("Build.Client", "branch", buName)));
     }
 }
