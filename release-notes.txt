@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+2.1.5
+=====
+- Updated meta file containing metric and issue ids.
+
+
 2.1.4
 =====
 - Updated meta file containing metric and issue ids (added relational cohesion metric).
