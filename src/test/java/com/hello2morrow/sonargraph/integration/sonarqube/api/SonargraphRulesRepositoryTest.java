@@ -59,7 +59,7 @@ public class SonargraphRulesRepositoryTest
     public void testCreateRulesFromPlugin()
     {
         m_rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings());
-        verifyRules(m_rulesDefinition, 56);
+        verifyRules(m_rulesDefinition, 63);
     }
 
     @SuppressWarnings("rawtypes")
@@ -107,7 +107,7 @@ public class SonargraphRulesRepositoryTest
     {
         m_rulesDefinition = new SonargraphRulesRepository(TestHelper.initSettings(META_DATA_CORRUPT_PATH));
         final List<Metric> metrics = m_rulesDefinition.getMetrics();
-        assertEquals("Wrong number of metrics", 65, metrics.size());
+        assertEquals("Wrong number of metrics", 70, metrics.size());
     }
 
     @SuppressWarnings("rawtypes")
@@ -118,14 +118,12 @@ public class SonargraphRulesRepositoryTest
 
         final List<Metric> metrics = m_rulesDefinition.getMetrics();
 
-        assertTrue("Common metric not found",
-                metrics.stream().filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "CORE_LINES_OF_CODE")).findFirst()
-                        .isPresent());
-        assertTrue("Individual metric of first file not found",
-                metrics.stream().filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "UNUSED_TYPES")).findFirst().isPresent());
-        assertTrue("Individual metric of second file not found",
-                metrics.stream().filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "UNUSED_TYPES_2")).findFirst()
-                        .isPresent());
+        assertTrue("Common metric not found", metrics.stream()
+                .filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "CORE_LINES_OF_CODE")).findFirst().isPresent());
+        assertTrue("Individual metric of first file not found", metrics.stream()
+                .filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "UNUSED_TYPES")).findFirst().isPresent());
+        assertTrue("Individual metric of second file not found", metrics.stream()
+                .filter(metric -> metric.getKey().equals(SonargraphPluginBase.ABBREVIATION + "UNUSED_TYPES_2")).findFirst().isPresent());
 
         final List<Metric> reloaded = m_rulesDefinition.getMetrics();
         assertEquals("Metrics must be the same", metrics, reloaded);
@@ -137,7 +135,7 @@ public class SonargraphRulesRepositoryTest
     {
         final Settings settings = TestHelper.initSettings();
         m_rulesDefinition = new SonargraphRulesRepository(settings);
-        verifyRules(m_rulesDefinition, 56);
+        verifyRules(m_rulesDefinition, 63);
         final List<Metric> original = m_rulesDefinition.getMetrics();
 
         settings.setProperty(SonargraphPluginBase.METADATA_PATH, META_DATA_MERGED_PATH);
@@ -152,7 +150,7 @@ public class SonargraphRulesRepositoryTest
     {
         final Settings settings = TestHelper.initSettings();
         m_rulesDefinition = new SonargraphRulesRepository(settings);
-        verifyRules(m_rulesDefinition, 56);
+        verifyRules(m_rulesDefinition, 63);
         final List<Metric> original = m_rulesDefinition.getMetrics();
 
         settings.setProperty(SonargraphPluginBase.METADATA_PATH, "");
@@ -164,7 +162,7 @@ public class SonargraphRulesRepositoryTest
     @Test
     public void testCreateRulesFromInvalidFilePath()
     {
-        verifyRules(new SonargraphRulesRepository(TestHelper.initSettings("./not_existing_path")), 56);
+        verifyRules(new SonargraphRulesRepository(TestHelper.initSettings("./not_existing_path")), 63);
     }
 
     @Test
