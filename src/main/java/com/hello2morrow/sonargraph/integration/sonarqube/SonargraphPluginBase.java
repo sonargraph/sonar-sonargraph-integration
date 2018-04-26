@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2017 hello2morrow GmbH
+ * Copyright (C) 2016-2018 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,9 +15,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.hello2morrow.sonargraph.integration.sonarqube.foundation;
+package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.fs.InputModule;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.Result.ICause;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
@@ -84,32 +84,32 @@ public final class SonargraphPluginBase
         return UNKNOWN;
     }
 
-    public static boolean buildUnitMatchesAnalyzedProject(final String buName, final Project project)
+    public static boolean buildUnitMatchesAnalyzedProject(final String buName, final InputModule project)
     {
         assert buName != null : "Parameter 'buName' of method 'buildUnitMatchesAnalyzedProject' must not be null";
         assert project != null : "Parameter 'project' of method 'buildUnitMatchesAnalyzedProject' must not be null";
 
-        if (buName.equals(project.getName()))
-        {
-            return true;
-        }
+        //        if (buName.equals(project.getName()))
+        //        {
+        //            return true;
+        //        }
 
-        final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
+        //        final boolean isBranch = project.getBranch() != null && project.getBranch().length() > 0;
         final String[] elements = project.key().split(GROUP_ARTIFACT_SEPARATOR);
         assert elements.length >= 1 : "project.getKey() must not return an empty string";
 
         boolean result = false;
 
         final String groupId = elements[0];
-        String artifactId = elements[elements.length - 1];
+        final String artifactId = elements[elements.length - 1];
         /**
          * We need this check to support sonar.branch functionality. Branch tags are appended to the project key
          * <group-id>:<artifact-id>:<branch-tag>
          */
-        if (isBranch)
-        {
-            artifactId = elements[elements.length - 2];
-        }
+        //        if (isBranch)//TODO
+        //        {
+        //            artifactId = elements[elements.length - 2];
+        //        }
 
         final String longName = artifactId + "[" + groupId + "]";
         final String longName2 = groupId + ':' + artifactId;
