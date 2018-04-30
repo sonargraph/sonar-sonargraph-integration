@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<ns2:exportMetaData xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/report" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/export" version="9.7.0.100" systemPathUsedForExport="/Users/dietmar/Documents/Workspaces/sgng/master/Sonargraph.sonargraph" systemId="af3e1a16723af09d1c3bec7165198999" timestamp="2018-04-24T12:37:02.653-05:00">
+<ns3:exportMetaData xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" version="9.7.0.100" systemPathUsedForExport="/Users/dietmar/Documents/Workspaces/sgng/master/Sonargraph.sonargraph" systemId="af3e1a16723af09d1c3bec7165198999" timestamp="2018-05-03T11:46:40.885-05:00">
     <issueProviders>
         <issueProvider id="_f" name="Core" presentationName="Core"></issueProvider>
         <issueProvider id="_10" name="JavaLanguageProvider" presentationName="Java"></issueProvider>
@@ -30,12 +30,10 @@
         <issueType severity="Warning" category="_1" id="_16" name="ArchitectureCheckConfigurationInconsistent" presentationName="Architecture Check Configuration Inconsistent"></issueType>
         <issueType severity="Warning" category="_1" id="_17" name="ArchitectureFileWarning" presentationName="Architecture File Warning"></issueType>
         <issueType severity="Error" category="_2" id="_18" name="ArchitectureViolation" presentationName="Architecture Violation"></issueType>
-        <issueType severity="Error" category="_3" id="_19" name="CriticalComponentCycleGroup" presentationName="Component Cycle Group"></issueType>
-        <issueType severity="Error" category="_3" id="_1a" name="CriticalDirectoryCycleGroup" presentationName="Directory Cycle Group"></issueType>
-        <issueType severity="Error" category="_3" id="_1b" name="CriticalModuleCycleGroup" presentationName="Module Cycle Group"></issueType>
-        <issueType severity="Error" category="_3" id="_1c" name="CriticalNamespaceCycleGroup" presentationName="Namespace Cycle Group"></issueType>
+        <issueType severity="Error" category="_3" id="_19" name="CriticalComponentCycleGroup" presentationName="Critical Component Cycle Group"></issueType>
+        <issueType severity="Error" category="_3" id="_1b" name="CriticalModuleCycleGroup" presentationName="Critical Module Cycle Group"></issueType>
+        <issueType severity="Error" category="_3" id="_1c" name="CriticalNamespaceCycleGroup" presentationName="Critical Namespace Cycle Group"></issueType>
         <issueType severity="Warning" category="_3" id="_1d" name="ComponentCycleGroup" presentationName="Component Cycle Group"></issueType>
-        <issueType severity="Warning" category="_3" id="_1e" name="DirectoryCycleGroup" presentationName="Directory Cycle Group"></issueType>
         <issueType severity="Warning" category="_3" id="_1f" name="ModuleCycleGroup" presentationName="Module Cycle Group"></issueType>
         <issueType severity="Warning" category="_3" id="_20" name="NamespaceCycleGroup" presentationName="Namespace Cycle Group"></issueType>
         <issueType severity="Warning" category="_4" id="_21" name="DuplicateCodeBlock" presentationName="Duplicate Code Block"></issueType>
@@ -197,4 +195,4 @@
         <metricId id="_b5" name="JavaRelativeCyclicityPackages" presentationName="Relative Cyclicity (Packages)" description="Relative package cyclicity in percent." categories="_5d" provider="_ab" isFloat="true" levels="_57 _58" bestValue="0.0" worstValue="INF"></metricId>
         <metricId id="_b6" name="JavaStructuralDebtIndexPackages" presentationName="Structural Debt Index (Packages)" description="Cummulative structural debt index of non-ignored package cycles." categories="_68" provider="_ab" isFloat="false" levels="_57 _58" bestValue="0.0" worstValue="INF"></metricId>
     </metricIds>
-</ns2:exportMetaData>
+</ns3:exportMetaData>

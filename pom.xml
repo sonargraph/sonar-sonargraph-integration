@@ -8,8 +8,8 @@
   <version>2.1.5</version>
   <packaging>sonar-plugin</packaging>
 
-  <name>SonarQube Sonargraph 8 Integration Plugin</name>
-  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects. Integrates with Sonargraph versions 9.1.1 and higher.</description>
+  <name>SonarQube Sonargraph 9 Integration Plugin</name>
+  <description>Provides architecture governance features accompanied by metrics about cyclic dependencies and other structural aspects.</description>
 
   <inceptionYear>2015</inceptionYear>
   <organization>
@@ -35,7 +35,7 @@
 
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin</sonar.plugin.class>
-    <sonar.apiVersion>6.7.1</sonar.apiVersion>
+    <sonar.apiVersion>6.7.3</sonar.apiVersion>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: support AT hello2morrow DOT com</license.mailto>
@@ -54,16 +54,6 @@
       <version>${sonar.apiVersion}</version>
       <scope>provided</scope>
     </dependency>
-     <!--
-      <dependency>
-      <groupId>org.sonarsource.java</groupId>
-      <artifactId>sonar-java-plugin</artifactId>
-      <version>3.4</version>
-      <scope>provided</scope>
-    </dependency>
-    --> 
-    
-    <!-- Test support -->    
     <dependency>
       <groupId>org.apache.maven</groupId>
       <artifactId>maven-project</artifactId>
@@ -178,7 +168,7 @@
       <plugin>
         <groupId>org.sonarsource.scanner.maven</groupId>
         <artifactId>sonar-maven-plugin</artifactId>
-        <version>3.0.1</version>
+        <version>3.4.0.905</version>
       </plugin>
     </plugins>
     <pluginManagement>
