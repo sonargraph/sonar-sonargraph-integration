@@ -26,11 +26,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
@@ -43,6 +43,7 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
+import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.log.Logger;
@@ -58,7 +59,6 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
-import com.hello2morrow.sonargraph.integration.access.model.IJavaMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
@@ -81,7 +81,6 @@ public final class SonargraphSensor implements Sensor
     private final RulesProfile qualityProfile;
     private final FileSystem fileSystem;
     private final MetricFinder metricFinder;
-    private Map<String, Metric<? extends Serializable>> metrics;
 
     public SonargraphSensor(final RulesProfile qualityProfile, final FileSystem fileSystem, final MetricFinder metricFinder)
     {
@@ -113,30 +112,30 @@ public final class SonargraphSensor implements Sensor
     //        }
     //    }
 
-    private void processSystemMetrics(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
-            final ISystemInfoProcessor systemInfoProcessor, final ISoftwareSystem softwareSystem)
-    {
-        assert metrics != null : "Parameter 'metrics' of method 'processSystemMetrics' must not be null";
-        assert sensorContext != null : "Parameter 'sensorContext' of method 'processSystemMetrics' must not be null";
-        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processSystemMetrics' must not be null";
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processSystemMetrics' must not be null";
-
-        final Optional<IMetricLevel> systemLevel = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
-        assert systemLevel.isPresent() : "Metric level 'system' not found";
-
-        processProjectMetrics(sensorContext, softwareSystem, systemInfoProcessor, metrics, systemLevel.get());
-
-        final Map<INamedElement, IMetricValue> nccdValues = systemInfoProcessor.getMetricValues(IMetricLevel.MODULE,
-                IMetricId.StandardName.CORE_NCCD.getStandardName());
-        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble(v -> v.getValue().doubleValue()).max();
-        if (highestNccd.isPresent())
-        {
-            //            final NewMeasure<Serializable> newMeasure = sensorContext.newMeasure();
-            //            newMeasure.forMetric(SonargraphMetrics.MAX_MODULE_NCCD);
-            //            newMeasure.withValue(highestNccd.getAsDouble());
-            //            newMeasure.save();
-        }
-    }
+    //    private void processSystemMetrics(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
+    //            final ISystemInfoProcessor systemInfoProcessor, final ISoftwareSystem softwareSystem)
+    //    {
+    //        assert metrics != null : "Parameter 'metrics' of method 'processSystemMetrics' must not be null";
+    //        assert sensorContext != null : "Parameter 'sensorContext' of method 'processSystemMetrics' must not be null";
+    //        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processSystemMetrics' must not be null";
+    //        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processSystemMetrics' must not be null";
+    //
+    //        final Optional<IMetricLevel> systemLevel = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
+    //        assert systemLevel.isPresent() : "Metric level 'system' not found";
+    //
+    //        //        processProjectMetrics(sensorContext, softwareSystem, systemInfoProcessor, metrics, systemLevel.get());
+    //
+    //        final Map<INamedElement, IMetricValue> nccdValues = systemInfoProcessor.getMetricValues(IMetricLevel.MODULE,
+    //                IMetricId.StandardName.CORE_NCCD.getStandardName());
+    //        final OptionalDouble highestNccd = nccdValues.values().stream().mapToDouble(v -> v.getValue().doubleValue()).max();
+    //        if (highestNccd.isPresent())
+    //        {
+    //            //            final NewMeasure<Serializable> newMeasure = sensorContext.newMeasure();
+    //            //            newMeasure.forMetric(SonargraphMetrics.MAX_MODULE_NCCD);
+    //            //            newMeasure.withValue(highestNccd.getAsDouble());
+    //            //            newMeasure.save();
+    //        }
+    //    }
 
     private static String create(final IModuleInfoProcessor moduleInfoProcessor, final IIssue issue, final String detail)
     {
@@ -302,21 +301,22 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processModule(final IModuleInfoProcessor moduleInfoProcessor, final IModule module, final Map<String, Metric<?>> metrics,
-            final Map<String, ActiveRule> ruleKeyToActiveRule, final SensorContext context)
+    private void processModule(final SensorContext context, final InputModule inputModule, final IModule module,
+            final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> ruleKeyToActiveRule,
+            final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics)
     {
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'processModule' must not be null";
-        assert module != null : "Parameter 'module' of method 'processModule' must not be null";
         assert context != null : "Parameter 'context' of method 'processModule' must not be null";
-        assert metrics != null : "Parameter 'metrics' of method 'processModule' must not be null";
+        assert inputModule != null : "Parameter 'inputModule' of method 'processModule' must not be null";
+        assert module != null : "Parameter 'module' of method 'processModule' must not be null";
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'processModule' must not be null";
         assert ruleKeyToActiveRule != null : "Parameter 'ruleKeyToActiveRule' of method 'processModule' must not be null";
+        assert alreadyDefinedMetrics != null : "Parameter 'metrics' of method 'processModule' must not be null";
 
         final Optional<IMetricLevel> optionalMetricLevel = moduleInfoProcessor.getMetricLevels().stream()
                 .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
-
         if (optionalMetricLevel.isPresent())
         {
-            processProjectMetrics(context, module, moduleInfoProcessor, metrics, optionalMetricLevel.get());
+            processMetrics(context, inputModule, module, moduleInfoProcessor, alreadyDefinedMetrics, optionalMetricLevel.get());
         }
 
         final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor
@@ -336,33 +336,66 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processProjectMetrics(final SensorContext context, final INamedElementContainer container, final IInfoProcessor infoProcessor,
-            final Map<String, Metric<?>> metrics, final IMetricLevel level)
+    @SuppressWarnings("unchecked")
+    private void createNewMeasure(final SensorContext context, final InputComponent inputComponent, final Metric<? extends Serializable> metric,
+            final IMetricValue metricValue)
     {
-        //        final List<String> unconfiguredMetrics = new ArrayList<>();
-        //        for (final IMetricId metricId : infoProcessor.getMetricIdsForLevel(level))
-        //        {
-        //            final String metricKey = SonargraphMetrics.createMetricKeyFromStandardName(metricId.getName());
-        //            if (!isConfiguredMetric(metrics, metricId))
-        //            {
-        //                unconfiguredMetrics.add(metricId.getName());
-        //                continue;
-        //            }
-        //
-        //            final Optional<IMetricValue> value = infoProcessor.getMetricValueForElement(metricId, level, container.getFqName());
-        //            if (value.isPresent())
-        //            {
-        //                LOGGER.debug("Processing metric id: {}, metricKey: {}", metricId.getName(), metricKey);
-        //                final Measure<Double> measure = new Measure<>(metricKey);
-        //                measure.setValue(value.get().getValue().doubleValue());
-        //                context.saveMeasure(measure);
-        //            }
-        //            else
-        //            {
-        //                LOGGER.error("No value found for metric '{}'. Please check the meta-data configuration for Sonargraph!",
-        //                        metricId.getPresentationName());
-        //            }
-        //        }
+        assert context != null : "Parameter 'context' of method 'createNewMeasure' must not be null";
+        assert inputComponent != null : "Parameter 'inputComponent' of method 'createNewMeasure' must not be null";
+        assert metric != null : "Parameter 'metric' of method 'createNewMeasure' must not be null";
+        assert metricValue != null : "Parameter 'metricValue' of method 'createNewMeasure' must not be null";
+
+        if (metricValue.getId().isFloat())
+        {
+            final NewMeasure<Double> newMeasure = context.<Double> newMeasure();
+            newMeasure.forMetric((Metric<Double>) metric);
+            newMeasure.on(inputComponent);
+            newMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
+            newMeasure.save();
+        }
+        else
+        {
+            final NewMeasure<Integer> newMeasure = context.<Integer> newMeasure();
+            newMeasure.forMetric((Metric<Integer>) metric);
+            newMeasure.on(inputComponent);
+            newMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
+            newMeasure.save();
+        }
+    }
+
+    private void processMetrics(final SensorContext context, final InputComponent inputComponent, final INamedElementContainer container,
+            final IInfoProcessor infoProcessor, final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics, final IMetricLevel level)
+    {
+        assert context != null : "Parameter 'context' of method 'processMetrics' must not be null";
+        assert inputComponent != null : "Parameter 'inputComponent' of method 'processMetrics' must not be null";
+        assert container != null : "Parameter 'container' of method 'processMetrics' must not be null";
+        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'processMetrics' must not be null";
+        assert alreadyDefinedMetrics != null : "Parameter 'alreadyDefinedMetrics' of method 'processMetrics' must not be null";
+        assert level != null : "Parameter 'level' of method 'processMetrics' must not be null";
+
+        for (final IMetricId nextMetricId : infoProcessor.getMetricIdsForLevel(level))
+        {
+            final String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
+
+            final Metric<? extends Serializable> metric = alreadyDefinedMetrics.get(nextMetricKey);
+            if (metric == null)
+            {
+                LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Metric not yet defined '" + nextMetricKey + "'");
+                //TODO define?
+                //                metric = SonargraphBase.createMetric(nextMetricId);
+                continue;
+            }
+
+            final Optional<IMetricValue> metricValueOptional = infoProcessor.getMetricValueForElement(nextMetricId, level, container.getFqName());
+            if (metricValueOptional.isPresent())
+            {
+                createNewMeasure(context, inputComponent, metric, metricValueOptional.get());
+            }
+            else
+            {
+                LOGGER.warn("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No value found for metric '" + nextMetricKey + "'");
+            }
+        }
         //        if (!unconfiguredMetrics.isEmpty())
         //        {
         //            final StringJoiner joiner = new StringJoiner(", ");
@@ -384,29 +417,30 @@ public final class SonargraphSensor implements Sensor
         //        calculateMetricsForStructureWidget(context, level, infoProcessor, container);
     }
 
-    private void calculateStructuralCost(final SensorContext context, final IInfoProcessor infoProcessor)
-    {
-        assert context != null : "Parameter 'context' of method 'calculateStructuralCost' must not be null";
-        final Optional<Float> indexCost = context.config().getFloat(SonargraphBase.COST_PER_INDEX_POINT);
-        if (!indexCost.isPresent())
-        {
-            return;
-        }
-
-        final Optional<IMetricValue> value = infoProcessor
-                .getMetricValue(IJavaMetricId.StandardName.JAVA_STRUCTURAL_DEBT_INDEX_PACKAGES.getStandardName());
-        if (value.isPresent())
-        {
-            final double cost = (double) indexCost.get() * value.get().getValue().intValue();
-            if (cost >= 0)
-            {
-                //                context.saveMeasure(new Measure<Double>(SonargraphMetrics.STRUCTURAL_DEBT_COST, cost));
-            }
-        }
-    }
+    //    private void calculateStructuralCost(final SensorContext context, final IInfoProcessor infoProcessor)
+    //    {
+    //        assert context != null : "Parameter 'context' of method 'calculateStructuralCost' must not be null";
+    //        final Optional<Float> indexCost = context.config().getFloat(SonargraphBase.COST_PER_INDEX_POINT);
+    //        if (!indexCost.isPresent())
+    //        {
+    //            return;
+    //        }
+    //
+    //        final Optional<IMetricValue> value = infoProcessor
+    //                .getMetricValue(IJavaMetricId.StandardName.JAVA_STRUCTURAL_DEBT_INDEX_PACKAGES.getStandardName());
+    //        if (value.isPresent())
+    //        {
+    //            final double cost = (double) indexCost.get() * value.get().getValue().intValue();
+    //            if (cost >= 0)
+    //            {
+    //                //                context.saveMeasure(new Measure<Double>(SonargraphMetrics.STRUCTURAL_DEBT_COST, cost));
+    //            }
+    //        }
+    //    }
 
     private void createIssue(final SensorContext context, final InputPath resource, final ActiveRule rule, final int line, final String msg)
     {
+        assert context != null : "Parameter 'context' of method 'createIssue' must not be null";
         assert resource != null : "Parameter 'resource' of method 'createIssue' must not be null";
         assert rule != null : "Parameter 'rule' of method 'createIssue' must not be null";
         assert msg != null && msg.length() > 0 : "Parameter 'msg' of method 'createIssue' must not be empty";
@@ -419,7 +453,7 @@ public final class SonargraphSensor implements Sensor
         if (rule.getSeverity() != null)
         {
             //TODO
-            //            newIssue.overrideSeverity(rule.getSeverity());
+            //                      newIssue.overrideSeverity(rule.getSeverity().);
         }
 
         if (line > 0)
@@ -430,156 +464,150 @@ public final class SonargraphSensor implements Sensor
 
     }
 
-    private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
-            final INamedElementContainer container)
-    {
-        final String packagesMetricId = IJavaMetricId.StandardName.JAVA_PACKAGES.getStandardName();
-        final Optional<IMetricId> packagesMetric = infoProcessor.getMetricId(level, packagesMetricId);
-        final String cyclicPackagesMetricId = IJavaMetricId.StandardName.JAVA_CYCLIC_PACKAGES.getStandardName();
-        final Optional<IMetricId> cyclicPackagesMetric = infoProcessor.getMetricId(level, cyclicPackagesMetricId);
+    //    private static void calculateMetricsForStructureWidget(final SensorContext context, final IMetricLevel level, final IInfoProcessor infoProcessor,
+    //            final INamedElementContainer container)
+    //    {
+    //        final String packagesMetricId = IJavaMetricId.StandardName.JAVA_PACKAGES.getStandardName();
+    //        final Optional<IMetricId> packagesMetric = infoProcessor.getMetricId(level, packagesMetricId);
+    //        final String cyclicPackagesMetricId = IJavaMetricId.StandardName.JAVA_CYCLIC_PACKAGES.getStandardName();
+    //        final Optional<IMetricId> cyclicPackagesMetric = infoProcessor.getMetricId(level, cyclicPackagesMetricId);
+    //
+    //        LOGGER.debug("Adding cyclic packages metric");
+    //        //        if (packagesMetric.isPresent() && cyclicPackagesMetric.isPresent())
+    //        //        {
+    //        //            final Optional<IMetricValue> numberOfPackagesOptional = infoProcessor.getMetricValueForElement(packagesMetric.get(), level,
+    //        //                    container.getFqName());
+    //        //            assert numberOfPackagesOptional.isPresent() : "If key " + packagesMetricId + " is contained, the value must be present!";
+    //        //            final double numberOfPackages = numberOfPackagesOptional.get().getValue().doubleValue();
+    //        //
+    //        //            final Optional<IMetricValue> numberOfCyclicPackagesOptional = infoProcessor.getMetricValueForElement(cyclicPackagesMetric.get(), level,
+    //        //                    container.getFqName());
+    //        //            assert numberOfPackagesOptional.isPresent() : "If key " + cyclicPackagesMetricId + " is contained, the value must be present!";
+    //        //            final double numberOfCyclicPackages = numberOfCyclicPackagesOptional.get().getValue().doubleValue();
+    //        //
+    //        //            final double cylicPackagesPercent = Utility.round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
+    //        //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
+    //        //        }
+    //    }
+    //
+    //    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext context, final IMetricLevel level,
+    //            final IInfoProcessor infoProcessor)
+    //    {
+    //        assert metrics != null : "Parameter 'metrics' of method 'calculateMetricsForArchitectureWidget' must not be null";
+    //        assert context != null : "Parameter 'sensorContext' of method 'calculateMetricsForArchitectureWidget' must not be null";
+    //        assert level != null : "Parameter 'level' of method 'calculateMetricsForArchitectureWidget' must not be null";
+    //        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'calculateMetricsForArchitectureWidget' must not be null";
+    //
+    //        //        final double numberOfIssues = infoProcessor.getIssues(null).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_ISSUES, numberOfIssues));
+    //        //
+    //        //        final double numberOfUnresolvedCriticalIssues = infoProcessor.getIssues(issue -> !issue.hasResolution()
+    //        //                && (issue.getIssueType().getSeverity() == Severity.WARNING || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION, numberOfUnresolvedCriticalIssues));
+    //        //
+    //        //        final double numberOfUnresolvedThresholdViolations = infoProcessor
+    //        //                .getIssues(issue -> !issue.hasResolution()
+    //        //                        && IIssueCategory.StandardName.THRESHOLD_VIOLATION.getStandardName().equals(issue.getIssueType().getCategory().getName()))
+    //        //                .size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS, numberOfUnresolvedThresholdViolations));
+    //        //
+    //        //        final double numberOfIgnoredCriticalIssues = infoProcessor.getResolutions(resolution -> resolution.getType() == ResolutionType.IGNORE
+    //        //                && resolution.getIssues().stream().anyMatch((final IIssue issue) -> issue.getIssueType().getSeverity() == Severity.WARNING
+    //        //                        || issue.getIssueType().getSeverity() == Severity.ERROR))
+    //        //                .size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
+    //        //
+    //        //        numberOfWorkspaceWarnings = infoProcessor.getIssues(issue -> !issue.hasResolution()
+    //        //                && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
+    //        //
+    //        //        final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
+    //        //        if (numberOfComponentsMetric.isPresent())
+    //        //        {
+    //        //            calculateArchitecturePercentages(metrics, context, infoProcessor);
+    //        //        }
+    //    }
+    //
+    //    private static void calculateArchitecturePercentages(final Map<String, Metric<?>> metrics, final SensorContext context,
+    //            final IInfoProcessor infoProcessor)
+    //    {
+    //        final Optional<IMetricValue> coreComponentsValue = infoProcessor.getMetricValue(IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
+    //
+    //        if (!coreComponentsValue.isPresent())
+    //        {
+    //            return;
+    //        }
+    //
+    //        final double numberOfComponents = coreComponentsValue.get().getValue().doubleValue();
+    //        if (numberOfComponents <= 0)
+    //        {
+    //            return;
+    //        }
+    //
+    //        final Optional<Metric<?>> numberOfUnassignedComponentsMetric = getSonarQubeMetric(metrics,
+    //                IMetricId.StandardName.CORE_UNASSIGNED_COMPONENTS.getStandardName());
+    //        final Optional<IMetricValue> unassignedComponentsValue = infoProcessor
+    //                .getMetricValue(IMetricId.StandardName.CORE_UNASSIGNED_COMPONENTS.getStandardName());
+    //        if (numberOfUnassignedComponentsMetric.isPresent() && unassignedComponentsValue.isPresent())
+    //        {
+    //            final double unassignedComponents = unassignedComponentsValue.get().getValue().doubleValue();
+    //            final double unassignedComponentsPercent = Utility.round((unassignedComponents / numberOfComponents) * 100.0, 2);
+    //            //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
+    //        }
+    //
+    //        final Optional<Metric<?>> numberOfViolatingComponentsMetric = getSonarQubeMetric(metrics,
+    //                IMetricId.StandardName.CORE_VIOLATING_COMPONENTS.getStandardName());
+    //        final Optional<IMetricValue> violatingComponentsValue = infoProcessor
+    //                .getMetricValue(IMetricId.StandardName.CORE_VIOLATING_COMPONENTS.getStandardName());
+    //        if (numberOfViolatingComponentsMetric.isPresent() && violatingComponentsValue.isPresent())
+    //        {
+    //            final double numberOfViolatingComponents = violatingComponentsValue.get().getValue().doubleValue();
+    //            final double violatingComponentsPercent = Utility.round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
+    //            //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
+    //        }
+    //    }
+    //
+    //    private void calculateMetricsForStructuralDebtWidget(final SensorContext context, final IInfoProcessor infoProcessor)
+    //    {
+    //        //        final double numberOfResolutions = infoProcessor.getResolutions(null).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_RESOLUTIONS, numberOfResolutions));
+    //        //
+    //        //        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions(r -> !r.isApplicable()).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS, numberOfUnapplicableResolutions));
+    //        //
+    //        //        final double numberOfTasks = infoProcessor.getResolutions(IResolution::isTask).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_TASKS, numberOfTasks));
+    //        //
+    //        //        final double numberOfUnapplicableTasks = infoProcessor.getResolutions(r -> r.isTask() && !r.isApplicable()).size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS, numberOfUnapplicableTasks));
+    //        //
+    //        //        final List<IResolution> refactorings = infoProcessor.getResolutions(r -> r.getType() == ResolutionType.REFACTORING);
+    //        //        final double numberOfRefactorings = refactorings.size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_REFACTORINGS, numberOfRefactorings));
+    //        //        final List<IResolution> applicableRefactorings = refactorings.stream().filter(IResolution::isApplicable).collect(Collectors.toList());
+    //        //
+    //        //        final double numberOfUnapplicableRefactorings = numberOfRefactorings - applicableRefactorings.size();
+    //        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS, numberOfUnapplicableRefactorings));
+    //        //
+    //        //        final double numberOfAffectedParserDepencencies = applicableRefactorings.stream().mapToInt(IResolution::getNumberOfAffectedParserDependencies)
+    //        //                .sum();
+    //        //        LOGGER.debug("Detected {} parser dependencies affected by refactorings", numberOfAffectedParserDepencencies);
+    //        //        context.saveMeasure(
+    //        //                new Measure<Integer>(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS, numberOfAffectedParserDepencencies));
+    //    }
 
-        LOGGER.debug("Adding cyclic packages metric");
-        //        if (packagesMetric.isPresent() && cyclicPackagesMetric.isPresent())
-        //        {
-        //            final Optional<IMetricValue> numberOfPackagesOptional = infoProcessor.getMetricValueForElement(packagesMetric.get(), level,
-        //                    container.getFqName());
-        //            assert numberOfPackagesOptional.isPresent() : "If key " + packagesMetricId + " is contained, the value must be present!";
-        //            final double numberOfPackages = numberOfPackagesOptional.get().getValue().doubleValue();
-        //
-        //            final Optional<IMetricValue> numberOfCyclicPackagesOptional = infoProcessor.getMetricValueForElement(cyclicPackagesMetric.get(), level,
-        //                    container.getFqName());
-        //            assert numberOfPackagesOptional.isPresent() : "If key " + cyclicPackagesMetricId + " is contained, the value must be present!";
-        //            final double numberOfCyclicPackages = numberOfCyclicPackagesOptional.get().getValue().doubleValue();
-        //
-        //            final double cylicPackagesPercent = Utility.round((numberOfCyclicPackages / numberOfPackages) * 100.0, 2);
-        //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.CYCLIC_PACKAGES_PERCENT, cylicPackagesPercent));
-        //        }
-    }
-
-    private void calculateMetricsForArchitectureWidget(final Map<String, Metric<?>> metrics, final SensorContext context, final IMetricLevel level,
-            final IInfoProcessor infoProcessor)
-    {
-        assert metrics != null : "Parameter 'metrics' of method 'calculateMetricsForArchitectureWidget' must not be null";
-        assert context != null : "Parameter 'sensorContext' of method 'calculateMetricsForArchitectureWidget' must not be null";
-        assert level != null : "Parameter 'level' of method 'calculateMetricsForArchitectureWidget' must not be null";
-        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'calculateMetricsForArchitectureWidget' must not be null";
-
-        //        final double numberOfIssues = infoProcessor.getIssues(null).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_ISSUES, numberOfIssues));
-        //
-        //        final double numberOfUnresolvedCriticalIssues = infoProcessor.getIssues(issue -> !issue.hasResolution()
-        //                && (issue.getIssueType().getSeverity() == Severity.WARNING || issue.getIssueType().getSeverity() == Severity.ERROR)).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_CRITICAL_ISSUES_WITHOUT_RESOLUTION, numberOfUnresolvedCriticalIssues));
-        //
-        //        final double numberOfUnresolvedThresholdViolations = infoProcessor
-        //                .getIssues(issue -> !issue.hasResolution()
-        //                        && IIssueCategory.StandardName.THRESHOLD_VIOLATION.getStandardName().equals(issue.getIssueType().getCategory().getName()))
-        //                .size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_THRESHOLD_VIOLATIONS, numberOfUnresolvedThresholdViolations));
-        //
-        //        final double numberOfIgnoredCriticalIssues = infoProcessor.getResolutions(resolution -> resolution.getType() == ResolutionType.IGNORE
-        //                && resolution.getIssues().stream().anyMatch((final IIssue issue) -> issue.getIssueType().getSeverity() == Severity.WARNING
-        //                        || issue.getIssueType().getSeverity() == Severity.ERROR))
-        //                .size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES, numberOfIgnoredCriticalIssues));
-        //
-        //        numberOfWorkspaceWarnings = infoProcessor.getIssues(issue -> !issue.hasResolution()
-        //                && IIssueCategory.StandardName.WORKSPACE.getStandardName().equals(issue.getIssueType().getCategory().getName())).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_WORKSPACE_WARNINGS, Double.valueOf(numberOfWorkspaceWarnings)));
-        //
-        //        final Optional<Metric<?>> numberOfComponentsMetric = getSonarQubeMetric(metrics, IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
-        //        if (numberOfComponentsMetric.isPresent())
-        //        {
-        //            calculateArchitecturePercentages(metrics, context, infoProcessor);
-        //        }
-    }
-
-    private static void calculateArchitecturePercentages(final Map<String, Metric<?>> metrics, final SensorContext context,
-            final IInfoProcessor infoProcessor)
-    {
-        final Optional<IMetricValue> coreComponentsValue = infoProcessor.getMetricValue(IMetricId.StandardName.CORE_COMPONENTS.getStandardName());
-
-        if (!coreComponentsValue.isPresent())
-        {
-            return;
-        }
-
-        final double numberOfComponents = coreComponentsValue.get().getValue().doubleValue();
-        if (numberOfComponents <= 0)
-        {
-            return;
-        }
-
-        final Optional<Metric<?>> numberOfUnassignedComponentsMetric = getSonarQubeMetric(metrics,
-                IMetricId.StandardName.CORE_UNASSIGNED_COMPONENTS.getStandardName());
-        final Optional<IMetricValue> unassignedComponentsValue = infoProcessor
-                .getMetricValue(IMetricId.StandardName.CORE_UNASSIGNED_COMPONENTS.getStandardName());
-        if (numberOfUnassignedComponentsMetric.isPresent() && unassignedComponentsValue.isPresent())
-        {
-            final double unassignedComponents = unassignedComponentsValue.get().getValue().doubleValue();
-            final double unassignedComponentsPercent = Utility.round((unassignedComponents / numberOfComponents) * 100.0, 2);
-            //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.UNASSIGNED_COMPONENTS_PERCENT, unassignedComponentsPercent));
-        }
-
-        final Optional<Metric<?>> numberOfViolatingComponentsMetric = getSonarQubeMetric(metrics,
-                IMetricId.StandardName.CORE_VIOLATING_COMPONENTS.getStandardName());
-        final Optional<IMetricValue> violatingComponentsValue = infoProcessor
-                .getMetricValue(IMetricId.StandardName.CORE_VIOLATING_COMPONENTS.getStandardName());
-        if (numberOfViolatingComponentsMetric.isPresent() && violatingComponentsValue.isPresent())
-        {
-            final double numberOfViolatingComponents = violatingComponentsValue.get().getValue().doubleValue();
-            final double violatingComponentsPercent = Utility.round((numberOfViolatingComponents / numberOfComponents) * 100.0, 2);
-            //            context.saveMeasure(new Measure<Integer>(SonargraphMetrics.VIOLATING_COMPONENTS_PERCENT, violatingComponentsPercent));
-        }
-    }
-
-    private void calculateMetricsForStructuralDebtWidget(final SensorContext context, final IInfoProcessor infoProcessor)
-    {
-        //        final double numberOfResolutions = infoProcessor.getResolutions(null).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_RESOLUTIONS, numberOfResolutions));
-        //
-        //        final double numberOfUnapplicableResolutions = infoProcessor.getResolutions(r -> !r.isApplicable()).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_RESOLUTIONS, numberOfUnapplicableResolutions));
-        //
-        //        final double numberOfTasks = infoProcessor.getResolutions(IResolution::isTask).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_TASKS, numberOfTasks));
-        //
-        //        final double numberOfUnapplicableTasks = infoProcessor.getResolutions(r -> r.isTask() && !r.isApplicable()).size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_TASKS, numberOfUnapplicableTasks));
-        //
-        //        final List<IResolution> refactorings = infoProcessor.getResolutions(r -> r.getType() == ResolutionType.REFACTORING);
-        //        final double numberOfRefactorings = refactorings.size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_REFACTORINGS, numberOfRefactorings));
-        //        final List<IResolution> applicableRefactorings = refactorings.stream().filter(IResolution::isApplicable).collect(Collectors.toList());
-        //
-        //        final double numberOfUnapplicableRefactorings = numberOfRefactorings - applicableRefactorings.size();
-        //        context.saveMeasure(new Measure<Integer>(SonargraphMetrics.NUMBER_OF_UNAPPLICABLE_REFACTORINGS, numberOfUnapplicableRefactorings));
-        //
-        //        final double numberOfAffectedParserDepencencies = applicableRefactorings.stream().mapToInt(IResolution::getNumberOfAffectedParserDependencies)
-        //                .sum();
-        //        LOGGER.debug("Detected {} parser dependencies affected by refactorings", numberOfAffectedParserDepencencies);
-        //        context.saveMeasure(
-        //                new Measure<Integer>(SonargraphMetrics.NUMBER_OF_PARSER_DEPENDENCIES_AFFECTED_BY_REFACTORINGS, numberOfAffectedParserDepencencies));
-    }
-
-    private static boolean isConfiguredMetric(final Map<String, Metric<?>> configuredMetrics, final IMetricId metricId)
-    {
-        final String metricKey = SonargraphBase.createMetricKeyFromStandardName(metricId.getName());
-        return configuredMetrics.containsKey(metricKey);
-    }
-
-    private static Optional<Metric<?>> getSonarQubeMetric(final Map<String, Metric<?>> metrics, final String name)
-    {
-        final String metricKey = SonargraphBase.createMetricKeyFromStandardName(name);
-        return Optional.ofNullable(metrics.get(metricKey));
-    }
+    //    private static Optional<Metric<?>> getSonarQubeMetric(final Map<String, Metric<?>> metrics, final String name)
+    //    {
+    //        final String metricKey = SonargraphBase.createMetricKeyFromStandardName(name);
+    //        return Optional.ofNullable(metrics.get(metricKey));
+    //    }
 
     @Override
     public void describe(final SensorDescriptor descriptor)
     {
         assert descriptor != null : "Parameter 'descriptor' of method 'describe' must not be null";
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-        descriptor.global();
+        //        descriptor.global();
         //        descriptor.createIssuesForRuleRepository(repositoryKey)
     }
 
@@ -637,8 +665,8 @@ public final class SonargraphSensor implements Sensor
                 final String nextModuleFqName = nextMatchedModule.getFqName();
                 if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
                 {
-                    LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name coming from report '"
-                            + nextModuleFqName + "'");
+                    LOGGER.warn("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME
+                            + ": Ignoring invalid module fq name coming from report '" + nextModuleFqName + "'");
                     continue;
                 }
 
@@ -678,14 +706,16 @@ public final class SonargraphSensor implements Sensor
                 return file;
             }
 
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No report file found at '" + file.getAbsolutePath() + "'");
+            LOGGER.warn(
+                    "Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No report file found at '" + file.getAbsolutePath() + "'");
             return null;
         }
 
         //Try Maven path
         File file = Paths.get(fileSystem.workDir().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR, SONARGRAPH_SONARQUBE_REPORT_FILENAME)
                 .toFile();
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying Maven report file path '" + file.getAbsolutePath() + "'");
+        LOGGER.info(
+                "Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying Maven report file path '" + file.getAbsolutePath() + "'");
         if (file.exists())
         {
             return file;
@@ -694,13 +724,14 @@ public final class SonargraphSensor implements Sensor
         //Try Gradle path
         file = Paths.get(fileSystem.workDir().getParentFile().getParentFile().getAbsolutePath(), SONARGRAPH_TARGET_DIR,
                 SONARGRAPH_SONARQUBE_REPORT_FILENAME).toFile();
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying Gradle report file path '" + file.getAbsolutePath() + "'");
+        LOGGER.info(
+                "Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying Gradle report file path '" + file.getAbsolutePath() + "'");
         if (file.exists())
         {
             return file;
         }
 
-        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No report file found");
+        LOGGER.warn("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No report file found");
         return null;
     }
 
@@ -709,47 +740,50 @@ public final class SonargraphSensor implements Sensor
     {
         assert context != null : "Parameter 'context' of method 'execute' must not be null";
 
-        final InputModule inputModule = context.module();
-        final String inputModuleKey = inputModule.key();
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module '" + inputModuleKey + "'");
-
         final File reportFile = findReportFile(context);
         if (reportFile == null)
         {
             return;
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading report from '" + reportFile.getAbsolutePath() + "'");
+        LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading report from '" + reportFile.getAbsolutePath() + "'");
 
         final ISonargraphSystemController controller = ControllerAccess.createController();
         final Result result = controller.loadSystemReport(reportFile);
         if (result.isFailure())
         {
-            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + result.toString());
+            LOGGER.error("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + result.toString());
             return;
         }
 
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
         if (softwareSystem.getModules().isEmpty())
         {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No modules defined in Sonargraph system");
+            LOGGER.warn("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No modules defined in Sonargraph system");
             return;
         }
 
+        final InputModule inputModule = context.module();
+        final String inputModuleKey = inputModule.key();
         final IModule module = matchModule(inputModule, softwareSystem);
         if (module == null)
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey + "'");
+            LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey
+                    + "'");
             return;
         }
 
-        if (metrics == null)
+        final Map<String, ActiveRule> ruleKeyToActiveRule = new HashMap<>();
+        for (final ActiveRule nextActiveRule : qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY))
         {
-            metrics = metricFinder.findAll().stream().filter(m -> m.key().startsWith(SonargraphBase.ABBREVIATION))
-                    .collect(Collectors.toMap(Metric::key, m -> m));
+            ruleKeyToActiveRule.put(nextActiveRule.getRuleKey(), nextActiveRule);
         }
+        LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + ruleKeyToActiveRule.size() + " rule(s) activated");
 
+        final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics = metricFinder.findAll().stream()
+                .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX)).collect(Collectors.toMap(Metric::key, m -> m));
+
+        LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module '" + inputModuleKey + "'");
         final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();
         //        processFeatures(context, systemInfoProcessor);
         //        if (project.isRoot())
@@ -758,21 +792,13 @@ public final class SonargraphSensor implements Sensor
         //        processSystemMetrics(metrics, context, systemInfoProcessor, softwareSystem);
         //        }
 
-        final Map<String, ActiveRule> ruleKeyToActiveRule = new HashMap<>();
-        for (final ActiveRule nextActiveRule : qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY))
-        {
-            ruleKeyToActiveRule.put(nextActiveRule.getRuleKey(), nextActiveRule);
-        }
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + ruleKeyToActiveRule + " rule(s) activated");
-
-        //        processModule(controller.createModuleInfoProcessor(module), module, metrics, ruleKeyToActiveRule, context);
+        processModule(context, inputModule, module, controller.createModuleInfoProcessor(module), ruleKeyToActiveRule, alreadyDefinedMetrics);
 
         final List<IIssue> workspaceIssues = systemInfoProcessor
                 .getIssues(issue -> !issue.hasResolution() && SonargraphBase.isWorkspoceIssue(issue.getIssueType()));
         if (!workspaceIssues.isEmpty())
         {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issue(s)");
+            LOGGER.warn("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issue(s)");
             int i = 1;
             for (final IIssue nextIssue : workspaceIssues)
             {
@@ -785,6 +811,6 @@ public final class SonargraphSensor implements Sensor
             }
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing module '" + inputModuleKey + "'");
+        LOGGER.info("Sensor " + SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing module '" + inputModuleKey + "'");
     }
 }

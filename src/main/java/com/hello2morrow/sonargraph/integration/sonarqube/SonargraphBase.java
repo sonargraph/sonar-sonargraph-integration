@@ -17,18 +17,22 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 
+import org.sonar.api.measures.Metric;
+
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
+import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
 final class SonargraphBase
 {
     static final String SONARGRAPH_PLUGIN_KEY = "sonargraphintegration";
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String JAVA = "java";
-    static final String ABBREVIATION = "sg_i.";//There is a max length of 64 characters for metric keys
+    static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
     static final String CONFIG_PREFIX = "sonar.sonargraph_integration.";
     static final String COST_PER_INDEX_POINT = CONFIG_PREFIX + "index_point_cost";
     static final double COST_PER_INDEX_POINT_DEFAULT = 11.0;
@@ -69,14 +73,76 @@ final class SonargraphBase
         return categoryPresentationName.replace(' ', '-').toLowerCase();
     }
 
-    static String createMetricKey(final String constantName)
-    {
-        return SonargraphBase.ABBREVIATION + constantName;
-    }
-
     static String createMetricKeyFromStandardName(final String metricIdName)
     {
-        return createMetricKey(Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", ""));
+        assert metricIdName != null
+                && metricIdName.length() > 0 : "Parameter 'metricIdName' of method 'createMetricKeyFromStandardName' must not be empty";
+        return SonargraphBase.METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
+    }
+
+    private static String trimDescription(final IMetricId id)
+    {
+        assert id != null : "Parameter 'id' of method 'trimDescription' must not be null";
+        final String description = id.getDescription();
+        return description.length() > 255 ? description.substring(0, 252) + "..." : description;
+    }
+
+    private static void setMetricDirection(final IMetricId id, final Metric.Builder metric)
+    {
+        assert id != null : "Parameter 'id' of method 'setMetricDirection' must not be null";
+        assert metric != null : "Parameter 'metric' of method 'setMetricDirection' must not be null";
+
+        if (id.getBestValue() > id.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_BETTER);
+        }
+        else if (id.getBestValue() < id.getWorstValue())
+        {
+            metric.setDirection(Metric.DIRECTION_WORST);
+        }
+        else
+        {
+            metric.setDirection(Metric.DIRECTION_NONE);
+        }
+    }
+
+    private static void setWorstValue(final IMetricId id, final Metric.Builder metric)
+    {
+        assert id != null : "Parameter 'id' of method 'setWorstValue' must not be null";
+        assert metric != null : "Parameter 'metric' of method 'setWorstValue' must not be null";
+
+        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setWorstValue(id.getWorstValue());
+        }
+    }
+
+    private static void setBestValue(final IMetricId id, final Metric.Builder metric)
+    {
+        assert id != null : "Parameter 'id' of method 'setBestValue' must not be null";
+        assert metric != null : "Parameter 'metric' of method 'setBestValue' must not be null";
+
+        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
+                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
+        {
+            metric.setBestValue(id.getBestValue());
+        }
+    }
+
+    static Metric<Serializable> createMetric(final IMetricId metricId)
+    {
+        assert metricId != null : "Parameter 'metricId' of method 'createMetric' must not be null";
+
+        final Metric.Builder metric = new Metric.Builder(SonargraphBase.createMetricKeyFromStandardName(metricId.getName()),
+                metricId.getPresentationName(), metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT)
+                        .setDescription(trimDescription(metricId)).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+
+        setBestValue(metricId, metric);
+        setWorstValue(metricId, metric);
+        setMetricDirection(metricId, metric);
+
+        return metric.create();
     }
 
     static boolean ignoreIssueType(final IIssueType issueType)

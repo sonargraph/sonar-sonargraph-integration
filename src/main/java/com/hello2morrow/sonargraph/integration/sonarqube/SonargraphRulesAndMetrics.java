@@ -21,14 +21,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.measures.Metrics;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
@@ -43,7 +44,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 
-public final class SonargraphRules implements RulesDefinition
+public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
 {
     //    /*
     //     * Additional metric for Structural Debt widget
@@ -144,103 +145,9 @@ public final class SonargraphRules implements RulesDefinition
     //                    .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
     //                    .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH).create();
 
-    private static final Logger LOGGER = Loggers.get(SonargraphRules.class);
+    private static final Logger LOGGER = Loggers.get(SonargraphRulesAndMetrics.class);
     private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final String RULE_TAG_SONARGRAPH = "sonargraph-integration";
-
-    private static String trimDescription(final IMetricId id)
-    {
-        assert id != null : "Parameter 'id' of method 'trimDescription' must not be null";
-        final String description = id.getDescription();
-        return description.length() > 255 ? description.substring(0, 252) + "..." : description;
-    }
-
-    private static void setMetricDirection(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setMetricDirection' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setMetricDirection' must not be null";
-
-        if (id.getBestValue() > id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_BETTER);
-        }
-        else if (id.getBestValue() < id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_WORST);
-        }
-        else
-        {
-            metric.setDirection(Metric.DIRECTION_NONE);
-        }
-    }
-
-    private static void setWorstValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setWorstValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setWorstValue' must not be null";
-
-        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setWorstValue(id.getWorstValue());
-        }
-    }
-
-    private static void setBestValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setBestValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setBestValue' must not be null";
-
-        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setBestValue(id.getBestValue());
-        }
-    }
-
-    private static void getMetricsForLevel(final IExportMetaData metaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
-    {
-        assert metaData != null : "Parameter 'metaData' of method 'getMetricsForLevel' must not be null";
-        assert level != null : "Parameter 'level' of method 'getMetricsForLevel' must not be null";
-        assert metricMap != null : "Parameter 'metricMap' of method 'getMetricsForLevel' must not be null";
-
-        for (final IMetricId next : metaData.getMetricIdsForLevel(level))
-        {
-            if (!metricMap.containsKey(next.getName()))
-            {
-                metricMap.put(next.getName(), next);
-            }
-        }
-    }
-
-    private static IExportMetaData loadBuiltInMetaData()
-    {
-        final IMetaDataController controller = ControllerAccess.createMetaDataController();
-
-        final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
-        try (InputStream inputStream = SonargraphRules.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
-        {
-            if (inputStream == null)
-            {
-                LOGGER.error(errorMsg);
-                return null;
-            }
-
-            final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
-            if (result.isFailure())
-            {
-                LOGGER.error("{}: {}", errorMsg, result.toString());
-                return null;
-            }
-            return result.getOutcome();
-        }
-        catch (final IOException ex)
-        {
-            LOGGER.error(errorMsg, ex);
-        }
-
-        return null;
-    }
 
     //    private static IExportMetaData loadAdditionalMetaData(final IMetaDataController controller, final String directory)
     //    {
@@ -275,7 +182,47 @@ public final class SonargraphRules implements RulesDefinition
     //        return null;
     //    }
 
-    private static void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
+    private IExportMetaData builtInMetaData;
+    private List<Metric<? extends Serializable>> metrics;
+
+    public SonargraphRulesAndMetrics()
+    {
+        super();
+    }
+
+    private void readBuiltInMetaData()
+    {
+        if (builtInMetaData == null)
+        {
+            final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
+            try (InputStream inputStream = SonargraphRulesAndMetrics.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
+            {
+                if (inputStream != null)
+                {
+                    final IMetaDataController controller = ControllerAccess.createMetaDataController();
+                    final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
+                    if (result.isFailure())
+                    {
+                        LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg + " - " + result.toString());
+                    }
+                    else
+                    {
+                        builtInMetaData = result.getOutcome();
+                    }
+                }
+                else
+                {
+                    LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg);
+                }
+            }
+            catch (final IOException ex)
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg, ex);
+            }
+        }
+    }
+
+    private void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
             final NewRepository repository)
     {
         assert key != null && key.length() > 0 : "Parameter 'key' of method 'createRule' must not be empty";
@@ -284,8 +231,6 @@ public final class SonargraphRules implements RulesDefinition
         assert severity != null && severity.length() > 0 : "Parameter 'severity' of method 'createRule' must not be empty";
         assert description != null && description.length() > 0 : "Parameter 'description' of method 'createRule' must not be empty";
 
-        LOGGER.info("Rule key: " + key);
-
         final NewRule rule = repository.createRule(key);
         rule.setName(name);
         rule.addTags(RULE_TAG_SONARGRAPH, categoryTag);
@@ -293,7 +238,7 @@ public final class SonargraphRules implements RulesDefinition
         rule.setHtmlDescription(description);
     }
 
-    private static void createRule(final IIssueType issueType, final NewRepository repository)
+    private void createRule(final IIssueType issueType, final NewRepository repository)
     {
         assert issueType != null : "Parameter 'issueType' of method 'createRule' must not be null";
         assert repository != null : "Parameter 'repository' of method 'createRule' must not be null";
@@ -328,22 +273,12 @@ public final class SonargraphRules implements RulesDefinition
         createRule(key, name, categoryTag, severity, description, repository);
     }
 
-    private final List<Metric<? extends Serializable>> metrics = new ArrayList<>();
-    private final Configuration configuration;
-
-    public SonargraphRules(final Configuration configuration)
-    {
-        assert configuration != null : "Parameter 'configuration' of method 'SonargraphRulesRepository' must not be null";
-        this.configuration = configuration;
-    }
-
     @Override
     public void define(final Context context)
     {
         assert context != null : "Parameter 'context' of method 'define' must not be null";
+        readBuiltInMetaData();
 
-        //        final IMetaDataController controller = ControllerAccess.createMetaDataController();
-        final IExportMetaData builtInMetaData = loadBuiltInMetaData();
         if (builtInMetaData == null)
         {
             return;
@@ -392,32 +327,7 @@ public final class SonargraphRules implements RulesDefinition
         //        }
 
         repository.done();
-
-        //Metrics
-        final Map<String, IMetricId> metricMap = new HashMap<>();
-
-        //We are currently only interested in metrics on System and Module levels
-        getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), metricMap);
-        getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricMap);
-
-        //        if (additionalMetaData != null)
-        //        {
-        //            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), metricMap);
-        //            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricMap);
-        //        }
-
-        for (final Map.Entry<String, IMetricId> nextEntry : metricMap.entrySet())
-        {
-            final IMetricId next = nextEntry.getValue();
-            final Metric.Builder metric = new Metric.Builder(SonargraphBase.createMetricKeyFromStandardName(next.getName()),
-                    next.getPresentationName(), next.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(next))
-                            .setDomain(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-
-            setBestValue(next, metric);
-            setWorstValue(next, metric);
-            setMetricDirection(next, metric);
-            metrics.add(metric.create());
-        }
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
 
         //Additional metrics for structural debt widget
         //        sqMetrics.add(SonargraphMetrics.STRUCTURAL_DEBT_COST);
@@ -453,11 +363,45 @@ public final class SonargraphRules implements RulesDefinition
         //        sqMetrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
     }
 
-    //    @SuppressWarnings("rawtypes")
-    //    @Override
-    //    public List<Metric> getMetrics()
-    //    {
-    //        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Metrics");
-    //        return Collections.unmodifiableList(this.metrics);
-    //    }
+    private void getMetricsForLevel(final IMetricLevel level, final Map<String, IMetricId> metricMap)
+    {
+        assert builtInMetaData != null : "'builtInMetaData' of method 'getMetricsForLevel' must not be null";
+        assert level != null : "Parameter 'level' of method 'getMetricsForLevel' must not be null";
+        assert metricMap != null : "Parameter 'metricMap' of method 'getMetricsForLevel' must not be null";
+
+        for (final IMetricId next : builtInMetaData.getMetricIdsForLevel(level))
+        {
+            if (!metricMap.containsKey(next.getName()))
+            {
+                metricMap.put(next.getName(), next);
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public List<Metric> getMetrics()
+    {
+        readBuiltInMetaData();
+
+        if (builtInMetaData == null)
+        {
+            return Collections.emptyList();
+        }
+
+        if (metrics == null)
+        {
+            final Map<String, IMetricId> metricNameToId = new HashMap<>();
+            getMetricsForLevel(builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricNameToId);
+            metrics = new ArrayList<>(metricNameToId.size());
+            metricNameToId.values().forEach(i -> metrics.add(SonargraphBase.createMetric(i)));
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + metrics.size() + " predefined metric(s)");
+        }
+        else
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Returned " + metrics.size() + " predefined metric(s)");
+        }
+
+        return Collections.unmodifiableList(metrics);
+    }
 }
