@@ -57,7 +57,6 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
-import com.hello2morrow.sonargraph.integration.access.model.IFeature;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IJavaMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
@@ -75,11 +74,9 @@ import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 public final class SonargraphSensor implements Sensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
-    //    private static final String SEPARATOR = "----------------------------------------------------------------";
     private static final String SONARGRAPH_TARGET_DIR = "sonargraph";
     private static final String SONARGRAPH_SONARQUBE_REPORT_FILENAME = "sonargraph-sonarqube-report.xml";
     private static final String WORKSPACE_ID = SonargraphBase.WORKSPACE + ":";
-    private static final String GROUP_ARTIFACT_SEPARATOR = ":";
 
     private final RulesProfile qualityProfile;
     private final FileSystem fileSystem;
@@ -91,55 +88,30 @@ public final class SonargraphSensor implements Sensor
         assert qualityProfile != null : "Parameter 'profile' of method 'SonargraphSensor' must not be null";
         assert fileSystem != null : "Parameter 'fileSystem' of method 'SonargraphSensor' must not be null";
         assert metricFinder != null : "Parameter 'metricFinder' of method 'SonargraphSensor' must not be null";
+
         this.qualityProfile = qualityProfile;
         this.fileSystem = fileSystem;
         this.metricFinder = metricFinder;
     }
 
-    //    /* Called from Maven */
-    //    @Override
-    //    public boolean shouldExecuteOnProject(final InputModule project)
+    //    private void processFeatures(final SensorContext sensorContext, final ISystemInfoProcessor systemInfoProcessor)
     //    {
-    //        assert project != null : "Parameter 'project' of method 'shouldExecuteOnProject' must not be null";
+    //        assert sensorContext != null : "Parameter 'sensorContext' of method 'processFeatures' must not be null";
+    //        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processFeatures' must not be null";
     //
-    //        if (profile.getActiveRulesByRepository(SonargraphPluginBase.PLUGIN_KEY).isEmpty())
+    //        for (final IFeature feature : systemInfoProcessor.getFeatures())
     //        {
-    //            LOGGER.warn(SEPARATOR);
-    //            LOGGER.warn("{}: Skipping project {}, since no Sonargraph rules are activated in current SonarQube quality profile [{}].",
-    //                    SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, project.key(), profile.getName());
-    //            LOGGER.warn(SEPARATOR);
-    //            return false;
+    //            //            if (feature.getName().equals(IFeature.ARCHITECTURE) && feature.isLicensed())
+    //            //            {
+    //            //                sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE, 1.0));
+    //            //            }
+    //            //
+    //            //            if (feature.getName().equals(IFeature.VIRTUAL_MODELS) && feature.isLicensed())
+    //            //            {
+    //            //                sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE, 1.0));
+    //            //            }
     //        }
-    //
-    //        if (!determineReportFile(fileSystem, settings).isPresent())
-    //        {
-    //            LOGGER.warn(SEPARATOR);
-    //            LOGGER.warn("{}: Skipping project {}, since no Sonargraph report is found.", SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-    //                    project.key());
-    //            LOGGER.warn(SEPARATOR);
-    //            return false;
-    //        }
-    //        return true;
     //    }
-
-    private void processFeatures(final SensorContext sensorContext, final ISystemInfoProcessor systemInfoProcessor)
-    {
-        assert sensorContext != null : "Parameter 'sensorContext' of method 'processFeatures' must not be null";
-        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processFeatures' must not be null";
-
-        for (final IFeature feature : systemInfoProcessor.getFeatures())
-        {
-            //            if (feature.getName().equals(IFeature.ARCHITECTURE) && feature.isLicensed())
-            //            {
-            //                sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.ARCHITECTURE_FEATURE_AVAILABLE, 1.0));
-            //            }
-            //
-            //            if (feature.getName().equals(IFeature.VIRTUAL_MODELS) && feature.isLicensed())
-            //            {
-            //                sensorContext.saveMeasure(new Measure<Boolean>(SonargraphMetrics.VIRTUAL_MODEL_FEATURE_AVAILABLE, 1.0));
-            //            }
-        }
-    }
 
     private void processSystemMetrics(final Map<String, Metric<?>> metrics, final SensorContext sensorContext,
             final ISystemInfoProcessor systemInfoProcessor, final ISoftwareSystem softwareSystem)
@@ -164,68 +136,6 @@ public final class SonargraphSensor implements Sensor
             //            newMeasure.withValue(highestNccd.getAsDouble());
             //            newMeasure.save();
         }
-    }
-
-    //    static String getBuildUnitName(final String fqName)
-    //    {
-    //        if (fqName == null)
-    //        {
-    //            return UNKNOWN;
-    //        }
-    //
-    //        if (fqName.startsWith(WORKSPACE_ID))
-    //        {
-    //            return fqName.substring(WORKSPACE_ID.length(), fqName.length());
-    //        }
-    //
-    //        return UNKNOWN;
-    //    }
-
-    static boolean moduleNameMatches(final String sonargraphModuleName, final InputModule inputModule)
-    {
-        assert sonargraphModuleName != null : "Parameter 'sonargraphModuleName' of method 'moduleNameMatches' must not be null";
-        assert inputModule != null : "Parameter 'inputModule' of method 'moduleNameMatches' must not be null";
-
-        final String inputModuleKey = inputModule.key();
-        assert inputModuleKey != null && inputModuleKey.length() > 0 : "'inputModuleKey' of method 'moduleNameMatches' must not be empty";
-
-        if (sonargraphModuleName.equals(inputModuleKey))
-        {
-            return true;
-        }
-
-        final String[] elements = inputModuleKey.split(GROUP_ARTIFACT_SEPARATOR);
-        if (elements.length <= 1)
-        {
-            return false;
-        }
-
-        //A maven name might look like this: <group-id>:<artifact-id>:<branch-tag>
-        final String groupId = elements[0];
-        final String artifactId = elements[1];
-
-        final String longName = artifactId + "[" + groupId + "]";
-        final String longName2 = groupId + ':' + artifactId;
-
-        if (sonargraphModuleName.equalsIgnoreCase(artifactId))
-        {
-            return true;
-        }
-        //TODO [Dietmar] I don't understand the following checks
-        if (sonargraphModuleName.equalsIgnoreCase(longName))
-        {
-            return true;
-        }
-        if (sonargraphModuleName.equalsIgnoreCase(longName2))
-        {
-            return true;
-        }
-        if (sonargraphModuleName.startsWith("...") && longName2.endsWith(sonargraphModuleName.substring(2)))
-        {
-            return true;
-        }
-
-        return false;
     }
 
     private static String create(final IModuleInfoProcessor moduleInfoProcessor, final IIssue issue, final String detail)
@@ -316,10 +226,9 @@ public final class SonargraphSensor implements Sensor
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
         assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
         assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
-        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
 
-        //If relativePath then omit rootDirectoryRelPath
-        final String sourceRelPath = sourceFile.getRelativePath() != null ? sourceFile.getRelativePath() : sourceFile.getPresentationName();
+        final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
+        final String sourceRelPath = sourceFile.getRelativePath();
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
 
         final InputPath inputPath = fileSystem
@@ -670,6 +579,7 @@ public final class SonargraphSensor implements Sensor
     {
         assert descriptor != null : "Parameter 'descriptor' of method 'describe' must not be null";
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+        descriptor.global();
         //        descriptor.createIssuesForRuleRepository(repositoryKey)
     }
 
@@ -802,15 +712,6 @@ public final class SonargraphSensor implements Sensor
         final InputModule inputModule = context.module();
         final String inputModuleKey = inputModule.key();
 
-        final List<ActiveRule> activeSonargraphIntegrationRules = qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY);
-        //        if (activeSonargraphIntegrationRules.isEmpty())
-        //        {
-        //            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No rules are activated in current quality profile - not processing '"
-        //                    + inputModuleKey + "'");
-        //            //TODO Is this a good idea - what about metrics?
-        //            return;
-        //        }
-
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module '" + inputModuleKey + "'");
 
         final File reportFile = findReportFile(context);
@@ -839,7 +740,7 @@ public final class SonargraphSensor implements Sensor
         final IModule module = matchModule(inputModule, softwareSystem);
         if (module == null)
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Module not found in report '" + inputModuleKey + "'");
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey + "'");
             return;
         }
 
@@ -858,22 +759,12 @@ public final class SonargraphSensor implements Sensor
         //        }
 
         final Map<String, ActiveRule> ruleKeyToActiveRule = new HashMap<>();
-        for (final ActiveRule nextActiveRule : activeSonargraphIntegrationRules)
+        for (final ActiveRule nextActiveRule : qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY))
         {
             ruleKeyToActiveRule.put(nextActiveRule.getRuleKey(), nextActiveRule);
         }
 
-        //        for (final IIssueType nextIssueType : systemInfoProcessor.getIssueTypes())
-        //        {
-        //            final String nextRuleKey = SonargraphPluginBase.createRuleKey(nextIssueType.getName());
-        //            final ActiveRule rule = qualityProfile.getActiveRule(SonargraphPluginBase.SONARGRAPH_PLUGIN_KEY, nextRuleKey);
-        //            if (rule == null)
-        //            {
-        //                LOGGER.debug(SonargraphPluginBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Rule '" + nextRuleKey + "' is not activated");
-        //                continue;
-        //            }
-        //            issueTypeToRuleMap.put(nextRuleKey, rule);
-        //        }
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + ruleKeyToActiveRule + " rule(s) activated");
 
         //        processModule(controller.createModuleInfoProcessor(module), module, metrics, ruleKeyToActiveRule, context);
 
@@ -881,7 +772,7 @@ public final class SonargraphSensor implements Sensor
                 .getIssues(issue -> !issue.hasResolution() && SonargraphBase.isWorkspoceIssue(issue.getIssueType()));
         if (!workspaceIssues.isEmpty())
         {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issues");
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issue(s)");
             int i = 1;
             for (final IIssue nextIssue : workspaceIssues)
             {

@@ -39,6 +39,6 @@ public final class SonargraphPlugin implements Plugin
     public void define(final Context context)
     {
         assert context != null : "Parameter 'context' of method 'define' must not be null";
-        context.addExtensions(SonargraphRulesAndMetrics.class, SonargraphSensor.class);
+        context.addExtensions(SonargraphRules.class, SonargraphProfile.class, SonargraphSensor.class);
     }
 }

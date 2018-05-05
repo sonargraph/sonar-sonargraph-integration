@@ -17,24 +17,18 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.sonar.api.config.Configuration;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.Metrics;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
@@ -46,11 +40,10 @@ import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutco
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
-import com.hello2morrow.sonargraph.integration.access.model.IMergedExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 
-public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
+public final class SonargraphRules implements RulesDefinition
 {
     //    /*
     //     * Additional metric for Structural Debt widget
@@ -151,7 +144,7 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
     //                    .setDirection(Metric.DIRECTION_WORST).setQualitative(true)
     //                    .setDomain(com.hello2morrow.sonargraph.integration.sonarqube.foundation.SonargraphMetrics.DOMAIN_SONARGRAPH).create();
 
-    private static final Logger LOGGER = Loggers.get(SonargraphRulesAndMetrics.class);
+    private static final Logger LOGGER = Loggers.get(SonargraphRules.class);
     private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final String RULE_TAG_SONARGRAPH = "sonargraph-integration";
 
@@ -220,12 +213,12 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
         }
     }
 
-    private static IExportMetaData loadBuiltInMetaData(final IMetaDataController controller)
+    private static IExportMetaData loadBuiltInMetaData()
     {
-        assert controller != null : "Parameter 'controller' of method 'loadBuiltInMetaData' must not be null";
+        final IMetaDataController controller = ControllerAccess.createMetaDataController();
 
         final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
-        try (InputStream inputStream = SonargraphRulesAndMetrics.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
+        try (InputStream inputStream = SonargraphRules.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
         {
             if (inputStream == null)
             {
@@ -249,37 +242,55 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
         return null;
     }
 
-    private static IExportMetaData loadAdditionalMetaData(final IMetaDataController controller, final String directory)
+    //    private static IExportMetaData loadAdditionalMetaData(final IMetaDataController controller, final String directory)
+    //    {
+    //        assert controller != null : "Parameter 'controller' of method 'loadAdditionalMetaData' must not be null";
+    //        assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'loadAdditionalMetaData' must not be empty";
+    //
+    //        final File configurationDir = new File(directory);
+    //        if (!configurationDir.exists() || !configurationDir.isDirectory())
+    //        {
+    //            LOGGER.error("Cannot load meta-data from directory '{}'. It does not exist.", directory);
+    //            return null;
+    //        }
+    //
+    //        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory() && f.getName().endsWith(".xml"))
+    //                .collect(Collectors.toList());
+    //        if (!files.isEmpty())
+    //        {
+    //            try
+    //            {
+    //                final ResultWithOutcome<IMergedExportMetaData> result = controller.mergeExportMetaDataFiles(files);
+    //                if (result.isSuccess())
+    //                {
+    //                    return result.getOutcome();
+    //                }
+    //                LOGGER.error("Failed to load configuration from '{}': {}", directory, result.toString());
+    //            }
+    //            catch (final Exception ex)
+    //            {
+    //                LOGGER.error("Failed to load configuration from '{}'", directory, ex);
+    //            }
+    //        }
+    //        return null;
+    //    }
+
+    private static void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
+            final NewRepository repository)
     {
-        assert controller != null : "Parameter 'controller' of method 'loadAdditionalMetaData' must not be null";
-        assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'loadAdditionalMetaData' must not be empty";
+        assert key != null && key.length() > 0 : "Parameter 'key' of method 'createRule' must not be empty";
+        assert name != null && name.length() > 0 : "Parameter 'name' of method 'createRule' must not be empty";
+        assert categoryTag != null && categoryTag.length() > 0 : "Parameter 'categoryTag' of method 'createRule' must not be empty";
+        assert severity != null && severity.length() > 0 : "Parameter 'severity' of method 'createRule' must not be empty";
+        assert description != null && description.length() > 0 : "Parameter 'description' of method 'createRule' must not be empty";
 
-        final File configurationDir = new File(directory);
-        if (!configurationDir.exists() || !configurationDir.isDirectory())
-        {
-            LOGGER.error("Cannot load meta-data from directory '{}'. It does not exist.", directory);
-            return null;
-        }
+        LOGGER.info("Rule key: " + key);
 
-        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory() && f.getName().endsWith(".xml"))
-                .collect(Collectors.toList());
-        if (!files.isEmpty())
-        {
-            try
-            {
-                final ResultWithOutcome<IMergedExportMetaData> result = controller.mergeExportMetaDataFiles(files);
-                if (result.isSuccess())
-                {
-                    return result.getOutcome();
-                }
-                LOGGER.error("Failed to load configuration from '{}': {}", directory, result.toString());
-            }
-            catch (final Exception ex)
-            {
-                LOGGER.error("Failed to load configuration from '{}'", directory, ex);
-            }
-        }
-        return null;
+        final NewRule rule = repository.createRule(key);
+        rule.setName(name);
+        rule.addTags(RULE_TAG_SONARGRAPH, categoryTag);
+        rule.setSeverity(severity);
+        rule.setHtmlDescription(description);
     }
 
     private static void createRule(final IIssueType issueType, final NewRepository repository)
@@ -287,18 +298,14 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
         assert issueType != null : "Parameter 'issueType' of method 'createRule' must not be null";
         assert repository != null : "Parameter 'repository' of method 'createRule' must not be null";
 
-        final String ruleKey = SonargraphBase.createRuleKey(issueType.getName());
-        final String ruleName = SonargraphBase.createRuleName(issueType.getPresentationName());
+        final String key = SonargraphBase.createRuleKey(issueType.getName());
+        final String name = SonargraphBase.createRuleName(issueType.getPresentationName());
         final IIssueCategory category = issueType.getCategory();
         final String categoryPresentationName = category.getPresentationName();
         final String categoryTag = SonargraphBase.createRuleCategoryTag(categoryPresentationName);
-
-        final NewRule rule = repository.createRule(ruleKey);
-        rule.setName(ruleName);
-        rule.setHtmlDescription(
-                "Description '" + (issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName())
-                        + "', category '" + categoryPresentationName + "'");
-        rule.addTags(RULE_TAG_SONARGRAPH, categoryTag);
+        final String description = "Description '"
+                + (issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName()) + "', category '"
+                + categoryPresentationName + "'";
 
         final String severity;
         switch (issueType.getSeverity())
@@ -318,13 +325,13 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
             severity = Severity.MINOR;
         }
 
-        rule.setSeverity(severity);
+        createRule(key, name, categoryTag, severity, description, repository);
     }
 
     private final List<Metric<? extends Serializable>> metrics = new ArrayList<>();
     private final Configuration configuration;
 
-    public SonargraphRulesAndMetrics(final Configuration configuration)
+    public SonargraphRules(final Configuration configuration)
     {
         assert configuration != null : "Parameter 'configuration' of method 'SonargraphRulesRepository' must not be null";
         this.configuration = configuration;
@@ -335,23 +342,23 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
     {
         assert context != null : "Parameter 'context' of method 'define' must not be null";
 
-        final IMetaDataController controller = ControllerAccess.createMetaDataController();
-        final IExportMetaData builtInMetaData = loadBuiltInMetaData(controller);
+        //        final IMetaDataController controller = ControllerAccess.createMetaDataController();
+        final IExportMetaData builtInMetaData = loadBuiltInMetaData();
         if (builtInMetaData == null)
         {
             return;
         }
 
-        IExportMetaData additionalMetaData = null;
-        final Optional<String> configuredMetaDataPathOptional = configuration.get(SonargraphBase.METADATA_PATH);
-        if (configuredMetaDataPathOptional.isPresent())
-        {
-            final String configuredMetaDataPath = configuredMetaDataPathOptional.get().trim();
-            if (!configuredMetaDataPath.isEmpty())
-            {
-                additionalMetaData = loadAdditionalMetaData(controller, configuredMetaDataPath);
-            }
-        }
+        //        IExportMetaData additionalMetaData = null;
+        //        final Optional<String> configuredMetaDataPathOptional = configuration.get(SonargraphBase.METADATA_PATH);
+        //        if (configuredMetaDataPathOptional.isPresent())
+        //        {
+        //            final String configuredMetaDataPath = configuredMetaDataPathOptional.get().trim();
+        //            if (!configuredMetaDataPath.isEmpty())
+        //            {
+        //                additionalMetaData = loadAdditionalMetaData(controller, configuredMetaDataPath);
+        //            }
+        //        }
 
         final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
@@ -365,24 +372,24 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
             }
         }
 
-        final String scriptIssueRuleKey = SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME);
-        final NewRule rule = repository.createRule(scriptIssueRuleKey);
-        rule.setName(SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME));
-        rule.setHtmlDescription("Description '" + SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME + "', category '"
-                + SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME + "'");
-        rule.addTags(RULE_TAG_SONARGRAPH, SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME));
+        createRule(SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME),
+                SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME),
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR,
+                "Description '" + SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME + "', category '"
+                        + SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
+                repository);
 
-        if (additionalMetaData != null)
-        {
-            for (final IIssueType nextIssueType : additionalMetaData.getIssueTypes().values())
-            {
-                if (!SonargraphBase.ignoreIssueType(nextIssueType) && !builtInIssueTypes.contains(nextIssueType))
-                {
-                    //Only add additional issue types
-                    createRule(nextIssueType, repository);
-                }
-            }
-        }
+        //        if (additionalMetaData != null)
+        //        {
+        //            for (final IIssueType nextIssueType : additionalMetaData.getIssueTypes().values())
+        //            {
+        //                if (!SonargraphBase.ignoreIssueType(nextIssueType) && !builtInIssueTypes.contains(nextIssueType))
+        //                {
+        //                    //Only add additional issue types
+        //                    createRule(nextIssueType, repository);
+        //                }
+        //            }
+        //        }
 
         repository.done();
 
@@ -393,11 +400,11 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
         getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), metricMap);
         getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricMap);
 
-        if (additionalMetaData != null)
-        {
-            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), metricMap);
-            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricMap);
-        }
+        //        if (additionalMetaData != null)
+        //        {
+        //            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), metricMap);
+        //            getMetricsForLevel(additionalMetaData, additionalMetaData.getMetricLevels().get(IMetricLevel.MODULE), metricMap);
+        //        }
 
         for (final Map.Entry<String, IMetricId> nextEntry : metricMap.entrySet())
         {
@@ -446,10 +453,11 @@ public final class SonargraphRulesAndMetrics implements RulesDefinition, Metrics
         //        sqMetrics.add(SonargraphMetrics.NUMBER_OF_IGNORED_CRITICAL_ISSUES);
     }
 
-    @SuppressWarnings("rawtypes")
-    @Override
-    public List<Metric> getMetrics()
-    {
-        return Collections.unmodifiableList(this.metrics);
-    }
+    //    @SuppressWarnings("rawtypes")
+    //    @Override
+    //    public List<Metric> getMetrics()
+    //    {
+    //        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Metrics");
+    //        return Collections.unmodifiableList(this.metrics);
+    //    }
 }
