@@ -17,40 +17,77 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import java.io.Serializable;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
 
-import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
+import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
+import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
-import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
 final class SonargraphBase
 {
     static final String SONARGRAPH_PLUGIN_KEY = "sonargraphintegration";
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
+    static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
     static final String JAVA = "java";
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
-    static final String CONFIG_PREFIX = "sonar.sonargraph_integration.";
-    static final String COST_PER_INDEX_POINT = CONFIG_PREFIX + "index_point_cost";
-    static final double COST_PER_INDEX_POINT_DEFAULT = 11.0;
-    static final String CURRENCY = CONFIG_PREFIX + "currency";
-    static final String CURRENCY_DEFAULT = "USD";
-    static final String REPORT_PATH = CONFIG_PREFIX + "report.path";
-    static final String METADATA_PATH = CONFIG_PREFIX + "exportmetadata.path";
+
+    static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
+    static final String RELATIVE_REPORT_PATH = SonargraphBase.CONFIG_PREFIX + ":" + "relative.report.path";
+    static final String RELATIVE_REPORT_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
+
     static final String WORKSPACE = "Workspace";
     static final String SCRIPT_ISSUE_CATEGORY = "ScriptBased";
     static final String SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME = "Script Based";
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
     static final String SCRIPT_ISSUE_PRESENTATION_NAME = "Script Issue";
 
+    private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
+    private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
 
     private SonargraphBase()
     {
         super();
+    }
+
+    static IExportMetaData readBuiltInMetaData()
+    {
+        final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
+        try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
+        {
+            if (inputStream != null)
+            {
+                final IMetaDataController controller = ControllerAccess.createMetaDataController();
+                final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
+                if (result.isFailure())
+                {
+                    LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg + " - " + result.toString());
+                }
+                else
+                {
+                    return result.getOutcome();
+                }
+            }
+            else
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg);
+            }
+        }
+        catch (final IOException ex)
+        {
+            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg, ex);
+        }
+
+        return null;
     }
 
     static String createRuleKey(final String issueTypeName)
@@ -80,71 +117,6 @@ final class SonargraphBase
         return SonargraphBase.METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
     }
 
-    private static String trimDescription(final IMetricId id)
-    {
-        assert id != null : "Parameter 'id' of method 'trimDescription' must not be null";
-        final String description = id.getDescription();
-        return description.length() > 255 ? description.substring(0, 252) + "..." : description;
-    }
-
-    private static void setMetricDirection(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setMetricDirection' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setMetricDirection' must not be null";
-
-        if (id.getBestValue() > id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_BETTER);
-        }
-        else if (id.getBestValue() < id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_WORST);
-        }
-        else
-        {
-            metric.setDirection(Metric.DIRECTION_NONE);
-        }
-    }
-
-    private static void setWorstValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setWorstValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setWorstValue' must not be null";
-
-        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setWorstValue(id.getWorstValue());
-        }
-    }
-
-    private static void setBestValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setBestValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setBestValue' must not be null";
-
-        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setBestValue(id.getBestValue());
-        }
-    }
-
-    static Metric<Serializable> createMetric(final IMetricId metricId)
-    {
-        assert metricId != null : "Parameter 'metricId' of method 'createMetric' must not be null";
-
-        final Metric.Builder metric = new Metric.Builder(SonargraphBase.createMetricKeyFromStandardName(metricId.getName()),
-                metricId.getPresentationName(), metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT)
-                        .setDescription(trimDescription(metricId)).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-
-        setBestValue(metricId, metric);
-        setWorstValue(metricId, metric);
-        setMetricDirection(metricId, metric);
-
-        return metric.create();
-    }
-
     static boolean ignoreIssueType(final IIssueType issueType)
     {
         assert issueType != null : "Parameter 'issueType' of method 'ignoreIssueType' must not be null";
@@ -171,23 +143,5 @@ final class SonargraphBase
     {
         assert issueType != null : "Parameter 'issueType' of method 'isScriptIssue' must not be null";
         return SCRIPT_ISSUE_CATEGORY.equals(issueType.getCategory().getName());
-    }
-
-    static String toLowerCase(String input, final boolean firstLower)
-    {
-        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
-
-        if (input.isEmpty())
-        {
-            return input;
-        }
-
-        if (input.length() == 1)
-        {
-            return firstLower ? input.toLowerCase() : input.toUpperCase();
-        }
-
-        input = input.toLowerCase();
-        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 }

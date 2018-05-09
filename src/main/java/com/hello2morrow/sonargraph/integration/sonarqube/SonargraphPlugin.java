@@ -20,14 +20,10 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
 
 @Properties({
-        @Property(key = SonargraphBase.CURRENCY, defaultValue = SonargraphBase.CURRENCY_DEFAULT, name = "Currency", project = false, module = false, global = true),
-        @Property(key = SonargraphBase.COST_PER_INDEX_POINT, defaultValue = ""
-                + SonargraphBase.COST_PER_INDEX_POINT_DEFAULT, name = "Cost per metric point of 'Structural debt index' (0 means not displayed)", project = false, module = false, global = true, type = PropertyType.FLOAT),
-        @Property(key = SonargraphBase.METADATA_PATH, defaultValue = "", name = "Path of the directory containing XML files that contain the relevant meta-data. Server needs to be restarted after changes.", project = false, module = false, global = true),
-        @Property(key = SonargraphBase.REPORT_PATH, defaultValue = "", name = "Path of the Sonargraph report (empty means default value)", project = true, module = false, global = false) })
+        @Property(key = SonargraphBase.RELATIVE_REPORT_PATH, defaultValue = SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT, name = "Relative path to the Sonargraph xml report file (default is '"
+                + SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT + "')", project = true, module = true, global = true) })
 public final class SonargraphPlugin implements Plugin
 {
     public SonargraphPlugin()
@@ -39,6 +35,6 @@ public final class SonargraphPlugin implements Plugin
     public void define(final Context context)
     {
         assert context != null : "Parameter 'context' of method 'define' must not be null";
-        context.addExtensions(SonargraphRulesAndMetrics.class, SonargraphProfile.class, SonargraphSensor.class);
+        context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, SonargraphProfile.class, SonargraphSensor.class);
     }
 }
