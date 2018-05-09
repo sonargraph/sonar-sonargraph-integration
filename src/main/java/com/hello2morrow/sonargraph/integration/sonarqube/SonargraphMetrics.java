@@ -147,71 +147,6 @@ public final class SonargraphMetrics implements Metrics
         }
     }
 
-    private String trimDescription(final IMetricId id)
-    {
-        assert id != null : "Parameter 'id' of method 'trimDescription' must not be null";
-        final String description = id.getDescription();
-        return description.length() > 255 ? description.substring(0, 252) + "..." : description;
-    }
-
-    private void setMetricDirection(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setMetricDirection' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setMetricDirection' must not be null";
-
-        if (id.getBestValue() > id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_BETTER);
-        }
-        else if (id.getBestValue() < id.getWorstValue())
-        {
-            metric.setDirection(Metric.DIRECTION_WORST);
-        }
-        else
-        {
-            metric.setDirection(Metric.DIRECTION_NONE);
-        }
-    }
-
-    private void setWorstValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setWorstValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setWorstValue' must not be null";
-
-        if (!id.getWorstValue().equals(Double.NaN) && !id.getWorstValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getWorstValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setWorstValue(id.getWorstValue());
-        }
-    }
-
-    private void setBestValue(final IMetricId id, final Metric.Builder metric)
-    {
-        assert id != null : "Parameter 'id' of method 'setBestValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setBestValue' must not be null";
-
-        if (!id.getBestValue().equals(Double.NaN) && !id.getBestValue().equals(Double.POSITIVE_INFINITY)
-                && !id.getBestValue().equals(Double.NEGATIVE_INFINITY))
-        {
-            metric.setBestValue(id.getBestValue());
-        }
-    }
-
-    private Metric<Serializable> createMetric(final IMetricId metricId)
-    {
-        assert metricId != null : "Parameter 'metricId' of method 'createMetric' must not be null";
-
-        final Metric.Builder metric = new Metric.Builder(SonargraphBase.createMetricKeyFromStandardName(metricId.getName()),
-                metricId.getPresentationName(), metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT)
-                        .setDescription(trimDescription(metricId)).setDomain(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-
-        setBestValue(metricId, metric);
-        setWorstValue(metricId, metric);
-        setMetricDirection(metricId, metric);
-
-        return metric.create();
-    }
-
     @SuppressWarnings("rawtypes")
     @Override
     public List<Metric> getMetrics()
@@ -233,8 +168,12 @@ public final class SonargraphMetrics implements Metrics
         getMetricsForLevel(builtInMetaData, moduleMetricLevel, metricNameToId);
 
         final List<Metric<? extends Serializable>> metrics = new ArrayList<>(metricNameToId.size());
-        metricNameToId.values().forEach(i -> metrics.add(createMetric(i)));
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + metrics.size() + "system/module metric(s)");
+        metricNameToId.values().forEach(i -> metrics.add(SonargraphBase.createMetric(i)));
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + metrics.size() + " predefined system/module metric(s)");
+
+        final List<Metric<? extends Serializable>> customMetrics = SonargraphBase.getCustomMetrics();
+        customMetrics.forEach(c -> metrics.add(c));
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + customMetrics.size() + " custom metric(s)");
 
         return Collections.unmodifiableList(metrics);
     }

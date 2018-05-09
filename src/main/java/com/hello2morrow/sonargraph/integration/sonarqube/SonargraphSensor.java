@@ -28,14 +28,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -85,6 +86,7 @@ public final class SonargraphSensor implements Sensor
     private final RulesProfile qualityProfile;
     private final FileSystem fileSystem;
     private final MetricFinder metricFinder;
+    private Properties customMetrics;
 
     public SonargraphSensor(final FileSystem fileSystem, final RulesProfile qualityProfile, final MetricFinder metricFinder)
     {
@@ -238,14 +240,22 @@ public final class SonargraphSensor implements Sensor
                         final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
                         others.remove(nextOccurrence);
                         createIssue(context, inputPath, nextRule,
-                                createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
-                                nextOccurrence.getStartLine());
+                                createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others), l ->
+                                {
+                                    l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
+                                            new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1)));
+                                });
                     }
                 }
             }
             else
             {
-                createIssue(context, inputPath, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), nextIssue.getLine());
+                createIssue(context, inputPath, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), l ->
+                {
+                    final int line = nextIssue.getLine();
+                    final int lineToUse = line <= 0 ? 1 : line;
+                    l.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
+                });
             }
         }
     }
@@ -272,7 +282,7 @@ public final class SonargraphSensor implements Sensor
             final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
             if (nextRule != null)
             {
-                createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), nextIssue.getLine());
+                createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
             }
         }
     }
@@ -293,8 +303,8 @@ public final class SonargraphSensor implements Sensor
         final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
         if (systemLevelOptional.isPresent())
         {
-            processMetrics(context, inputComponent, softwareSystem, systemInfoProcessor, metrics, systemLevelOptional.get(), omitMeasureCreationFor,
-                    null);
+            processMetrics(context, inputComponent, softwareSystem, softwareSystem, systemInfoProcessor, metrics, systemLevelOptional.get(),
+                    omitMeasureCreationFor, null);
         }
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
@@ -307,11 +317,12 @@ public final class SonargraphSensor implements Sensor
             final ActiveRule nextRule = ruleKeyToActiveRule.get(nextRuleKey);
             if (nextRule != null && !omitIssueCreationFor.contains(SonargraphBase.createRuleKey(nextIssueType.getName())))
             {
-                createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), nextIssue.getLine());
+                createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
         }
 
-        final List<IIssue> workspaceIssues = systemInfoProcessor.getIssues(issue -> SonargraphBase.isWorkspoceIssue(issue.getIssueType()));
+        final List<IIssue> workspaceIssues = systemInfoProcessor
+                .getIssues(issue -> SonargraphBase.isErrorOrWarningWorkspoceIssue(issue.getIssueType()));
         if (!workspaceIssues.isEmpty())
         {
             LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issue(s)");
@@ -328,13 +339,14 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private final void processModule(final SensorContext context, final InputComponent inputComponent, final IModule module,
-            final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> ruleKeyToActiveRule,
+    private final void processModule(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem system,
+            final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> ruleKeyToActiveRule,
             final Map<String, Metric<? extends Serializable>> metrics, final Set<String> createdMeasureCollector,
             final Set<String> createdIssueCollector)
     {
         assert context != null : "Parameter 'context' of method 'processModule' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processModule' must not be null";
+        assert system != null : "Parameter 'system' of method 'processModule' must not be null";
         assert module != null : "Parameter 'module' of method 'processModule' must not be null";
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'processModule' must not be null";
         assert ruleKeyToActiveRule != null : "Parameter 'ruleKeyToActiveRule' of method 'processModule' must not be null";
@@ -346,7 +358,7 @@ public final class SonargraphSensor implements Sensor
                 .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
         if (metricLevelOptional.isPresent())
         {
-            processMetrics(context, inputComponent, module, moduleInfoProcessor, metrics, metricLevelOptional.get(), Collections.emptySet(),
+            processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metrics, metricLevelOptional.get(), Collections.emptySet(),
                     createdMeasureCollector);
         }
 
@@ -360,7 +372,7 @@ public final class SonargraphSensor implements Sensor
             final ActiveRule nextRule = ruleKeyToActiveRule.get(nextRuleKey);
             if (nextRule != null)
             {
-                createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), nextIssue.getLine());
+                createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
                 createdIssueCollector.add(SonargraphBase.createRuleKey(nextIssueType.getName()));
             }
         }
@@ -409,12 +421,14 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processMetrics(final SensorContext context, final InputComponent inputComponent, final INamedElementContainer container,
-            final IInfoProcessor infoProcessor, final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics, final IMetricLevel level,
+    private void processMetrics(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
+            final INamedElementContainer container, final IInfoProcessor infoProcessor,
+            final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics, final IMetricLevel level,
             final Set<String> omitMeasureCreationFor, final Set<String> createdMeasureCollector)
     {
         assert context != null : "Parameter 'context' of method 'processMetrics' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processMetrics' must not be null";
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processMetrics' must not be null";
         assert container != null : "Parameter 'container' of method 'processMetrics' must not be null";
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'processMetrics' must not be null";
         assert alreadyDefinedMetrics != null : "Parameter 'alreadyDefinedMetrics' of method 'processMetrics' must not be null";
@@ -424,12 +438,24 @@ public final class SonargraphSensor implements Sensor
 
         for (final IMetricId nextMetricId : infoProcessor.getMetricIdsForLevel(level))
         {
-            final String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
-
-            final Metric<? extends Serializable> metric = alreadyDefinedMetrics.get(nextMetricKey);
+            String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
+            Metric<? extends Serializable> metric = alreadyDefinedMetrics.get(nextMetricKey);
             if (metric == null)
             {
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Metric not defined '" + nextMetricId.getName() + "'");
+                //Try custom metrics
+                nextMetricKey = SonargraphBase.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
+                metric = alreadyDefinedMetrics.get(nextMetricKey);
+            }
+            if (metric == null)
+            {
+                if (customMetrics == null)
+                {
+                    customMetrics = SonargraphBase.loadCustomMetrics();
+                }
+
+                SonargraphBase.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
+                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metric added '" + softwareSystem.getName() + "/"
+                        + nextMetricId.getName() + "'");
                 continue;
             }
 
@@ -452,11 +478,8 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    /**
-     * @param line if <= 0 no line info is added
-     */
     private void createIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
-            final int line)
+            final Consumer<NewIssueLocation> consumer)
     {
         assert context != null : "Parameter 'context' of method 'createIssue' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'createIssue' must not be null";
@@ -464,25 +487,18 @@ public final class SonargraphSensor implements Sensor
         assert msg != null && msg.length() > 0 : "Parameter 'msg' of method 'createIssue' must not be empty";
 
         final NewIssue newIssue = context.newIssue();
+        newIssue.forRule(rule.getRule().ruleKey());
+
         final NewIssueLocation newIssueLocation = newIssue.newLocation();
         newIssueLocation.on(inputComponent);
         newIssueLocation.message(msg);
         newIssue.at(newIssueLocation);
 
-        if (inputComponent instanceof InputFile)
+        if (consumer != null)
         {
-            final int lineToUse = line <= 0 ? 1 : line;
-            newIssueLocation.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
+            consumer.accept(newIssueLocation);
         }
 
-        newIssue.forRule(rule.getRule().ruleKey());
-        if (rule.getSeverity() != null)
-        {
-            //TODO
-            //                                  newIssue.overrideSeverity(rule.getSeverity());
-        }
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Issue created '" + msg + "' on '" + inputComponent + "'");
         newIssue.save();
     }
 
@@ -628,7 +644,8 @@ public final class SonargraphSensor implements Sensor
             }
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module '" + inputModuleKey + "'" + (isRoot ? " [Root]" : ""));
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModuleKey
+                + "' with project base directory '" + fileSystem.baseDir() + "'");
 
         final File reportFile = getReportFile(configuration);
         if (reportFile != null)
@@ -669,8 +686,8 @@ public final class SonargraphSensor implements Sensor
 
                         if (module != null)
                         {
-                            processModule(context, inputModule, module, controller.createModuleInfoProcessor(module), ruleKeyToActiveRule, metrics,
-                                    createdMeasureCollector, createdIssueCollector);
+                            processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module),
+                                    ruleKeyToActiveRule, metrics, createdMeasureCollector, createdIssueCollector);
                         }
 
                         if (isRoot)
@@ -679,6 +696,12 @@ public final class SonargraphSensor implements Sensor
                             //that we do not add the same metric/issue twice
                             processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), ruleKeyToActiveRule, metrics,
                                     createdMeasureCollector, createdIssueCollector);
+                        }
+
+                        if (customMetrics != null)
+                        {
+                            SonargraphBase.save(customMetrics);
+                            customMetrics = null;
                         }
                     }
                 }
