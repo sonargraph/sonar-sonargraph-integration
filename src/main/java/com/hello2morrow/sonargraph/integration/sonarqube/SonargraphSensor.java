@@ -703,6 +703,53 @@ public final class SonargraphSensor implements Sensor
         return new ProcessingData(activeRules, metrics);
     }
 
+    private boolean isRootModule(final Configuration configuration, final InputModule inputModule)
+    {
+        assert configuration != null : "Parameter 'configuration' of method 'isRootModule' must not be null";
+        assert inputModule != null : "Parameter 'inputModule' of method 'isRootModule' must not be null";
+
+        boolean isRoot = true;
+        final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
+        if (projectKeyOptional.isPresent() && !projectKeyOptional.get().equals(inputModule.key()))
+        {
+            isRoot = false;
+        }
+        return isRoot;
+    }
+
+    private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
+            final boolean isRoot)
+    {
+        assert controller != null : "Parameter 'controller' of method 'process' must not be null";
+
+        final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
+        if (!softwareSystem.getModules().isEmpty())
+        {
+            final IModule module = matchModule(softwareSystem, inputModule.key());
+            if (isRoot || module != null)
+            {
+                final ProcessingData data = createProcessingData();
+                if (module != null)
+                {
+                    processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
+                }
+                if (isRoot)
+                {
+                    processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
+                }
+                if (customMetrics != null)
+                {
+                    SonargraphBase.save(customMetrics);
+                    customMetrics = null;
+                }
+            }
+        }
+        else
+        {
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No modules defined in Sonargraph system");
+        }
+    }
+
     @Override
     public void execute(final SensorContext context)
     {
@@ -710,20 +757,12 @@ public final class SonargraphSensor implements Sensor
 
         final InputModule inputModule = context.module();
         assert inputModule != null : "'inputModule' of method 'execute' must not be null";
-        final String inputModuleKey = inputModule.key();
-        assert inputModuleKey != null && inputModuleKey.length() > 0 : "'inputModuleKey' of method 'execute' must not be empty";
 
         final Configuration configuration = context.config();
         assert configuration != null : "'configuration' of method 'execute' must not be null";
 
-        boolean isRoot = true;
-        final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
-        if (projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get()))
-        {
-            isRoot = false;
-        }
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModuleKey
+        final boolean isRoot = isRootModule(configuration, inputModule);
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModule.key()
                 + "' with project base directory '" + fileSystem.baseDir() + "'");
 
         final File reportFile = getReportFile(configuration);
@@ -735,32 +774,7 @@ public final class SonargraphSensor implements Sensor
             final Result result = controller.loadSystemReport(reportFile);
             if (result.isSuccess())
             {
-                final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
-                if (!softwareSystem.getModules().isEmpty())
-                {
-                    final IModule module = matchModule(softwareSystem, inputModuleKey);
-                    if (isRoot || module != null)
-                    {
-                        final ProcessingData data = createProcessingData();
-                        if (module != null)
-                        {
-                            processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
-                        }
-                        if (isRoot)
-                        {
-                            processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
-                        }
-                        if (customMetrics != null)
-                        {
-                            SonargraphBase.save(customMetrics);
-                            customMetrics = null;
-                        }
-                    }
-                }
-                else
-                {
-                    LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No modules defined in Sonargraph system");
-                }
+                process(context, controller, inputModule, isRoot);
             }
             else
             {
@@ -768,6 +782,6 @@ public final class SonargraphSensor implements Sensor
             }
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing module '" + inputModuleKey + "'");
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing module '" + inputModule.key() + "'");
     }
 }
