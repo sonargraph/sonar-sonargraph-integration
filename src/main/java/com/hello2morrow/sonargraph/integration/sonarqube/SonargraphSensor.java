@@ -83,6 +83,56 @@ public final class SonargraphSensor implements Sensor
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
     private static final String WORKSPACE_ID = SonargraphBase.WORKSPACE + ":";
 
+    final static class ProcessingData
+    {
+        private final Set<String> createdMeasures = new LinkedHashSet<>();
+        private final Set<String> createdIssues = new LinkedHashSet<>();
+        private final Map<String, ActiveRule> activeRules;
+        private final Map<String, Metric<Serializable>> metrics;
+
+        ProcessingData(final Map<String, ActiveRule> activeRules, final Map<String, Metric<Serializable>> metrics)
+        {
+            assert activeRules != null : "Parameter 'activeRules' of method 'ProcessingData' must not be null";
+            assert metrics != null : "Parameter 'metrics' of method 'ProcessingData' must not be null";
+            this.activeRules = activeRules;
+            this.metrics = metrics;
+        }
+
+        boolean issueAlreadyCreated(final String ruleKey)
+        {
+            assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'issueAlreadyCreated' must not be empty";
+            return createdIssues.contains(ruleKey);
+        }
+
+        void addCreatedIssue(final String ruleKey)
+        {
+            assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'addCreatedIssue' must not be empty";
+            createdIssues.add(ruleKey);
+        }
+
+        boolean measureAlreadyCreated(final String metricKey)
+        {
+            assert metricKey != null && metricKey.length() > 0 : "Parameter 'metricKey' of method 'measureAlreadyCreated' must not be empty";
+            return createdMeasures.contains(metricKey);
+        }
+
+        void addCreatedMeasure(final String metricKey)
+        {
+            assert metricKey != null && metricKey.length() > 0 : "Parameter 'metricKey' of method 'addCreatedMeasure' must not be empty";
+            createdMeasures.add(metricKey);
+        }
+
+        Map<String, ActiveRule> getActiveRules()
+        {
+            return Collections.unmodifiableMap(activeRules);
+        }
+
+        Map<String, Metric<Serializable>> getMetrics()
+        {
+            return Collections.unmodifiableMap(metrics);
+        }
+    }
+
     private final RulesProfile qualityProfile;
     private final FileSystem fileSystem;
     private final MetricFinder metricFinder;
@@ -286,23 +336,18 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
-            final ISystemInfoProcessor systemInfoProcessor, final Map<String, ActiveRule> ruleKeyToActiveRule, final Map<String, Metric<?>> metrics,
-            final Set<String> omitMeasureCreationFor, final Set<String> omitIssueCreationFor)
+            final ISystemInfoProcessor systemInfoProcessor, final ProcessingData data)
     {
         assert context != null : "Parameter 'context' of method 'processSystem' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processSystem' must not be null";
         assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processSystem' must not be null";
         assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processSystem' must not be null";
-        assert ruleKeyToActiveRule != null : "Parameter 'ruleKeyToActiveRule' of method 'processSystem' must not be null";
-        assert metrics != null : "Parameter 'metrics' of method 'processSystem' must not be null";
-        assert omitMeasureCreationFor != null : "Parameter 'omitMeasureCreationFor' of method 'processSystem' must not be null";
-        assert omitIssueCreationFor != null : "Parameter 'omitIssueCreationFor' of method 'processSystem' must not be null";
+        assert data != null : "Parameter 'data' of method 'processSystem' must not be null";
 
         final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
         if (systemLevelOptional.isPresent())
         {
-            processMetrics(context, inputComponent, softwareSystem, softwareSystem, systemInfoProcessor, metrics, systemLevelOptional.get(),
-                    omitMeasureCreationFor, null);
+            processMetrics(context, inputComponent, softwareSystem, softwareSystem, systemInfoProcessor, systemLevelOptional.get(), data);
         }
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
@@ -312,8 +357,8 @@ public final class SonargraphSensor implements Sensor
             final IIssueType nextIssueType = nextIssue.getIssueType();
             final String nextRuleKey = SonargraphBase.isScriptIssue(nextIssueType) ? SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME)
                     : SonargraphBase.createRuleKey(nextIssueType.getName());
-            final ActiveRule nextRule = ruleKeyToActiveRule.get(nextRuleKey);
-            if (nextRule != null && !omitIssueCreationFor.contains(SonargraphBase.createRuleKey(nextIssueType.getName())))
+            final ActiveRule nextRule = data.getActiveRules().get(nextRuleKey);
+            if (nextRule != null && !data.issueAlreadyCreated(SonargraphBase.createRuleKey(nextIssueType.getName())))
             {
                 createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
@@ -338,26 +383,20 @@ public final class SonargraphSensor implements Sensor
     }
 
     private final void processModule(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem system,
-            final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> ruleKeyToActiveRule,
-            final Map<String, Metric<? extends Serializable>> metrics, final Set<String> createdMeasureCollector,
-            final Set<String> createdIssueCollector)
+            final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final ProcessingData data)
     {
         assert context != null : "Parameter 'context' of method 'processModule' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processModule' must not be null";
         assert system != null : "Parameter 'system' of method 'processModule' must not be null";
         assert module != null : "Parameter 'module' of method 'processModule' must not be null";
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'processModule' must not be null";
-        assert ruleKeyToActiveRule != null : "Parameter 'ruleKeyToActiveRule' of method 'processModule' must not be null";
-        assert metrics != null : "Parameter 'metrics' of method 'processModule' must not be null";
-        assert createdMeasureCollector != null : "Parameter 'createdMeasureCollector' of method 'processModule' must not be null";
-        assert createdIssueCollector != null : "Parameter 'createdIssueCollector' of method 'processModule' must not be null";
+        assert data != null : "Parameter 'data' of method 'processModule' must not be null";
 
         final Optional<IMetricLevel> metricLevelOptional = moduleInfoProcessor.getMetricLevels().stream()
                 .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
         if (metricLevelOptional.isPresent())
         {
-            processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metrics, metricLevelOptional.get(), Collections.emptySet(),
-                    createdMeasureCollector);
+            processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metricLevelOptional.get(), data);
         }
 
         final List<IIssue> systemIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
@@ -365,13 +404,15 @@ public final class SonargraphSensor implements Sensor
         for (final IIssue nextIssue : systemIssues)
         {
             final IIssueType nextIssueType = nextIssue.getIssueType();
-            final String nextRuleKey = SonargraphBase.isScriptIssue(nextIssueType) ? SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME)
-                    : SonargraphBase.createRuleKey(nextIssueType.getName());
-            final ActiveRule nextRule = ruleKeyToActiveRule.get(nextRuleKey);
-            if (nextRule != null)
+            final String nextRealRuleKey = SonargraphBase.createRuleKey(nextIssueType.getName());
+            final String nextRuleKeyToCheck = SonargraphBase.isScriptIssue(nextIssueType)
+                    ? SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME)
+                    : nextRealRuleKey;
+            final ActiveRule nextRule = data.getActiveRules().get(nextRuleKeyToCheck);
+            if (nextRule != null && !data.issueAlreadyCreated(nextRealRuleKey))
             {
                 createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
-                createdIssueCollector.add(SonargraphBase.createRuleKey(nextIssueType.getName()));
+                data.addCreatedIssue(nextRealRuleKey);
             }
         }
 
@@ -379,7 +420,7 @@ public final class SonargraphSensor implements Sensor
                 .getIssuesForSourceFiles(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
         for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
         {
-            addIssuesToSourceFile(context, moduleInfoProcessor, ruleKeyToActiveRule, moduleInfoProcessor.getBaseDirectory(),
+            addIssuesToSourceFile(context, moduleInfoProcessor, data.getActiveRules(), moduleInfoProcessor.getBaseDirectory(),
                     issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
         }
 
@@ -387,7 +428,7 @@ public final class SonargraphSensor implements Sensor
                 .getIssuesForDirectories(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
         for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
         {
-            addIssuesToDirectory(context, moduleInfoProcessor, ruleKeyToActiveRule, moduleInfoProcessor.getBaseDirectory(),
+            addIssuesToDirectory(context, moduleInfoProcessor, data.getActiveRules(), moduleInfoProcessor.getBaseDirectory(),
                     issuesPerDirectory.getKey(), issuesPerDirectory.getValue());
         }
     }
@@ -420,28 +461,25 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void processMetrics(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
-            final INamedElementContainer container, final IInfoProcessor infoProcessor, final Map<String, Metric<? extends Serializable>> metrics,
-            final IMetricLevel level, final Set<String> omitMeasureCreationFor, final Set<String> createdMeasureCollector)
+            final INamedElementContainer container, final IInfoProcessor infoProcessor, final IMetricLevel level, final ProcessingData data)
     {
         assert context != null : "Parameter 'context' of method 'processMetrics' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processMetrics' must not be null";
         assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processMetrics' must not be null";
         assert container != null : "Parameter 'container' of method 'processMetrics' must not be null";
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'processMetrics' must not be null";
-        assert metrics != null : "Parameter 'metrics' of method 'processMetrics' must not be null";
         assert level != null : "Parameter 'level' of method 'processMetrics' must not be null";
-        assert omitMeasureCreationFor != null : "Parameter 'omitMeasureCreationFor' of method 'processMetrics' must not be null";
-        //'createdMeasureCollector' can be 'null'
+        assert data != null : "Parameter 'data' of method 'processMetrics' must not be null";
 
         for (final IMetricId nextMetricId : infoProcessor.getMetricIdsForLevel(level))
         {
             String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
-            Metric<? extends Serializable> metric = metrics.get(nextMetricKey);
+            Metric<Serializable> metric = data.getMetrics().get(nextMetricKey);
             if (metric == null)
             {
                 //Try custom metrics
                 nextMetricKey = SonargraphBase.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
-                metric = metrics.get(nextMetricKey);
+                metric = data.getMetrics().get(nextMetricKey);
             }
             if (metric == null)
             {
@@ -459,13 +497,10 @@ public final class SonargraphSensor implements Sensor
             final Optional<IMetricValue> metricValueOptional = infoProcessor.getMetricValueForElement(nextMetricId, level, container.getFqName());
             if (metricValueOptional.isPresent())
             {
-                if (!omitMeasureCreationFor.contains(nextMetricKey))
+                if (!data.measureAlreadyCreated(nextMetricKey))
                 {
                     createNewMeasure(context, inputComponent, metric, metricValueOptional.get());
-                    if (createdMeasureCollector != null)
-                    {
-                        createdMeasureCollector.add(nextMetricKey);
-                    }
+                    data.addCreatedMeasure(nextMetricKey);
                 }
             }
             else
@@ -627,6 +662,19 @@ public final class SonargraphSensor implements Sensor
         return null;
     }
 
+    private ProcessingData createProcessingData()
+    {
+        final Map<String, ActiveRule> activeRules = new HashMap<>();
+        qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).forEach(a -> activeRules.put(a.getRuleKey(), a));
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + activeRules.size() + " rule(s) activated");
+
+        final Map<String, Metric<Serializable>> metrics = metricFinder.findAll().stream()
+                .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX)).collect(Collectors.toMap(Metric::key, m -> m));
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + metrics.size() + " metric(s) defined");
+
+        return new ProcessingData(activeRules, metrics);
+    }
+
     @Override
     public void execute(final SensorContext context)
     {
@@ -640,8 +688,12 @@ public final class SonargraphSensor implements Sensor
         final Configuration configuration = context.config();
         assert configuration != null : "'configuration' of method 'execute' must not be null";
 
+        boolean isRoot = true;
         final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
-        final boolean isRoot = projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get());
+        if (projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get()))
+        {
+            isRoot = false;
+        }
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModuleKey
                 + "' with project base directory '" + fileSystem.baseDir() + "'");
@@ -661,32 +713,15 @@ public final class SonargraphSensor implements Sensor
                     final IModule module = matchModule(softwareSystem, inputModuleKey);
                     if (isRoot || module != null)
                     {
-                        final Map<String, ActiveRule> ruleKeyToActiveRule = new HashMap<>();
-                        qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY)
-                                .forEach(a -> ruleKeyToActiveRule.put(a.getRuleKey(), a));
-                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + ruleKeyToActiveRule.size() + " rule(s) activated");
-
-                        final Map<String, Metric<? extends Serializable>> metrics = metricFinder.findAll().stream()
-                                .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX)).collect(Collectors.toMap(Metric::key, m -> m));
-                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + metrics.size() + " metric(s) defined");
-
-                        final Set<String> createdMeasureCollector = new LinkedHashSet<>();
-                        final Set<String> createdIssueCollector = new LinkedHashSet<>();
-
+                        final ProcessingData data = createProcessingData();
                         if (module != null)
                         {
-                            processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module),
-                                    ruleKeyToActiveRule, metrics, createdMeasureCollector, createdIssueCollector);
+                            processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
                         }
-
                         if (isRoot)
                         {
-                            //If we have a single module system 'createdMeasureCollector'/'createdIssueCollector' assure,
-                            //that we do not add the same metric/issue twice
-                            processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), ruleKeyToActiveRule, metrics,
-                                    createdMeasureCollector, createdIssueCollector);
+                            processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
                         }
-
                         if (customMetrics != null)
                         {
                             SonargraphBase.save(customMetrics);
