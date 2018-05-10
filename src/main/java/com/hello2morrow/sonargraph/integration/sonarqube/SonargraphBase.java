@@ -103,7 +103,8 @@ final class SonargraphBase
     {
         if (description != null && !description.isEmpty())
         {
-            return description.length() > 255 ? description.substring(0, 252) + "..." : description;
+            final String trimmedDescription = description.replaceAll("\r", " ").replaceAll("\n", " ").trim();
+            return trimmedDescription.length() > 255 ? trimmedDescription.substring(0, 252) + "..." : trimmedDescription;
         }
         return "";
     }
@@ -192,12 +193,10 @@ final class SonargraphBase
         assert metricId != null : "Parameter 'metricId' of method 'addCustomMetric' must not be null";
         assert customMetrics != null : "Parameter 'customMetrics' of method 'addCustomMetric' must not be null";
 
-        //TODO Convert line breaks - restrict description length?
-
         customMetrics.put(softwareSystem.getName() + CUSTOM_METRIC_SEPARATOR + metricId.getName(),
                 metricId.getPresentationName() + CUSTOM_METRIC_SEPARATOR + (metricId.isFloat() ? CUSTOM_METRIC_FLOAT : CUSTOM_METRIC_INT)
                         + CUSTOM_METRIC_SEPARATOR + metricId.getBestValue() + CUSTOM_METRIC_SEPARATOR + metricId.getWorstValue()
-                        + CUSTOM_METRIC_SEPARATOR + metricId.getDescription());
+                        + CUSTOM_METRIC_SEPARATOR + trimDescription(metricId.getDescription()));
     }
 
     static void save(final Properties customMetrics)
@@ -219,16 +218,16 @@ final class SonargraphBase
         }
     }
 
-    private static String getNonEmptyString(final Object input) throws IllegalArgumentException
+    private static String getNonEmptyString(final Object input)
     {
-        if (input != null && input instanceof String && !((String) input).isEmpty())
+        if (input instanceof String && !((String) input).isEmpty())
         {
             return (String) input;
         }
         throw new IllegalArgumentException("Empty input");
     }
 
-    static List<Metric<? extends Serializable>> getCustomMetrics()
+    static List<Metric<Serializable>> getCustomMetrics()
     {
         final Properties customMetrics = loadCustomMetrics();
         if (customMetrics.isEmpty())
@@ -236,7 +235,7 @@ final class SonargraphBase
             return Collections.emptyList();
         }
 
-        final List<Metric<? extends Serializable>> metrics = new ArrayList<>(customMetrics.size());
+        final List<Metric<Serializable>> metrics = new ArrayList<>(customMetrics.size());
         for (final Entry<Object, Object> nextEntry : customMetrics.entrySet())
         {
             String notCreatedInfo = null;

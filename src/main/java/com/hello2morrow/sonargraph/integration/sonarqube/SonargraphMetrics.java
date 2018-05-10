@@ -36,101 +36,12 @@ import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 public final class SonargraphMetrics implements Metrics
 {
     private static final Logger LOGGER = Loggers.get(SonargraphMetrics.class);
-
-    //    private static IExportMetaData loadAdditionalMetaData(final IMetaDataController controller, final String directory)
-    //    {
-    //        assert controller != null : "Parameter 'controller' of method 'loadAdditionalMetaData' must not be null";
-    //        assert directory != null && directory.length() > 0 : "Parameter 'directory' of method 'loadAdditionalMetaData' must not be empty";
-    //
-    //        final File configurationDir = new File(directory);
-    //        if (!configurationDir.exists() || !configurationDir.isDirectory())
-    //        {
-    //            LOGGER.error("Cannot load meta-data from directory '{}'. It does not exist.", directory);
-    //            return null;
-    //        }
-    //
-    //        final List<File> files = Arrays.asList(configurationDir.listFiles()).stream().filter(f -> !f.isDirectory() && f.getName().endsWith(".xml"))
-    //                .collect(Collectors.toList());
-    //        if (!files.isEmpty())
-    //        {
-    //            try
-    //            {
-    //                final ResultWithOutcome<IMergedExportMetaData> result = controller.mergeExportMetaDataFiles(files);
-    //                if (result.isSuccess())
-    //                {
-    //                    return result.getOutcome();
-    //                }
-    //                LOGGER.error("Failed to load configuration from '{}': {}", directory, result.toString());
-    //            }
-    //            catch (final Exception ex)
-    //            {
-    //                LOGGER.error("Failed to load configuration from '{}'", directory, ex);
-    //            }
-    //        }
-    //        return null;
-    //    }
+    private List<Metric<Serializable>> metrics;
 
     public SonargraphMetrics()
     {
         super();
     }
-
-    //    @Override
-    //    public void define(final Context context)
-    //    {
-    //        assert context != null : "Parameter 'context' of method 'define' must not be null";
-    //        readBuiltInMetaData();
-    //
-    //        if (builtInMetaData == null)
-    //        {
-    //            return;
-    //        }
-    //
-    //        //        IExportMetaData additionalMetaData = null;
-    //        //        final Optional<String> configuredMetaDataPathOptional = configuration.get(SonargraphBase.METADATA_PATH);
-    //        //        if (configuredMetaDataPathOptional.isPresent())
-    //        //        {
-    //        //            final String configuredMetaDataPath = configuredMetaDataPathOptional.get().trim();
-    //        //            if (!configuredMetaDataPath.isEmpty())
-    //        //            {
-    //        //                additionalMetaData = loadAdditionalMetaData(controller, configuredMetaDataPath);
-    //        //            }
-    //        //        }
-    //
-    //        final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
-    //                .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-    //
-    //        final Set<IIssueType> builtInIssueTypes = new HashSet<>(builtInMetaData.getIssueTypes().values());
-    //        for (final IIssueType nextIssueType : builtInIssueTypes)
-    //        {
-    //            if (!SonargraphBase.ignoreIssueType(nextIssueType))
-    //            {
-    //                createRule(nextIssueType, repository);
-    //            }
-    //        }
-    //
-    //        createRule(SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME),
-    //                SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME),
-    //                SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR,
-    //                "Description '" + SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME + "', category '"
-    //                        + SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
-    //                repository);
-    //
-    //        //        if (additionalMetaData != null)
-    //        //        {
-    //        //            for (final IIssueType nextIssueType : additionalMetaData.getIssueTypes().values())
-    //        //            {
-    //        //                if (!SonargraphBase.ignoreIssueType(nextIssueType) && !builtInIssueTypes.contains(nextIssueType))
-    //        //                {
-    //        //                    //Only add additional issue types
-    //        //                    createRule(nextIssueType, repository);
-    //        //                }
-    //        //            }
-    //        //        }
-    //
-    //        repository.done();
-    //        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
-    //    }
 
     private void getMetricsForLevel(final IExportMetaData builtInMetaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
     {
@@ -151,29 +62,25 @@ public final class SonargraphMetrics implements Metrics
     @Override
     public List<Metric> getMetrics()
     {
-        final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-        if (builtInMetaData == null)
+        if (metrics == null)
         {
-            return Collections.emptyList();
+            final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
+            if (builtInMetaData == null)
+            {
+                return Collections.emptyList();
+            }
+
+            final Map<String, IMetricId> predefinedMetrics = new HashMap<>();
+            getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), predefinedMetrics);
+            getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
+            final List<Metric<Serializable>> customMetrics = SonargraphBase.getCustomMetrics();
+            metrics = new ArrayList<>(predefinedMetrics.size() + customMetrics.size());
+            predefinedMetrics.values().forEach(i -> metrics.add(SonargraphBase.createMetric(i)));
+            customMetrics.forEach(c -> metrics.add(c));
+
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + predefinedMetrics.size() + " predefined and "
+                    + customMetrics.size() + " custom metric(s)");
         }
-
-        final Map<String, IMetricId> metricNameToId = new HashMap<>();
-
-        final IMetricLevel systemMetricLevel = builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM);
-        assert systemMetricLevel != null : "'systemMetricLevel' of method 'getMetrics' must not be null";
-        getMetricsForLevel(builtInMetaData, systemMetricLevel, metricNameToId);
-
-        final IMetricLevel moduleMetricLevel = builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE);
-        assert moduleMetricLevel != null : "'moduleMetricLevel' of method 'getMetrics' must not be null";
-        getMetricsForLevel(builtInMetaData, moduleMetricLevel, metricNameToId);
-
-        final List<Metric<? extends Serializable>> metrics = new ArrayList<>(metricNameToId.size());
-        metricNameToId.values().forEach(i -> metrics.add(SonargraphBase.createMetric(i)));
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + metrics.size() + " predefined system/module metric(s)");
-
-        final List<Metric<? extends Serializable>> customMetrics = SonargraphBase.getCustomMetrics();
-        customMetrics.forEach(c -> metrics.add(c));
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + customMetrics.size() + " custom metric(s)");
 
         return Collections.unmodifiableList(metrics);
     }
