@@ -561,32 +561,28 @@ public final class SonargraphSensor implements Sensor
         final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
         for (final IModule nextModule : softwareSystem.getModules().values())
         {
-            final List<IRootDirectory> nextRootDirectories = nextModule.getRootDirectories();
-            if (!nextRootDirectories.isEmpty())
+            int matchedRootDirs = 0;
+
+            for (final IRootDirectory nextRootDirectory : nextModule.getRootDirectories())
             {
-                int matchedRootDirs = 0;
-
-                for (final IRootDirectory nextRootDirectory : nextRootDirectories)
+                final String nextRelPath = nextRootDirectory.getRelativePath();
+                final File nextResolved = fileSystem.resolvePath(nextRelPath);
+                if (nextResolved != null && nextResolved.exists())
                 {
-                    final String nextRelPath = nextRootDirectory.getRelativePath();
-                    final File nextResolved = fileSystem.resolvePath(nextRelPath);
-                    if (nextResolved != null && nextResolved.exists())
-                    {
-                        matchedRootDirs++;
-                    }
+                    matchedRootDirs++;
                 }
+            }
 
-                if (matchedRootDirs > 0)
+            if (matchedRootDirs > 0)
+            {
+                final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
+                List<IModule> nextMatched = numberOfMatchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
+                if (nextMatched == null)
                 {
-                    final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                    List<IModule> nextMatched = numberOfMatchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
-                    if (nextMatched == null)
-                    {
-                        nextMatched = new ArrayList<>(2);
-                        numberOfMatchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
-                    }
-                    nextMatched.add(nextModule);
+                    nextMatched = new ArrayList<>(2);
+                    numberOfMatchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
                 }
+                nextMatched.add(nextModule);
             }
         }
 
@@ -596,6 +592,39 @@ public final class SonargraphSensor implements Sensor
         }
 
         return Collections.emptyList();
+    }
+
+    private IModule resolveMatchingModuleByName(final List<IModule> moduleCandidates, final String inputModuleKey)
+    {
+        assert moduleCandidates != null && moduleCandidates
+                .size() >= 2 : "Parameter 'moduleCandidates' of method 'resolveMatchingModuleByName' must at least contain 2 elements";
+
+        IModule matched = null;
+
+        for (final IModule nextMatchedModule : moduleCandidates)
+        {
+            final String nextModuleFqName = nextMatchedModule.getFqName();
+            if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
+            {
+                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
+            }
+            else
+            {
+                final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
+                if (inputModuleKey.indexOf(nextModuleName) != -1)
+                {
+                    if (matched != null)
+                    {
+                        //More than 1 module matched - impossible to decide
+                        matched = null;
+                        break;
+                    }
+                    matched = nextMatchedModule;
+                }
+            }
+        }
+
+        return matched;
     }
 
     private IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey)
@@ -612,28 +641,7 @@ public final class SonargraphSensor implements Sensor
         }
         else if (moduleCandidates.size() > 1)
         {
-            for (final IModule nextMatchedModule : moduleCandidates)
-            {
-                final String nextModuleFqName = nextMatchedModule.getFqName();
-                if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
-                {
-                    LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
-                }
-                else
-                {
-                    final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
-                    if (inputModuleKey.indexOf(nextModuleName) != -1)
-                    {
-                        if (matched != null)
-                        {
-                            //More than 1 module matched - impossible to decide
-                            matched = null;
-                            break;
-                        }
-                        matched = nextMatchedModule;
-                    }
-                }
-            }
+            matched = resolveMatchingModuleByName(moduleCandidates, inputModuleKey);
         }
 
         if (matched == null)
