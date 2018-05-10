@@ -83,7 +83,7 @@ public final class SonargraphSensor implements Sensor
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
     private static final String WORKSPACE_ID = SonargraphBase.WORKSPACE + ":";
 
-    final static class ProcessingData
+    static final class ProcessingData
     {
         private final Set<String> createdMeasures = new LinkedHashSet<>();
         private final Set<String> createdIssues = new LinkedHashSet<>();
