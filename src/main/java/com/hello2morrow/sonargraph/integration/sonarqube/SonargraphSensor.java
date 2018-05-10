@@ -240,11 +240,9 @@ public final class SonargraphSensor implements Sensor
                         final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
                         others.remove(nextOccurrence);
                         createIssue(context, inputPath, nextRule,
-                                createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others), l ->
-                                {
-                                    l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
-                                            new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1)));
-                                });
+                                createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
+                                l -> l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
+                                        new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
                     }
                 }
             }
@@ -636,12 +634,9 @@ public final class SonargraphSensor implements Sensor
         assert configuration != null : "'configuration' of method 'execute' must not be null";
 
         final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
-        if (projectKeyOptional.isPresent())
+        if (projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get()))
         {
-            if (!inputModuleKey.equals(projectKeyOptional.get()))
-            {
-                isRoot = false;
-            }
+            isRoot = false;
         }
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModuleKey
