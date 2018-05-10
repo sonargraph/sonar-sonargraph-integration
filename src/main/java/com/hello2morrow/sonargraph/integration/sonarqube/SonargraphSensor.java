@@ -151,7 +151,7 @@ public final class SonargraphSensor implements Sensor
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Sensor created");
     }
 
-    private static String toLowerCase(String input, final boolean firstLower)
+    private String toLowerCase(String input, final boolean firstLower)
     {
         assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
 
@@ -169,7 +169,7 @@ public final class SonargraphSensor implements Sensor
         return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
 
-    private static String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
+    private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
     {
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
         assert issue != null : "Parameter 'issue' of method 'createIssueDescription' must not be null";
@@ -218,7 +218,7 @@ public final class SonargraphSensor implements Sensor
         return builder.toString();
     }
 
-    private static String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor, final IDuplicateCodeBlockIssue issue,
+    private String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor, final IDuplicateCodeBlockIssue issue,
             final IDuplicateCodeBlockOccurrence occurrence, final List<IDuplicateCodeBlockOccurrence> others)
     {
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'createIssueDescription' must not be null";
@@ -241,11 +241,50 @@ public final class SonargraphSensor implements Sensor
         return createIssueDescription(moduleInfoProcessor, issue, detail.toString());
     }
 
-    private static String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue)
+    private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue)
     {
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
         assert issue != null : "Parameter 'issue' of method 'createIssueDescription' must not be null";
         return createIssueDescription(infoProcessor, issue, "");
+    }
+
+    private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile,
+            final InputPath inputPath, final IIssue issue, final ActiveRule rule)
+    {
+        assert context != null : "Parameter 'context' of method 'createSourceFileIssues' must not be null";
+        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'createSourceFileIssues' must not be null";
+        assert sourceFile != null : "Parameter 'sourceFile' of method 'createSourceFileIssues' must not be null";
+        assert inputPath != null : "Parameter 'inputPath' of method 'createSourceFileIssues' must not be null";
+        assert issue != null : "Parameter 'issue' of method 'createSourceFileIssues' must not be null";
+        assert rule != null : "Parameter 'rule' of method 'createSourceFileIssues' must not be null";
+
+        if (issue instanceof IDuplicateCodeBlockIssue)
+        {
+            final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) issue;
+            final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
+
+            for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
+            {
+                if (nextOccurrence.getSourceFile().equals(sourceFile))
+                {
+                    final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
+                    others.remove(nextOccurrence);
+                    createIssue(context, inputPath, rule,
+                            createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
+                            l -> l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
+                                    new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
+                }
+            }
+        }
+        else
+        {
+            createIssue(context, inputPath, rule, createIssueDescription(moduleInfoProcessor, issue), l ->
+            {
+                final int line = issue.getLine();
+                final int lineToUse = line <= 0 ? 1 : line;
+                l.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
+            });
+        }
     }
 
     private void addIssuesToSourceFile(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
@@ -269,33 +308,7 @@ public final class SonargraphSensor implements Sensor
                 final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
                 if (nextRule != null)
                 {
-                    if (nextIssue instanceof IDuplicateCodeBlockIssue)
-                    {
-                        final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
-                        final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
-
-                        for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
-                        {
-                            if (nextOccurrence.getSourceFile().equals(sourceFile))
-                            {
-                                final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
-                                others.remove(nextOccurrence);
-                                createIssue(context, inputPath, nextRule,
-                                        createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
-                                        l -> l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
-                                                new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
-                            }
-                        }
-                    }
-                    else
-                    {
-                        createIssue(context, inputPath, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), l ->
-                        {
-                            final int line = nextIssue.getLine();
-                            final int lineToUse = line <= 0 ? 1 : line;
-                            l.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
-                        });
-                    }
+                    createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, nextIssue, nextRule);
                 }
             }
         }
@@ -541,20 +554,18 @@ public final class SonargraphSensor implements Sensor
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
     }
 
-    private IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey)
+    private List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem)
     {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
-        assert inputModuleKey != null && inputModuleKey.length() > 0 : "Parameter 'inputModuleKey' of method 'matchModule' must not be empty";
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModuleCandidates' must not be null";
 
-        final Map<String, IModule> modules = softwareSystem.getModules();
-
-        final TreeMap<Integer, List<IModule>> matchedRootDirsToModules = new TreeMap<>();
-        for (final IModule nextModule : modules.values())
+        final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
+        for (final IModule nextModule : softwareSystem.getModules().values())
         {
-            int matchedRootDirs = 0;
             final List<IRootDirectory> nextRootDirectories = nextModule.getRootDirectories();
             if (!nextRootDirectories.isEmpty())
             {
+                int matchedRootDirs = 0;
+
                 for (final IRootDirectory nextRootDirectory : nextRootDirectories)
                 {
                     final String nextRelPath = nextRootDirectory.getRelativePath();
@@ -568,48 +579,58 @@ public final class SonargraphSensor implements Sensor
                 if (matchedRootDirs > 0)
                 {
                     final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                    List<IModule> nextMatched = matchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
+                    List<IModule> nextMatched = numberOfMatchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
                     if (nextMatched == null)
                     {
                         nextMatched = new ArrayList<>(2);
-                        matchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
+                        numberOfMatchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
                     }
                     nextMatched.add(nextModule);
                 }
             }
         }
 
-        IModule matched = null;
-        if (!matchedRootDirsToModules.isEmpty())
+        if (!numberOfMatchedRootDirsToModules.isEmpty())
         {
-            final List<IModule> matchedModules = matchedRootDirsToModules.lastEntry().getValue();
-            if (matchedModules.size() == 1)
+            return numberOfMatchedRootDirsToModules.lastEntry().getValue();
+        }
+
+        return Collections.emptyList();
+    }
+
+    private IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey)
+    {
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
+        assert inputModuleKey != null && inputModuleKey.length() > 0 : "Parameter 'inputModuleKey' of method 'matchModule' must not be empty";
+
+        IModule matched = null;
+
+        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem);
+        if (moduleCandidates.size() == 1)
+        {
+            matched = moduleCandidates.get(0);
+        }
+        else if (moduleCandidates.size() > 1)
+        {
+            for (final IModule nextMatchedModule : moduleCandidates)
             {
-                matched = matchedModules.get(0);
-            }
-            else
-            {
-                for (final IModule nextMatchedModule : matchedModules)
+                final String nextModuleFqName = nextMatchedModule.getFqName();
+                if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
                 {
-                    final String nextModuleFqName = nextMatchedModule.getFqName();
-                    if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
+                    LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
+                }
+                else
+                {
+                    final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
+                    if (inputModuleKey.indexOf(nextModuleName) != -1)
                     {
-                        LOGGER.warn(
-                                SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
-                    }
-                    else
-                    {
-                        final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
-                        if (inputModuleKey.indexOf(nextModuleName) != -1)
+                        if (matched != null)
                         {
-                            if (matched != null)
-                            {
-                                //More than 1 module matched - impossible to decide
-                                matched = null;
-                                break;
-                            }
-                            matched = nextMatchedModule;
+                            //More than 1 module matched - impossible to decide
+                            matched = null;
+                            break;
                         }
+                        matched = nextMatchedModule;
                     }
                 }
             }
