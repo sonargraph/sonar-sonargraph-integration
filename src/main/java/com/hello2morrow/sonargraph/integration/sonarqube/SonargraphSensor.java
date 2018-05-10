@@ -212,49 +212,47 @@ public final class SonargraphSensor implements Sensor
 
         final InputPath inputPath = fileSystem
                 .inputFile(fileSystem.predicates().hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
-        if (inputPath == null)
+        if (inputPath != null)
         {
-            LOGGER.error("Failed to locate resource '{}' at '{}'", sourceFile.getFqName(), sourceFileLocation);
-            return;
-        }
-
-        for (final IIssue nextIssue : issues)
-        {
-            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
-            if (nextRule == null)
+            for (final IIssue nextIssue : issues)
             {
-                LOGGER.debug("Ignoring issue type '{}', because corresponding rule is not activated in current quality profile",
-                        nextIssue.getIssueType().getPresentationName());
-                continue;
-            }
-
-            if (nextIssue instanceof IDuplicateCodeBlockIssue)
-            {
-                final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
-                final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
-
-                for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
+                final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
+                if (nextRule != null)
                 {
-                    if (nextOccurrence.getSourceFile().equals(sourceFile))
+                    if (nextIssue instanceof IDuplicateCodeBlockIssue)
                     {
-                        final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
-                        others.remove(nextOccurrence);
-                        createIssue(context, inputPath, nextRule,
-                                createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
-                                l -> l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
-                                        new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
+                        final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) nextIssue;
+                        final List<IDuplicateCodeBlockOccurrence> nextOccurrences = nextDuplicateCodeBlockIssue.getOccurrences();
+
+                        for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
+                        {
+                            if (nextOccurrence.getSourceFile().equals(sourceFile))
+                            {
+                                final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
+                                others.remove(nextOccurrence);
+                                createIssue(context, inputPath, nextRule,
+                                        createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
+                                        l -> l.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
+                                                new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        createIssue(context, inputPath, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), l ->
+                        {
+                            final int line = nextIssue.getLine();
+                            final int lineToUse = line <= 0 ? 1 : line;
+                            l.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
+                        });
                     }
                 }
             }
-            else
-            {
-                createIssue(context, inputPath, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), l ->
-                {
-                    final int line = nextIssue.getLine();
-                    final int lineToUse = line <= 0 ? 1 : line;
-                    l.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
-                });
-            }
+        }
+        else
+        {
+            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to locate '" + sourceFile.getFqName() + "' at '"
+                    + sourceFileLocation + "'");
         }
     }
 
@@ -269,19 +267,21 @@ public final class SonargraphSensor implements Sensor
         final String directoryLocation = Paths.get(baseDir, relDirectory).normalize().toString();
         final InputDir inputDir = fileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryLocation)));
 
-        if (inputDir == null)
+        if (inputDir != null)
         {
-            LOGGER.error("Failed to locate directory resource: '" + directoryLocation + "'\nBaseDir: " + baseDir + "\nrelDirectory:'" + relDirectory);
-            return;
-        }
-
-        for (final IIssue nextIssue : issues)
-        {
-            final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
-            if (nextRule != null)
+            for (final IIssue nextIssue : issues)
             {
-                createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
+                if (nextRule != null)
+                {
+                    createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                }
             }
+        }
+        else
+        {
+            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to locate directory resource: '" + directoryLocation
+                    + "'\nBaseDir: " + baseDir + "\nrelDirectory:'" + relDirectory);
         }
     }
 
