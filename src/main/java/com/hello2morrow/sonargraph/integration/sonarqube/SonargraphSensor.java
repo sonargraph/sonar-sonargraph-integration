@@ -553,32 +553,30 @@ public final class SonargraphSensor implements Sensor
         {
             int matchedRootDirs = 0;
             final List<IRootDirectory> nextRootDirectories = nextModule.getRootDirectories();
-            if (nextRootDirectories.isEmpty())
+            if (!nextRootDirectories.isEmpty())
             {
-                continue;
-            }
-            for (final IRootDirectory nextRootDirectory : nextRootDirectories)
-            {
-                final String nextRelPath = nextRootDirectory.getRelativePath();
-                final File nextResolved = fileSystem.resolvePath(nextRelPath);
-                if (nextResolved != null && nextResolved.exists())
+                for (final IRootDirectory nextRootDirectory : nextRootDirectories)
                 {
-                    matchedRootDirs++;
+                    final String nextRelPath = nextRootDirectory.getRelativePath();
+                    final File nextResolved = fileSystem.resolvePath(nextRelPath);
+                    if (nextResolved != null && nextResolved.exists())
+                    {
+                        matchedRootDirs++;
+                    }
+                }
+
+                if (matchedRootDirs > 0)
+                {
+                    final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
+                    List<IModule> nextMatched = matchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
+                    if (nextMatched == null)
+                    {
+                        nextMatched = new ArrayList<>(2);
+                        matchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
+                    }
+                    nextMatched.add(nextModule);
                 }
             }
-            if (matchedRootDirs == 0)
-            {
-                continue;
-            }
-
-            final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-            List<IModule> nextMatched = matchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
-            if (nextMatched == null)
-            {
-                nextMatched = new ArrayList<>(2);
-                matchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
-            }
-            nextMatched.add(nextModule);
         }
 
         IModule matched = null;
@@ -598,19 +596,20 @@ public final class SonargraphSensor implements Sensor
                     {
                         LOGGER.warn(
                                 SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
-                        continue;
                     }
-
-                    final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
-                    if (inputModuleKey.indexOf(nextModuleName) != -1)
+                    else
                     {
-                        if (matched != null)
+                        final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
+                        if (inputModuleKey.indexOf(nextModuleName) != -1)
                         {
-                            //More than 1 module matched - impossible to decide
-                            matched = null;
-                            break;
+                            if (matched != null)
+                            {
+                                //More than 1 module matched - impossible to decide
+                                matched = null;
+                                break;
+                            }
+                            matched = nextMatchedModule;
                         }
-                        matched = nextMatchedModule;
                     }
                 }
             }
