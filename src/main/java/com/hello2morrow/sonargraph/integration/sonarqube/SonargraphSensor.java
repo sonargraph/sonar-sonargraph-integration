@@ -420,16 +420,15 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void processMetrics(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
-            final INamedElementContainer container, final IInfoProcessor infoProcessor,
-            final Map<String, Metric<? extends Serializable>> alreadyDefinedMetrics, final IMetricLevel level,
-            final Set<String> omitMeasureCreationFor, final Set<String> createdMeasureCollector)
+            final INamedElementContainer container, final IInfoProcessor infoProcessor, final Map<String, Metric<? extends Serializable>> metrics,
+            final IMetricLevel level, final Set<String> omitMeasureCreationFor, final Set<String> createdMeasureCollector)
     {
         assert context != null : "Parameter 'context' of method 'processMetrics' must not be null";
         assert inputComponent != null : "Parameter 'inputComponent' of method 'processMetrics' must not be null";
         assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processMetrics' must not be null";
         assert container != null : "Parameter 'container' of method 'processMetrics' must not be null";
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'processMetrics' must not be null";
-        assert alreadyDefinedMetrics != null : "Parameter 'alreadyDefinedMetrics' of method 'processMetrics' must not be null";
+        assert metrics != null : "Parameter 'metrics' of method 'processMetrics' must not be null";
         assert level != null : "Parameter 'level' of method 'processMetrics' must not be null";
         assert omitMeasureCreationFor != null : "Parameter 'omitMeasureCreationFor' of method 'processMetrics' must not be null";
         //'createdMeasureCollector' can be 'null'
@@ -437,12 +436,12 @@ public final class SonargraphSensor implements Sensor
         for (final IMetricId nextMetricId : infoProcessor.getMetricIdsForLevel(level))
         {
             String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
-            Metric<? extends Serializable> metric = alreadyDefinedMetrics.get(nextMetricKey);
+            Metric<? extends Serializable> metric = metrics.get(nextMetricKey);
             if (metric == null)
             {
                 //Try custom metrics
                 nextMetricKey = SonargraphBase.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
-                metric = alreadyDefinedMetrics.get(nextMetricKey);
+                metric = metrics.get(nextMetricKey);
             }
             if (metric == null)
             {
@@ -547,42 +546,51 @@ public final class SonargraphSensor implements Sensor
             nextMatched.add(nextModule);
         }
 
+        IModule matched = null;
         if (!matchedRootDirsToModules.isEmpty())
         {
             final List<IModule> matchedModules = matchedRootDirsToModules.lastEntry().getValue();
             if (matchedModules.size() == 1)
             {
-                return matchedModules.get(0);
+                matched = matchedModules.get(0);
             }
-
-            IModule matched = null;
-            for (final IModule nextMatchedModule : matchedModules)
+            else
             {
-                final String nextModuleFqName = nextMatchedModule.getFqName();
-                if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
+                for (final IModule nextMatchedModule : matchedModules)
                 {
-                    LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name coming from report '"
-                            + nextModuleFqName + "'");
-                    continue;
-                }
-
-                final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
-                if (inputModuleKey.indexOf(nextModuleName) != -1)
-                {
-                    if (matched == null)
+                    final String nextModuleFqName = nextMatchedModule.getFqName();
+                    if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
                     {
+                        LOGGER.warn(
+                                SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
+                        continue;
+                    }
+
+                    final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
+                    if (inputModuleKey.indexOf(nextModuleName) != -1)
+                    {
+                        if (matched != null)
+                        {
+                            //More than 1 module matched - impossible to decide
+                            matched = null;
+                            break;
+                        }
                         matched = nextMatchedModule;
                     }
-                    else
-                    {
-                        return null;
-                    }
                 }
             }
-            return matched;
         }
 
-        return null;
+        if (matched == null)
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey + "'");
+        }
+        else
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
+        }
+
+        return matched;
     }
 
     private File getReportFile(final Configuration configuration)
@@ -629,15 +637,11 @@ public final class SonargraphSensor implements Sensor
         final String inputModuleKey = inputModule.key();
         assert inputModuleKey != null && inputModuleKey.length() > 0 : "'inputModuleKey' of method 'execute' must not be empty";
 
-        boolean isRoot = true;
         final Configuration configuration = context.config();
         assert configuration != null : "'configuration' of method 'execute' must not be null";
 
         final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
-        if (projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get()))
-        {
-            isRoot = false;
-        }
+        final boolean isRoot = projectKeyOptional.isPresent() && !inputModuleKey.equals(projectKeyOptional.get());
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModuleKey
                 + "' with project base directory '" + fileSystem.baseDir() + "'");
@@ -655,16 +659,6 @@ public final class SonargraphSensor implements Sensor
                 if (!softwareSystem.getModules().isEmpty())
                 {
                     final IModule module = matchModule(softwareSystem, inputModuleKey);
-                    if (module == null)
-                    {
-                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey
-                                + "'");
-                    }
-                    else
-                    {
-                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + module.getName() + "'");
-                    }
-
                     if (isRoot || module != null)
                     {
                         final Map<String, ActiveRule> ruleKeyToActiveRule = new HashMap<>();
