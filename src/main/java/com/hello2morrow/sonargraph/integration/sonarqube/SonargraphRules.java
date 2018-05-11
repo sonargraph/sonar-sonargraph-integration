@@ -31,6 +31,11 @@ import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 
 public final class SonargraphRules implements RulesDefinition
 {
+    static Context createTestContext()
+    {
+        return new Context();
+    }
+
     private static final Logger LOGGER = Loggers.get(SonargraphRules.class);
 
     public SonargraphRules()
