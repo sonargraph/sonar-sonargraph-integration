@@ -19,10 +19,12 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
+import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 
 public final class SonargraphBaseTest
 {
@@ -44,5 +46,29 @@ public final class SonargraphBaseTest
     {
         final IExportMetaData exportMetaData = SonargraphBase.readBuiltInMetaData();
         assertNotNull(exportMetaData);
+
+        int ignored = 0;
+        int errorWarningWorkspace = 0;
+        int script = 0;
+
+        for (final IIssueType nextIssueType : exportMetaData.getIssueTypes().values())
+        {
+            if (SonargraphBase.ignoreIssueType(nextIssueType))
+            {
+                ignored++;
+            }
+            else if (SonargraphBase.isErrorOrWarningWorkspoceIssue(nextIssueType))
+            {
+                errorWarningWorkspace++;
+            }
+            else if (SonargraphBase.isScriptIssue(nextIssueType))
+            {
+                script++;
+            }
+        }
+
+        assertTrue(ignored > 0);
+        assertTrue(errorWarningWorkspace == 0);
+        assertTrue(script == 0);
     }
 }
