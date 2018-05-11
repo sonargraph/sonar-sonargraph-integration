@@ -20,12 +20,40 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import org.sonar.api.Plugin;
 import org.sonar.api.Properties;
 import org.sonar.api.Property;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.utils.Version;
 
 @Properties({
         @Property(key = SonargraphBase.RELATIVE_REPORT_PATH, defaultValue = SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT, name = "Relative path to the Sonargraph xml report file (default is '"
                 + SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT + "')", project = true, module = true, global = true) })
 public final class SonargraphPlugin implements Plugin
 {
+    static Context createTestContext()
+    {
+        return new Context(new SonarRuntime()
+        {
+            @Override
+            public SonarQubeSide getSonarQubeSide()
+            {
+                return SonarQubeSide.COMPUTE_ENGINE;
+            }
+
+            @Override
+            public SonarProduct getProduct()
+            {
+                return SonarProduct.SONARQUBE;
+            }
+
+            @Override
+            public Version getApiVersion()
+            {
+                return Version.create(6, 7);
+            }
+        });
+    }
+
     public SonargraphPlugin()
     {
         super();
