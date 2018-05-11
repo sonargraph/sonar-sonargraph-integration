@@ -21,13 +21,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 import org.junit.Test;
 import org.sonar.api.batch.measure.Metric;
 
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
+import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
@@ -84,5 +89,22 @@ public final class SonargraphBaseTest
         }
 
         assertTrue(metrics.size() > 0);
+    }
+
+    @Test
+    public void testCustomMetrics()
+    {
+        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
+        assertTrue(result.isSuccess());
+
+        final Properties customMetrics = new Properties();
+        final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
+        for (final IMetricId nextMetricId : metricIds)
+        {
+            SonargraphBase.addCustomMetric(controller.getSoftwareSystem(), nextMetricId, customMetrics);
+        }
+
+        assertEquals(customMetrics.size(), metricIds.size());
     }
 }
