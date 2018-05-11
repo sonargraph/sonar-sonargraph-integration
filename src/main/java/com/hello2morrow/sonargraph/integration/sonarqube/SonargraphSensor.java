@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -140,15 +141,9 @@ public final class SonargraphSensor implements Sensor
 
     public SonargraphSensor(final FileSystem fileSystem, final RulesProfile qualityProfile, final MetricFinder metricFinder)
     {
-        assert fileSystem != null : "Parameter 'fileSystem' of method 'SonargraphSensor' must not be null";
-        assert qualityProfile != null : "Parameter 'profile' of method 'SonargraphSensor' must not be null";
-        assert metricFinder != null : "Parameter 'metricFinder' of method 'SonargraphSensor' must not be null";
-
         this.fileSystem = fileSystem;
         this.qualityProfile = qualityProfile;
         this.metricFinder = metricFinder;
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Sensor created");
     }
 
     private String toLowerCase(String input, final boolean firstLower)
@@ -554,9 +549,28 @@ public final class SonargraphSensor implements Sensor
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
     }
 
+    private String getIdentifyingPath(final File file)
+    {
+        assert file != null : "Parameter 'file' of method 'getIdentifyingPath' must not be null";
+        try
+        {
+            return file.getCanonicalPath().replace('\\', '/');
+        }
+        catch (final IOException e)
+        {
+            return file.getAbsolutePath().replace('\\', '/');
+        }
+    }
+
     private List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem)
     {
         assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModuleCandidates' must not be null";
+
+        final String identifyingBaseDirectoryPath = getIdentifyingPath(fileSystem.baseDir());
+        final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
+
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying to match module using system base directory '"
+                + systemBaseDirectory + "'");
 
         final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
         for (final IModule nextModule : softwareSystem.getModules().values())
@@ -566,22 +580,24 @@ public final class SonargraphSensor implements Sensor
             for (final IRootDirectory nextRootDirectory : nextModule.getRootDirectories())
             {
                 final String nextRelPath = nextRootDirectory.getRelativePath();
-                final File nextResolved = fileSystem.resolvePath(nextRelPath);
-                if (nextResolved != null && nextResolved.exists())
+                final File nextAbsoluteRootDirectory = new File(systemBaseDirectory, nextRelPath);
+                if (nextAbsoluteRootDirectory.exists())
                 {
-                    matchedRootDirs++;
+                    final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
+                    if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
+                    {
+                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched root directory '" + nextIdentifyingPath
+                                + "' underneath '" + identifyingBaseDirectoryPath + "'");
+                        matchedRootDirs++;
+                    }
                 }
             }
 
             if (matchedRootDirs > 0)
             {
                 final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                List<IModule> nextMatched = numberOfMatchedRootDirsToModules.get(nextMatchedRootDirsAsInteger);
-                if (nextMatched == null)
-                {
-                    nextMatched = new ArrayList<>(2);
-                    numberOfMatchedRootDirsToModules.put(nextMatchedRootDirsAsInteger, nextMatched);
-                }
+                final List<IModule> nextMatched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
+                        k -> new ArrayList<>(2));
                 nextMatched.add(nextModule);
             }
         }
@@ -598,6 +614,9 @@ public final class SonargraphSensor implements Sensor
     {
         assert moduleCandidates != null && moduleCandidates
                 .size() >= 2 : "Parameter 'moduleCandidates' of method 'resolveMatchingModuleByName' must at least contain 2 elements";
+
+        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using name matching to resolve module candidate conflict with "
+                + moduleCandidates.size() + " modules");
 
         IModule matched = null;
 
@@ -627,26 +646,30 @@ public final class SonargraphSensor implements Sensor
         return matched;
     }
 
-    private IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey)
+    private IModule matchModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
     {
         assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
-        assert inputModuleKey != null && inputModuleKey.length() > 0 : "Parameter 'inputModuleKey' of method 'matchModule' must not be empty";
+        assert inputModule != null : "Parameter 'inputModule' of method 'matchModule' must not be null";
 
         IModule matched = null;
 
-        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem);
-        if (moduleCandidates.size() == 1)
+        if (fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
         {
-            matched = moduleCandidates.get(0);
-        }
-        else if (moduleCandidates.size() > 1)
-        {
-            matched = resolveMatchingModuleByName(moduleCandidates, inputModuleKey);
+            final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem);
+            if (moduleCandidates.size() == 1)
+            {
+                matched = moduleCandidates.get(0);
+            }
+            else if (moduleCandidates.size() > 1)
+            {
+                matched = resolveMatchingModuleByName(moduleCandidates, inputModule.key());
+            }
+
         }
 
         if (matched == null)
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModuleKey + "'");
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModule.key() + "'");
         }
         else
         {
@@ -725,16 +748,18 @@ public final class SonargraphSensor implements Sensor
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
         if (!softwareSystem.getModules().isEmpty())
         {
-            final IModule module = matchModule(softwareSystem, inputModule.key());
+            final IModule module = matchModule(softwareSystem, inputModule);
             if (isRoot || module != null)
             {
                 final ProcessingData data = createProcessingData();
                 if (module != null)
                 {
+                    LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
                     processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
                 }
                 if (isRoot)
                 {
+                    LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
                     processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
                 }
                 if (customMetrics != null)
@@ -762,7 +787,7 @@ public final class SonargraphSensor implements Sensor
         assert configuration != null : "'configuration' of method 'execute' must not be null";
 
         final boolean isRoot = isRootModule(configuration, inputModule);
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "root " : "") + "module '" + inputModule.key()
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "[root] " : "") + "module '" + inputModule.key()
                 + "' with project base directory '" + fileSystem.baseDir() + "'");
 
         final File reportFile = getReportFile(configuration);
