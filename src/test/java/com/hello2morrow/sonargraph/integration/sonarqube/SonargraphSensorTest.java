@@ -20,8 +20,11 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import java.io.File;
 import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import org.junit.Test;
@@ -37,15 +40,28 @@ import org.sonar.api.profiles.RulesProfile;
 
 public final class SonargraphSensorTest
 {
+    @SuppressWarnings("unchecked")
     @Test
     public void testSonargraphSensor()
     {
+        SonargraphBase.loadAndSaveCustomProperties = false;
+
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
-        sensorContextTester.fileSystem().add(TestInputFileBuilder.create("module1", "myfile.java").build());
+        sensorContextTester.fileSystem()
+                .add(TestInputFileBuilder
+                        .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .setLanguage(SonargraphBase.JAVA).build());
 
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
         sensorContextTester.setSettings(settings);
+
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
+        final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
+        for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
+        {
+            keyToMetric.put(nextMetric.getKey(), (Metric<Serializable>) nextMetric);
+        }
 
         final RulesProfile qualityProfile = RulesProfile.create();
         final MetricFinder metricFinder = new MetricFinder()
@@ -53,19 +69,28 @@ public final class SonargraphSensorTest
             @Override
             public <G extends Serializable> Metric<G> findByKey(final String key)
             {
-                return null;
+                return (Metric<G>) keyToMetric.get(key);
             }
 
             @Override
             public Collection<Metric<Serializable>> findAll(final List<String> metricKeys)
             {
-                return Collections.emptyList();
+                final Set<Metric<Serializable>> found = new LinkedHashSet<>();
+                for (final String next : metricKeys)
+                {
+                    final Metric<Serializable> foundMetric = keyToMetric.get(next);
+                    if (foundMetric != null)
+                    {
+                        found.add(foundMetric);
+                    }
+                }
+                return found;
             }
 
             @Override
             public Collection<Metric<Serializable>> findAll()
             {
-                return Collections.emptyList();
+                return keyToMetric.values();
             }
         };
 

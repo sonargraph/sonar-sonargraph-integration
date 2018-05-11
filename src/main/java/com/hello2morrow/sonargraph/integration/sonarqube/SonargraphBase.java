@@ -64,6 +64,8 @@ final class SonargraphBase
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
     static final String SCRIPT_ISSUE_PRESENTATION_NAME = "Script Issue";
 
+    static boolean loadAndSaveCustomProperties = true;//Test support
+
     private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
     private static final String CUSTOM_METRICS_DIRECTORY = System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
     private static final String CUSTOM_METRICS_FILE_NAME = "metrics.properties";
@@ -172,7 +174,10 @@ final class SonargraphBase
 
         try (FileInputStream fis = new FileInputStream(new File(CUSTOM_METRICS_PATH)))
         {
-            customMetrics.load(fis);
+            if (loadAndSaveCustomProperties)
+            {
+                customMetrics.load(fis);
+            }
             LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded custom metrics file '" + CUSTOM_METRICS_PATH + "'");
         }
         catch (final FileNotFoundException e)
@@ -202,15 +207,18 @@ final class SonargraphBase
     static void save(final Properties customMetrics)
     {
         assert customMetrics != null : "Parameter 'customMetrics' of method 'save' must not be null";
+
         try
         {
-            final File file = new File(CUSTOM_METRICS_DIRECTORY);
-            file.mkdirs();
-            customMetrics.store(new FileWriter(new File(file, CUSTOM_METRICS_FILE_NAME)), "Custom Metrics");
+            if (loadAndSaveCustomProperties)
+            {
+                final File file = new File(CUSTOM_METRICS_DIRECTORY);
+                file.mkdirs();
+                customMetrics.store(new FileWriter(new File(file, CUSTOM_METRICS_FILE_NAME)), "Custom Metrics");
+            }
 
             LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + CUSTOM_METRICS_PATH
                     + "' updated, the SonarQube server needs to be restarted");
-
         }
         catch (final IOException e)
         {

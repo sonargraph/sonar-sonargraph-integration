@@ -663,7 +663,6 @@ public final class SonargraphSensor implements Sensor
             {
                 matched = resolveMatchingModuleByName(moduleCandidates, inputModule.key());
             }
-
         }
 
         if (matched == null)

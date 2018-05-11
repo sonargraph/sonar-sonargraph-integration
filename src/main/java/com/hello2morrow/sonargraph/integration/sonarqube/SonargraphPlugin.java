@@ -30,6 +30,18 @@ import org.sonar.api.utils.Version;
                 + SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT + "')", project = true, module = true, global = true) })
 public final class SonargraphPlugin implements Plugin
 {
+    public SonargraphPlugin()
+    {
+        super();
+    }
+
+    @Override
+    public void define(final Context context)
+    {
+        context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, SonargraphProfile.class, SonargraphSensor.class);
+    }
+
+    //Test support
     static Context createTestContext()
     {
         return new Context(new SonarRuntime()
@@ -52,16 +64,5 @@ public final class SonargraphPlugin implements Plugin
                 return Version.create(6, 7);
             }
         });
-    }
-
-    public SonargraphPlugin()
-    {
-        super();
-    }
-
-    @Override
-    public void define(final Context context)
-    {
-        context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, SonargraphProfile.class, SonargraphSensor.class);
     }
 }
