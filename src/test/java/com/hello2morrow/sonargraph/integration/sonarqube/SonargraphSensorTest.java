@@ -32,6 +32,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
 
 public final class SonargraphSensorTest
@@ -42,8 +43,9 @@ public final class SonargraphSensorTest
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
         sensorContextTester.fileSystem().add(TestInputFileBuilder.create("module1", "myfile.java").build());
 
-        //        final MapSettings settings = new MapSettings();
-        //        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
+        sensorContextTester.setSettings(settings);
 
         final RulesProfile qualityProfile = RulesProfile.create();
         final MetricFinder metricFinder = new MetricFinder()
