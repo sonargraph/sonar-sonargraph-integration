@@ -213,11 +213,11 @@ public final class SonargraphSensor implements Sensor
         return builder.toString();
     }
 
-    private String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor, final IDuplicateCodeBlockIssue issue,
+    private String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor, final IDuplicateCodeBlockIssue duplicateCodeBlockIssue,
             final IDuplicateCodeBlockOccurrence occurrence, final List<IDuplicateCodeBlockOccurrence> others)
     {
         assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'createIssueDescription' must not be null";
-        assert issue != null : "Parameter 'issue' of method 'createIssueDescription' must not be null";
+        assert duplicateCodeBlockIssue != null : "Parameter 'duplicateCodeBlockIssue' of method 'createIssueDescription' must not be null";
         assert occurrence != null : "Parameter 'occurrence' of method 'createIssueDescription' must not be null";
         assert others != null : "Parameter 'others' of method 'createIssueDescription' must not be null";
 
@@ -233,14 +233,14 @@ public final class SonargraphSensor implements Sensor
             detail.append("-").append(next.getStartLine() + next.getBlockSize() - 1);
         }
 
-        return createIssueDescription(moduleInfoProcessor, issue, detail.toString());
+        return createIssueDescription(moduleInfoProcessor, duplicateCodeBlockIssue, detail.toString());
     }
 
-    private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue)
+    private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue forIssue)
     {
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
-        assert issue != null : "Parameter 'issue' of method 'createIssueDescription' must not be null";
-        return createIssueDescription(infoProcessor, issue, "");
+        assert forIssue != null : "Parameter 'forIssue' of method 'createIssueDescription' must not be null";
+        return createIssueDescription(infoProcessor, forIssue, "");
     }
 
     private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile,
