@@ -21,10 +21,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
+import org.sonar.api.batch.measure.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
+import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
 public final class SonargraphBaseTest
 {
@@ -70,5 +76,13 @@ public final class SonargraphBaseTest
         assertTrue(ignored > 0);
         assertTrue(errorWarningWorkspace == 0);
         assertTrue(script == 0);
+
+        final List<Metric<Serializable>> metrics = new ArrayList<>();
+        for (final IMetricId nextMetricId : exportMetaData.getMetricIds().values())
+        {
+            metrics.add(SonargraphBase.createMetric(nextMetricId));
+        }
+
+        assertTrue(metrics.size() > 0);
     }
 }
