@@ -20,16 +20,13 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.sonar.api.server.rule.RulesDefinition;
 
-public final class SonargraphRulesTest
+public final class SonargraphMetricsTest
 {
     @Test
-    public void testRulesDefinition()
+    public void test()
     {
-        final RulesDefinition.Context context = SonargraphRules.createTestContext();
-        final SonargraphRules sonargraphRules = new SonargraphRules();
-        sonargraphRules.define(context);
-        assertTrue(context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size() > 0);
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
+        assertTrue(sonargraphMetrics.getMetrics().size() > 0);
     }
 }

@@ -34,7 +34,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.profiles.RulesProfile;
 
-public class SonargraphSensorTest
+public final class SonargraphSensorTest
 {
     @Test
     public void testSonargraphSensor()
