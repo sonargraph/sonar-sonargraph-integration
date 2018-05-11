@@ -545,7 +545,6 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void describe(final SensorDescriptor descriptor)
     {
-        assert descriptor != null : "Parameter 'descriptor' of method 'describe' must not be null";
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
     }
 
