@@ -3,8 +3,15 @@ SonarQube Sonargraph 8 Integration Plugin
 
 2.1.5
 =====
-- Updated meta file containing metric and issue ids.
-
+- Using SonarQube API 6.7.3.
+- Removed a lot of usages of deprecated API classes/methods.
+- Updated built-in meta file containing metric and issue information.
+- Contains a built-in quality profile.
+- Project and module now show issues.
+- There is no need to specify an user-defined meta file to cover script-based issue and metrics: 
+  - Script issues are now activated (or deactivated) with the single rule 'Sonargraph Integration: Script Issue'.
+  - Script metrics are now stored in a properties file and are automatically considered after a restart of 
+    the SonarQube server.
 
 2.1.4
 =====
