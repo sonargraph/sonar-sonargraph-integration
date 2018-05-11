@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
-import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
@@ -106,5 +106,8 @@ public final class SonargraphBaseTest
         }
 
         assertEquals(customMetrics.size(), metricIds.size());
+
+        final List<Metric<Serializable>> metrics = SonargraphBase.getCustomMetrics(customMetrics);
+        assertEquals(metrics.size(), metricIds.size());
     }
 }

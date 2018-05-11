@@ -227,9 +227,10 @@ final class SonargraphBase
         throw new IllegalArgumentException("Empty input");
     }
 
-    static List<Metric<Serializable>> getCustomMetrics()
+    static List<Metric<Serializable>> getCustomMetrics(final Properties customMetrics)
     {
-        final Properties customMetrics = loadCustomMetrics();
+        assert customMetrics != null : "Parameter 'customMetrics' of method 'getCustomMetrics' must not be null";
+
         if (customMetrics.isEmpty())
         {
             return Collections.emptyList();
@@ -293,6 +294,11 @@ final class SonargraphBase
         }
 
         return metrics;
+    }
+
+    static List<Metric<Serializable>> getCustomMetrics()
+    {
+        return getCustomMetrics(loadCustomMetrics());
     }
 
     static IExportMetaData readBuiltInMetaData()
