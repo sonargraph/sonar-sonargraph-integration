@@ -18,8 +18,11 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+
+import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 
 public final class SonargraphBaseTest
 {
@@ -34,5 +37,12 @@ public final class SonargraphBaseTest
         assertEquals("sg_i.Sonargraph.NUMBER_OF_STATEMENTS",
                 SonargraphBase.createCustomMetricKeyFromStandardName("Sonargraph", "NumberOfStatements"));
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
+    }
+
+    @Test
+    public void testReadBuiltInData()
+    {
+        final IExportMetaData exportMetaData = SonargraphBase.readBuiltInMetaData();
+        assertNotNull(exportMetaData);
     }
 }
