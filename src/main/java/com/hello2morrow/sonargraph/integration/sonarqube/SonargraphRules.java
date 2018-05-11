@@ -92,8 +92,6 @@ public final class SonargraphRules implements RulesDefinition
     @Override
     public void define(final Context context)
     {
-        assert context != null : "Parameter 'context' of method 'define' must not be null";
-
         final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
         if (builtInMetaData == null)
         {

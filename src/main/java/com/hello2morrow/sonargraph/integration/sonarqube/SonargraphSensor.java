@@ -778,8 +778,6 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void execute(final SensorContext context)
     {
-        assert context != null : "Parameter 'context' of method 'execute' must not be null";
-
         final InputModule inputModule = context.module();
         assert inputModule != null : "'inputModule' of method 'execute' must not be null";
 

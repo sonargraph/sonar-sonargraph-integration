@@ -41,8 +41,6 @@ public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
     @Override
     public void define(final Context context)
     {
-        assert context != null : "Parameter 'context' of method 'define' must not be null";
-
         final BuiltInQualityProfile profile = context.profile(SonargraphBase.JAVA, SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
         if (profile == null)
         {
