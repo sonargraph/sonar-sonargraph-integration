@@ -18,14 +18,29 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import org.junit.Test;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 
 public final class SonargraphProfileTest
 {
+    static final class TestProfile implements BuiltInQualityProfilesDefinition
+    {
+        @Override
+        public void define(final Context context)
+        {
+            //Not used
+        }
+
+        static Context createTestContext()
+        {
+            return new Context();
+        }
+    }
+
     @Test
     public void test()
     {
-        final Context context = SonargraphProfile.createTestContext();
+        final Context context = TestProfile.createTestContext();
         final SonargraphProfile sonargraphProfile = new SonargraphProfile();
         sonargraphProfile.define(context);
     }

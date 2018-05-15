@@ -63,10 +63,4 @@ public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
             LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Profile created");
         }
     }
-
-    //Test support
-    static Context createTestContext()
-    {
-        return new Context();
-    }
 }
