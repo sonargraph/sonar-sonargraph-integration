@@ -605,47 +605,56 @@ public final class SonargraphSensor implements Sensor
         return isRoot;
     }
 
+    private IModule getModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
+    {
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModule' must not be null";
+        assert inputModule != null : "Parameter 'inputModule' of method 'getModule' must not be null";
+
+        if (!fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Not trying to match '" + inputModule.key()
+                    + "' - does not contain Java files");
+            return null;
+        }
+
+        if (softwareSystem.getModules().isEmpty())
+        {
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Not trying to match '" + inputModule.key()
+                    + "' - no modules defined in Sonargraph system");
+            return null;
+        }
+
+        return SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir());
+    }
+
     private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
             final boolean isRoot)
     {
         assert controller != null : "Parameter 'controller' of method 'process' must not be null";
 
+        assert controller.hasSoftwareSystem() : "No system available";
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
-        if (!softwareSystem.getModules().isEmpty())
+
+        final IModule module = getModule(softwareSystem, inputModule);
+
+        if (isRoot || module != null)
         {
-            IModule module = null;
-            if (fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
+            final ProcessingData data = createProcessingData();
+            if (module != null)
             {
-                module = SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir());
+                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
+                processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
             }
-            else
+            if (isRoot)
             {
-                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Not trying to match '" + inputModule.key()
-                        + "' - does not contain Java files");
+                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
+                processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
             }
-            if (isRoot || module != null)
+            if (customMetrics != null)
             {
-                final ProcessingData data = createProcessingData();
-                if (module != null)
-                {
-                    LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
-                    processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
-                }
-                if (isRoot)
-                {
-                    LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
-                    processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
-                }
-                if (customMetrics != null)
-                {
-                    SonargraphBase.save(customMetrics);
-                    customMetrics = null;
-                }
+                SonargraphBase.save(customMetrics);
+                customMetrics = null;
             }
-        }
-        else
-        {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No modules defined in Sonargraph system");
         }
     }
 

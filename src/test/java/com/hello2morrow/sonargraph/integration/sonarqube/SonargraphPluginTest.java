@@ -18,14 +18,52 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import org.junit.Test;
+import org.sonar.api.Plugin;
 import org.sonar.api.Plugin.Context;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
+import org.sonar.api.utils.Version;
 
 public final class SonargraphPluginTest
 {
+    static final class TestPlugin implements Plugin
+    {
+        static Context createTestContext()
+        {
+            return new Context(new SonarRuntime()
+            {
+                @Override
+                public SonarQubeSide getSonarQubeSide()
+                {
+                    return SonarQubeSide.COMPUTE_ENGINE;
+                }
+
+                @Override
+                public SonarProduct getProduct()
+                {
+                    return SonarProduct.SONARQUBE;
+                }
+
+                @Override
+                public Version getApiVersion()
+                {
+                    return Version.create(6, 7);
+                }
+            });
+        }
+
+        @Override
+        public void define(final Context context)
+        {
+            //Not used
+        }
+    }
+
     @Test
     public void test()
     {
-        final Context context = SonargraphPlugin.createTestContext();
+        final Context context = TestPlugin.createTestContext();
         final SonargraphPlugin sonargraphPlugin = new SonargraphPlugin();
         sonargraphPlugin.define(context);
     }
