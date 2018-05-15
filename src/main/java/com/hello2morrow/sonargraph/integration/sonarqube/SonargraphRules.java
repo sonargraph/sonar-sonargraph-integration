@@ -114,10 +114,4 @@ public final class SonargraphRules implements RulesDefinition
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
     }
-
-    //Test support
-    static Context createTestContext()
-    {
-        return new Context();
-    }
 }

@@ -24,10 +24,24 @@ import org.sonar.api.server.rule.RulesDefinition;
 
 public final class SonargraphRulesTest
 {
+    static final class TestRules implements RulesDefinition
+    {
+        @Override
+        public void define(final Context context)
+        {
+            //Not used
+        }
+
+        static Context createTestContext()
+        {
+            return new Context();
+        }
+    }
+
     @Test
     public void testRulesDefinition()
     {
-        final RulesDefinition.Context context = SonargraphRules.createTestContext();
+        final RulesDefinition.Context context = TestRules.createTestContext();
         final SonargraphRules sonargraphRules = new SonargraphRules();
         sonargraphRules.define(context);
         assertTrue(context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size() > 0);
