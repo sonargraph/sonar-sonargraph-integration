@@ -74,13 +74,13 @@ public final class SonargraphRules implements RulesDefinition
         case WARNING:
             severity = Severity.MINOR;
             break;
+        case INFO:
+            //$FALL-THROUGH$
         case NONE:
             //$FALL-THROUGH$
-        case INFO:
+        default:
             severity = Severity.INFO;
             break;
-        default:
-            severity = Severity.MINOR;
         }
 
         createRule(key, name, categoryTag, severity, description, repository);
