@@ -27,6 +27,7 @@ public final class SonargraphMetricsTest
     public void test()
     {
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
-        assertTrue(sonargraphMetrics.getMetrics().size() > 0);
+        assertTrue("Check the first time - init triggered", sonargraphMetrics.getMetrics().size() > 0);
+        assertTrue("Check the second time - no init necessary", sonargraphMetrics.getMetrics().size() > 0);
     }
 }
