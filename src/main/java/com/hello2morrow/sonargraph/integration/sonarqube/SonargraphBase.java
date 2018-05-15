@@ -67,12 +67,25 @@ final class SonargraphBase
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
     static final String SCRIPT_ISSUE_PRESENTATION_NAME = "Script Issue";
 
-    static boolean loadAndSaveCustomProperties = true;//Test support
+    interface ICustomMetricsPropertiesProvider
+    {
+        public default String getDirectory()
+        {
+            return System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
+        }
+
+        public default String getFileName()
+        {
+            return "metrics.properties";
+        }
+
+        default String getFilePath()
+        {
+            return getDirectory() + "/" + getFileName();
+        }
+    }
 
     private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
-    private static final String CUSTOM_METRICS_DIRECTORY = System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
-    private static final String CUSTOM_METRICS_FILE_NAME = "metrics.properties";
-    private static final String CUSTOM_METRICS_PATH = CUSTOM_METRICS_DIRECTORY + "/" + CUSTOM_METRICS_FILE_NAME;
     private static final char CUSTOM_METRIC_SEPARATOR = '|';
     private static final String CUSTOM_METRIC_INT = "INT";
     private static final String CUSTOM_METRIC_FLOAT = "FLOAT";
@@ -80,9 +93,20 @@ final class SonargraphBase
     private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
     private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
 
+    private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
+    {
+        //Default
+    };
+
     private SonargraphBase()
     {
         super();
+    }
+
+    static void setCustomMetricsPropertiesProvider(final ICustomMetricsPropertiesProvider provider)
+    {
+        assert provider != null : "Parameter 'provider' of method 'setCustomMetricsPropertiesProvider' must not be null";
+        customMetricsPropertiesProvider = provider;
     }
 
     static String createMetricKeyFromStandardName(final String metricIdName)
@@ -173,23 +197,24 @@ final class SonargraphBase
 
     static Properties loadCustomMetrics()
     {
+        assert customMetricsPropertiesProvider != null : "'customMetricsPropertiesProvider' of method 'loadCustomMetrics' must not be null";
+
         final Properties customMetrics = new Properties();
 
-        try (FileInputStream fis = new FileInputStream(new File(CUSTOM_METRICS_PATH)))
+        try (FileInputStream fis = new FileInputStream(new File(customMetricsPropertiesProvider.getFilePath())))
         {
-            if (loadAndSaveCustomProperties)
-            {
-                customMetrics.load(fis);
-            }
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded custom metrics file '" + CUSTOM_METRICS_PATH + "'");
+            customMetrics.load(fis);
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded custom metrics file '" + customMetricsPropertiesProvider.getFilePath() + "'");
         }
         catch (final FileNotFoundException e)
         {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + CUSTOM_METRICS_PATH + "' not found");
+            LOGGER.info(
+                    SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath() + "' not found");
         }
         catch (final IOException e)
         {
-            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '" + CUSTOM_METRICS_PATH + "'", e);
+            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '"
+                    + customMetricsPropertiesProvider.getFilePath() + "'", e);
         }
 
         return customMetrics;
@@ -210,22 +235,21 @@ final class SonargraphBase
     static void save(final Properties customMetrics)
     {
         assert customMetrics != null : "Parameter 'customMetrics' of method 'save' must not be null";
+        assert customMetricsPropertiesProvider != null : "'customMetricsPropertiesProvider' of method 'save' must not be null";
 
         try
         {
-            if (loadAndSaveCustomProperties)
-            {
-                final File file = new File(CUSTOM_METRICS_DIRECTORY);
-                file.mkdirs();
-                customMetrics.store(new FileWriter(new File(file, CUSTOM_METRICS_FILE_NAME)), "Custom Metrics");
-            }
+            final File file = new File(customMetricsPropertiesProvider.getDirectory());
+            file.mkdirs();
+            customMetrics.store(new FileWriter(new File(file, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
 
-            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + CUSTOM_METRICS_PATH
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath()
                     + "' updated, the SonarQube server needs to be restarted");
         }
         catch (final IOException e)
         {
-            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom metrics file '" + CUSTOM_METRICS_PATH + "'", e);
+            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom metrics file '"
+                    + customMetricsPropertiesProvider.getFilePath() + "'", e);
         }
     }
 

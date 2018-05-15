@@ -38,13 +38,22 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
 
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomMetricsPropertiesProvider;
+
 public final class SonargraphSensorTest
 {
     @SuppressWarnings("unchecked")
     @Test
     public void testSonargraphSensor()
     {
-        SonargraphBase.loadAndSaveCustomProperties = false;
+        SonargraphBase.setCustomMetricsPropertiesProvider(new ICustomMetricsPropertiesProvider()
+        {
+            @Override
+            public String getDirectory()
+            {
+                return "./." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+            }
+        });
 
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
         sensorContextTester.fileSystem()
