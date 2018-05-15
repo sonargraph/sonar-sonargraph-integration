@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<ns2:report xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" id="_0" systemId="ae8982aeeb97a896d5c5f4668d46a1ee" name="IntegrationSonarqube" version="9.7.0.100" systemPath="/Users/dietmar/Documents/Workspaces/sonar-sonargraph-integration/IntegrationSonarqube.sonargraph" timestamp="2018-05-11T14:42:54.004-05:00" currentVirtualModel="Modifiable.vm">
+<ns2:report xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" id="_0" systemId="ae8982aeeb97a896d5c5f4668d46a1ee" name="IntegrationSonarqube" version="9.7.0.100" systemPath="./IntegrationSonarqube.sonargraph" timestamp="2018-05-11T14:42:54.004-05:00" currentVirtualModel="Modifiable.vm">
     <metaData>
         <issueProviders>
             <issueProvider id="_24" name="./Test.xml" presentationName="./Test.xml"></issueProvider>
