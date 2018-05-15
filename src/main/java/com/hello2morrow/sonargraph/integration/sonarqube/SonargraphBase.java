@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
@@ -43,6 +44,8 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
+import com.hello2morrow.sonargraph.integration.access.model.IModule;
+import com.hello2morrow.sonargraph.integration.access.model.IRootDirectory;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
@@ -55,7 +58,7 @@ final class SonargraphBase
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
-    static final String RELATIVE_REPORT_PATH = SonargraphBase.CONFIG_PREFIX + ":" + "relative.report.path";
+    static final String RELATIVE_REPORT_PATH = CONFIG_PREFIX + ":" + "relative.report.path";
     static final String RELATIVE_REPORT_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
 
     static final String WORKSPACE = "Workspace";
@@ -86,7 +89,7 @@ final class SonargraphBase
     {
         assert metricIdName != null
                 && metricIdName.length() > 0 : "Parameter 'metricIdName' of method 'createMetricKeyFromStandardName' must not be empty";
-        return SonargraphBase.METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
+        return METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
     }
 
     static String createCustomMetricKeyFromStandardName(final String softwareSystemName, final String metricIdName)
@@ -95,7 +98,7 @@ final class SonargraphBase
                 .length() > 0 : "Parameter 'softwareSystemName' of method 'createCustomMetricKeyFromStandardName' must not be empty";
         assert metricIdName != null
                 && metricIdName.length() > 0 : "Parameter 'metricIdName' of method 'createCustomMetricKeyFromStandardName' must not be empty";
-        String customMetricKey = SonargraphBase.METRIC_ID_PREFIX + softwareSystemName + "."
+        String customMetricKey = METRIC_ID_PREFIX + softwareSystemName + "."
                 + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
         customMetricKey = customMetricKey.replace(CUSTOM_METRIC_SEPARATOR, ' ');
         return customMetricKey;
@@ -157,9 +160,9 @@ final class SonargraphBase
     {
         assert metricId != null : "Parameter 'metricId' of method 'createMetric' must not be null";
 
-        final Metric.Builder builder = new Metric.Builder(SonargraphBase.createMetricKeyFromStandardName(metricId.getName()),
-                metricId.getPresentationName(), metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT)
-                        .setDescription(trimDescription(metricId.getDescription())).setDomain(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+        final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
+                metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
+                        .setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
         setBestValue(metricId.getBestValue(), builder);
         setWorstValue(metricId.getWorstValue(), builder);
@@ -278,7 +281,7 @@ final class SonargraphBase
                     final String nextDescription = nextSplitValue[4];
 
                     final Metric.Builder builder = new Metric.Builder(nextMetricKey, nextMetricPresentationName, nextValueType)
-                            .setDescription(trimDescription(nextDescription)).setDomain(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+                            .setDescription(trimDescription(nextDescription)).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
                     setBestValue(nextBestValue, builder);
                     setWorstValue(nextWorstValue, builder);
                     setMetricDirection(nextBestValue, nextWorstValue, builder);
@@ -320,7 +323,7 @@ final class SonargraphBase
                 final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {
-                    LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg + " - " + result.toString());
+                    LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg + " - " + result.toString());
                 }
                 else
                 {
@@ -329,12 +332,12 @@ final class SonargraphBase
             }
             else
             {
-                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg);
+                LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg);
             }
         }
         catch (final IOException ex)
         {
-            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg, ex);
+            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg, ex);
         }
 
         return null;
@@ -387,5 +390,92 @@ final class SonargraphBase
     {
         assert issueType != null : "Parameter 'issueType' of method 'isScriptIssue' must not be null";
         return SCRIPT_ISSUE_CATEGORY.equals(issueType.getCategory().getName());
+    }
+
+    private static String getIdentifyingPath(final File file)
+    {
+        assert file != null : "Parameter 'file' of method 'getIdentifyingPath' must not be null";
+        try
+        {
+            return file.getCanonicalPath().replace('\\', '/');
+        }
+        catch (final IOException e)
+        {
+            return file.getAbsolutePath().replace('\\', '/');
+        }
+    }
+
+    private static List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    {
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModuleCandidates' must not be null";
+        assert baseDirectory != null : "Parameter 'baseDirectory' of method 'getModuleCandidates' must not be null";
+
+        final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
+        final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
+
+        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying to match module using system base directory '" + systemBaseDirectory + "'");
+
+        final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
+        for (final IModule nextModule : softwareSystem.getModules().values())
+        {
+            int matchedRootDirs = 0;
+
+            for (final IRootDirectory nextRootDirectory : nextModule.getRootDirectories())
+            {
+                final String nextRelPath = nextRootDirectory.getRelativePath();
+                final File nextAbsoluteRootDirectory = new File(systemBaseDirectory, nextRelPath);
+                if (nextAbsoluteRootDirectory.exists())
+                {
+                    final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
+                    if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
+                    {
+                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched root directory '" + nextIdentifyingPath + "' underneath '"
+                                + identifyingBaseDirectoryPath + "'");
+                        matchedRootDirs++;
+                    }
+                }
+            }
+
+            if (matchedRootDirs > 0)
+            {
+                final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
+                final List<IModule> nextMatched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
+                        k -> new ArrayList<>(2));
+                nextMatched.add(nextModule);
+            }
+        }
+
+        if (!numberOfMatchedRootDirsToModules.isEmpty())
+        {
+            return numberOfMatchedRootDirsToModules.lastEntry().getValue();
+        }
+
+        return Collections.emptyList();
+    }
+
+    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
+    {
+        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
+        assert inputModuleKey != null && inputModuleKey.length() > 0 : "Parameter 'inputModuleKey' of method 'matchModule' must not be empty";
+        assert baseDirectory != null : "Parameter 'baseDirectory' of method 'matchModule' must not be null";
+
+        IModule matched = null;
+
+        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
+        if (moduleCandidates.size() == 1)
+        {
+            matched = moduleCandidates.get(0);
+        }
+
+        if (matched == null)
+        {
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found for '" + inputModuleKey + "'");
+        }
+        else
+        {
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
+        }
+
+        return matched;
     }
 }

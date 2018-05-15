@@ -18,7 +18,6 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -74,7 +72,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IModule;
 import com.hello2morrow.sonargraph.integration.access.model.INamedElement;
 import com.hello2morrow.sonargraph.integration.access.model.INamedElementContainer;
 import com.hello2morrow.sonargraph.integration.access.model.IResolution;
-import com.hello2morrow.sonargraph.integration.access.model.IRootDirectory;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
@@ -82,7 +79,6 @@ import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 public final class SonargraphSensor implements Sensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
-    private static final String WORKSPACE_ID = SonargraphBase.WORKSPACE + ":";
 
     static final class ProcessingData
     {
@@ -548,135 +544,6 @@ public final class SonargraphSensor implements Sensor
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
     }
 
-    private String getIdentifyingPath(final File file)
-    {
-        assert file != null : "Parameter 'file' of method 'getIdentifyingPath' must not be null";
-        try
-        {
-            return file.getCanonicalPath().replace('\\', '/');
-        }
-        catch (final IOException e)
-        {
-            return file.getAbsolutePath().replace('\\', '/');
-        }
-    }
-
-    private List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem)
-    {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModuleCandidates' must not be null";
-
-        final String identifyingBaseDirectoryPath = getIdentifyingPath(fileSystem.baseDir());
-        final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying to match module using system base directory '"
-                + systemBaseDirectory + "'");
-
-        final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
-        for (final IModule nextModule : softwareSystem.getModules().values())
-        {
-            int matchedRootDirs = 0;
-
-            for (final IRootDirectory nextRootDirectory : nextModule.getRootDirectories())
-            {
-                final String nextRelPath = nextRootDirectory.getRelativePath();
-                final File nextAbsoluteRootDirectory = new File(systemBaseDirectory, nextRelPath);
-                if (nextAbsoluteRootDirectory.exists())
-                {
-                    final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
-                    if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
-                    {
-                        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched root directory '" + nextIdentifyingPath
-                                + "' underneath '" + identifyingBaseDirectoryPath + "'");
-                        matchedRootDirs++;
-                    }
-                }
-            }
-
-            if (matchedRootDirs > 0)
-            {
-                final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                final List<IModule> nextMatched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
-                        k -> new ArrayList<>(2));
-                nextMatched.add(nextModule);
-            }
-        }
-
-        if (!numberOfMatchedRootDirsToModules.isEmpty())
-        {
-            return numberOfMatchedRootDirsToModules.lastEntry().getValue();
-        }
-
-        return Collections.emptyList();
-    }
-
-    private IModule resolveMatchingModuleByName(final List<IModule> moduleCandidates, final String inputModuleKey)
-    {
-        assert moduleCandidates != null && moduleCandidates
-                .size() >= 2 : "Parameter 'moduleCandidates' of method 'resolveMatchingModuleByName' must at least contain 2 elements";
-
-        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using name matching to resolve module candidate conflict with "
-                + moduleCandidates.size() + " modules");
-
-        IModule matched = null;
-
-        for (final IModule nextMatchedModule : moduleCandidates)
-        {
-            final String nextModuleFqName = nextMatchedModule.getFqName();
-            if (nextModuleFqName == null || nextModuleFqName.isEmpty() || !nextModuleFqName.startsWith(WORKSPACE_ID))
-            {
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Ignoring invalid module fq name '" + nextModuleFqName + "'");
-            }
-            else
-            {
-                final String nextModuleName = nextModuleFqName.substring(WORKSPACE_ID.length(), nextModuleFqName.length());
-                if (inputModuleKey.indexOf(nextModuleName) != -1)
-                {
-                    if (matched != null)
-                    {
-                        //More than 1 module matched - impossible to decide
-                        matched = null;
-                        break;
-                    }
-                    matched = nextMatchedModule;
-                }
-            }
-        }
-
-        return matched;
-    }
-
-    private IModule matchModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
-    {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
-        assert inputModule != null : "Parameter 'inputModule' of method 'matchModule' must not be null";
-
-        IModule matched = null;
-
-        if (fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
-        {
-            final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem);
-            if (moduleCandidates.size() == 1)
-            {
-                matched = moduleCandidates.get(0);
-            }
-            else if (moduleCandidates.size() > 1)
-            {
-                matched = resolveMatchingModuleByName(moduleCandidates, inputModule.key());
-            }
-        }
-
-        if (matched == null)
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found in report for '" + inputModule.key() + "'");
-        }
-        else
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
-        }
-
-        return matched;
-    }
-
     private File getReportFile(final Configuration configuration)
     {
         assert configuration != null : "Parameter 'configuration' of method 'getReportFile' must not be null";
@@ -746,7 +613,16 @@ public final class SonargraphSensor implements Sensor
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
         if (!softwareSystem.getModules().isEmpty())
         {
-            final IModule module = matchModule(softwareSystem, inputModule);
+            IModule module = null;
+            if (fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
+            {
+                module = SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir());
+            }
+            else
+            {
+                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Not trying to match '" + inputModule.key()
+                        + "' - does not contain Java files");
+            }
             if (isRoot || module != null)
             {
                 final ProcessingData data = createProcessingData();

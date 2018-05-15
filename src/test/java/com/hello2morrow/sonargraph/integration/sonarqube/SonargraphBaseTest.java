@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.Properties;
 
 import org.junit.Test;
+import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
@@ -36,6 +38,7 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
+import com.hello2morrow.sonargraph.integration.access.model.IModule;
 
 public final class SonargraphBaseTest
 {
@@ -109,5 +112,22 @@ public final class SonargraphBaseTest
 
         final List<Metric<Serializable>> metrics = SonargraphBase.getCustomMetrics(customMetrics);
         assertEquals(metrics.size(), metricIds.size());
+    }
+
+    @Test
+    public void testSimpleModuleMatch()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
+        sensorContextTester.fileSystem()
+                .add(TestInputFileBuilder
+                        .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .setLanguage(SonargraphBase.JAVA).build());
+
+        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
+        assertTrue(result.isSuccess());
+
+        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir());
+        assertNotNull("No match found for 'Bla'", matched);
     }
 }
