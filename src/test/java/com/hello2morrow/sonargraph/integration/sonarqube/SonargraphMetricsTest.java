@@ -24,7 +24,7 @@ import org.junit.Test;
 public final class SonargraphMetricsTest
 {
     @Test
-    public void test()
+    public void testMetricsDefinition()
     {
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
         assertTrue("Check the first time - init triggered", sonargraphMetrics.getMetrics().size() > 0);

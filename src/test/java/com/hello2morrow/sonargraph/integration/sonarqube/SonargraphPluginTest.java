@@ -61,7 +61,7 @@ public final class SonargraphPluginTest
     }
 
     @Test
-    public void test()
+    public void testPluginDefinition()
     {
         final Context context = TestPlugin.createTestContext();
         final SonargraphPlugin sonargraphPlugin = new SonargraphPlugin();

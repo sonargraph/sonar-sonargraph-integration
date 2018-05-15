@@ -38,10 +38,12 @@ public final class SonargraphProfileTest
     }
 
     @Test
-    public void test()
+    public void testProfileDefinition()
     {
         final Context context = TestProfile.createTestContext();
         final SonargraphProfile sonargraphProfile = new SonargraphProfile();
+        sonargraphProfile.define(context);
+        //Call a second time to see if this causes a problem
         sonargraphProfile.define(context);
     }
 }
