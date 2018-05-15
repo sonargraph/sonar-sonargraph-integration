@@ -17,9 +17,6 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
@@ -93,16 +90,12 @@ public final class SonargraphRules implements RulesDefinition
     public void define(final Context context)
     {
         final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-        if (builtInMetaData == null)
-        {
-            return;
-        }
+        assert builtInMetaData != null : "'builtInMetaData' of method 'define' must not be null";
 
         final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
-        final Set<IIssueType> builtInIssueTypes = new HashSet<>(builtInMetaData.getIssueTypes().values());
-        for (final IIssueType nextIssueType : builtInIssueTypes)
+        for (final IIssueType nextIssueType : builtInMetaData.getIssueTypes().values())
         {
             if (!SonargraphBase.ignoreIssueType(nextIssueType))
             {
