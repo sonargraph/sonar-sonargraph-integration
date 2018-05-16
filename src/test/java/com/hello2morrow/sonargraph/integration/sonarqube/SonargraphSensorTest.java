@@ -27,43 +27,107 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile.Type;
+import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.rule.ActiveRule;
+import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.RuleKey;
 
 import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomMetricsPropertiesProvider;
 
 public final class SonargraphSensorTest
 {
-    @SuppressWarnings("unchecked")
-    @Test
-    public void testSonargraphSensor()
+    private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
-        SonargraphBase.setCustomMetricsPropertiesProvider(new ICustomMetricsPropertiesProvider()
+        @Override
+        public String getDirectory()
         {
-            @Override
-            public String getDirectory()
-            {
-                return "./." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
-            }
-        });
+            return "./." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+        }
+    };
 
-        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
-        sensorContextTester.fileSystem()
-                .add(TestInputFileBuilder
-                        .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
-                        .setLanguage(SonargraphBase.JAVA).build());
+    private final SensorDescriptor sensorDescriptor = new SensorDescriptor()
+    {
+        @Override
+        public SensorDescriptor requireProperty(final String... propertyKey)
+        {
+            return null;
+        }
 
-        final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
-        sensorContextTester.setSettings(settings);
+        @Override
+        public SensorDescriptor requireProperties(final String... propertyKeys)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor onlyWhenConfiguration(final Predicate<Configuration> predicate)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor onlyOnLanguages(final String... languageKeys)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor onlyOnLanguage(final String languageKey)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor onlyOnFileType(final Type type)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor name(final String sensorName)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor global()
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor createIssuesForRuleRepository(final String... repositoryKey)
+        {
+            return null;
+        }
+
+        @Override
+        public SensorDescriptor createIssuesForRuleRepositories(final String... repositoryKeys)
+        {
+            return null;
+        }
+    };
+
+    private final RulesProfile qualityProfile = RulesProfile.create();
+    private MetricFinder metricFinder;
+
+    @SuppressWarnings("unchecked")
+    @Before
+    public void before()
+    {
+        SonargraphBase.setCustomMetricsPropertiesProvider(customMetricsPropertiesProvider);
 
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
@@ -72,8 +136,7 @@ public final class SonargraphSensorTest
             keyToMetric.put(nextMetric.getKey(), (Metric<Serializable>) nextMetric);
         }
 
-        final RulesProfile qualityProfile = RulesProfile.create();
-        final MetricFinder metricFinder = new MetricFinder()
+        metricFinder = new MetricFinder()
         {
             @Override
             public <G extends Serializable> Metric<G> findByKey(final String key)
@@ -102,71 +165,80 @@ public final class SonargraphSensorTest
                 return keyToMetric.values();
             }
         };
+    }
 
-        final SensorDescriptor sensorDescriptor = new SensorDescriptor()
+    @After
+    public void after()
+    {
+        metricFinder = null;
+    }
+
+    @Test
+    public void testSonargraphSensorOnReportFile()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+
+        fileSystem.add(
+                TestInputFileBuilder.create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .setLanguage(SonargraphBase.JAVA).build());
+
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
+        sensorContextTester.setSettings(settings);
+
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        sonargraphSensor.describe(sensorDescriptor);
+        sonargraphSensor.execute(sensorContextTester);
+    }
+
+    @Test
+    public void testSonargraphSensorOnTestProject()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA).build());
+
+        sensorContextTester.setActiveRules(new ActiveRules()
         {
             @Override
-            public SensorDescriptor requireProperty(final String... propertyKey)
+            public Collection<ActiveRule> findByRepository(final String repository)
             {
+                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
-            public SensorDescriptor requireProperties(final String... propertyKeys)
+            public Collection<ActiveRule> findByLanguage(final String language)
             {
+                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
-            public SensorDescriptor onlyWhenConfiguration(final Predicate<Configuration> predicate)
+            public ActiveRule findByInternalKey(final String repository, final String internalKey)
             {
+                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
-            public SensorDescriptor onlyOnLanguages(final String... languageKeys)
+            public Collection<ActiveRule> findAll()
             {
+                // TODO Auto-generated method stub
                 return null;
             }
 
             @Override
-            public SensorDescriptor onlyOnLanguage(final String languageKey)
+            public ActiveRule find(final RuleKey ruleKey)
             {
+                // TODO Auto-generated method stub
                 return null;
             }
-
-            @Override
-            public SensorDescriptor onlyOnFileType(final Type type)
-            {
-                return null;
-            }
-
-            @Override
-            public SensorDescriptor name(final String sensorName)
-            {
-                return null;
-            }
-
-            @Override
-            public SensorDescriptor global()
-            {
-                return null;
-            }
-
-            @Override
-            public SensorDescriptor createIssuesForRuleRepository(final String... repositoryKey)
-            {
-                return null;
-            }
-
-            @Override
-            public SensorDescriptor createIssuesForRuleRepositories(final String... repositoryKeys)
-            {
-                return null;
-            }
-        };
-
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(sensorContextTester.fileSystem(), qualityProfile, metricFinder);
+        });
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }

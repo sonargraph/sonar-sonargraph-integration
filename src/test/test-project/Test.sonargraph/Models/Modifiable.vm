@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<virtualModel version="9.7.0.100">
+    <resolutions>
+        <todo assignedTo="Dietmar" priority="Medium" date="2018-05-15T20:27:56.031Z" description="Review.">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="Todo" descriptor="21fc82b546033aec4f5148f07fac0e48"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:M1:./src:com:h2m:C1.java</elementPattern>
+        </todo>
+        <rename newName="h3m" language="Java" elementType="Namespace" assignedTo="" priority="Medium" date="2018-05-15T20:28:11.898Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="RenameRefactoring" descriptor="500931367e12132a7499abf07372a49f"></type>
+            <elementPattern type="FullyQualifiedName">Workspace:M1:./src:com:h2m</elementPattern>
+        </rename>
+    </resolutions>
+</virtualModel>
