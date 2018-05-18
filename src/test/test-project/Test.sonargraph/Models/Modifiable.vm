@@ -9,5 +9,13 @@
             <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="RenameRefactoring" descriptor="500931367e12132a7499abf07372a49f"></type>
             <elementPattern type="FullyQualifiedName">Workspace:M1:./src:com:h2m</elementPattern>
         </rename>
+        <ignore date="2018-05-18T22:40:59.379Z" description="">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="ThresholdViolationError" descriptor="ThresholdViolationError:CoreLinesOfCode:SourceFile"></type>
+            <elementPattern type="Wildcard">Workspace:M1:./src:com:h2m:C2.java</elementPattern>
+        </ignore>
+        <fix assignedTo="Dietmar" priority="Medium" date="2018-05-18T22:42:08.056Z" description="Do it.">
+            <type class="com.hello2morrow.sonargraph.core.model.element.CoreIssueId" name="ThresholdViolation" descriptor="ThresholdViolation:CoreCommentLines:SourceFile"></type>
+            <elementPattern type="Wildcard">Workspace:M1:./src:com:h2m:C1.java</elementPattern>
+        </fix>
     </resolutions>
 </virtualModel>

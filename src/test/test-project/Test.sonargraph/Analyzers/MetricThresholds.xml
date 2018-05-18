@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="9.7.0.100" analyzer="MetricThresholds">
+    <stringEntry value="10:100:WARNING" name="CoreCommentLines:SourceFile"></stringEntry>
+    <stringEntry value="0:10:ERROR" name="CoreLinesOfCode:SourceFile"></stringEntry>
+</analyzerConfiguration>
