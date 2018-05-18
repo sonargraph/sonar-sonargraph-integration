@@ -142,24 +142,6 @@ public final class SonargraphSensor implements Sensor
         this.metricFinder = metricFinder;
     }
 
-    private String toLowerCase(String input, final boolean firstLower)
-    {
-        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
-
-        if (input.isEmpty())
-        {
-            return input;
-        }
-
-        if (input.length() == 1)
-        {
-            return firstLower ? input.toLowerCase() : input.toUpperCase();
-        }
-
-        input = input.toLowerCase();
-        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
-    }
-
     private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
     {
         assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
@@ -175,7 +157,8 @@ public final class SonargraphSensor implements Sensor
             switch (type)
             {
             case FIX:
-                builder.append("[").append(toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName()).append("]");
+                builder.append("[").append(SonargraphBase.toLowerCase(type.toString(), false)).append(": ").append(issue.getPresentationName())
+                        .append("]");
                 break;
             case REFACTORING:
             case TODO:
@@ -190,7 +173,7 @@ public final class SonargraphSensor implements Sensor
             }
 
             builder.append(" assignee='").append(resolution.getAssignee()).append("'");
-            builder.append(" priority='").append(toLowerCase(resolution.getPriority().toString(), false)).append("'");
+            builder.append(" priority='").append(SonargraphBase.toLowerCase(resolution.getPriority().toString(), false)).append("'");
             builder.append(" description='").append(resolution.getDescription()).append("'");
             builder.append(" created='").append(resolution.getDate()).append("'");
         }

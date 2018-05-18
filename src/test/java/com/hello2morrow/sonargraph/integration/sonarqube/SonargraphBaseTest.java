@@ -130,4 +130,20 @@ public final class SonargraphBaseTest
         final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir());
         assertNotNull("No match found for 'Bla'", matched);
     }
+
+    @Test
+    public void testToLowerCase()
+    {
+        assertEquals("", SonargraphBase.toLowerCase("", true));
+        assertEquals("i", SonargraphBase.toLowerCase("I", true));
+        assertEquals("I", SonargraphBase.toLowerCase("i", false));
+        assertEquals("input", SonargraphBase.toLowerCase("Input", true));
+        assertEquals("Input", SonargraphBase.toLowerCase("input", false));
+    }
+
+    @Test
+    public void testTrimDescription()
+    {
+        assertEquals("", SonargraphBase.trimDescription(""));
+    }
 }

@@ -128,7 +128,25 @@ final class SonargraphBase
         return customMetricKey;
     }
 
-    private static String trimDescription(final String description)
+    static String toLowerCase(String input, final boolean firstLower)
+    {
+        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
+
+        if (input.isEmpty())
+        {
+            return input;
+        }
+
+        if (input.length() == 1)
+        {
+            return firstLower ? input.toLowerCase() : input.toUpperCase();
+        }
+
+        input = input.toLowerCase();
+        return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
+    }
+
+    static String trimDescription(final String description)
     {
         if (description != null && !description.isEmpty())
         {
