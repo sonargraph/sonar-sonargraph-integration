@@ -207,6 +207,44 @@ public final class SonargraphSensorTest
     }
 
     @Test
+    public void testSonargraphSensorOnInvalidReportFile()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+
+        fileSystem.add(
+                TestInputFileBuilder.create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .setLanguage(SonargraphBase.JAVA).build());
+
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqubeInvalid.xml");
+        sensorContextTester.setSettings(settings);
+
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        sonargraphSensor.describe(sensorDescriptor);
+        sonargraphSensor.execute(sensorContextTester);
+    }
+
+    @Test
+    public void testSonargraphSensorOnEmptyReportFile()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+
+        fileSystem.add(
+                TestInputFileBuilder.create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .setLanguage(SonargraphBase.JAVA).build());
+
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqubeEmpty.xml");
+        sensorContextTester.setSettings(settings);
+
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        sonargraphSensor.describe(sensorDescriptor);
+        sonargraphSensor.execute(sensorContextTester);
+    }
+
+    @Test
     public void testSonargraphSensorOnTestProject()
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
@@ -218,6 +256,16 @@ public final class SonargraphSensorTest
         fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA)
                 .setContents(JAVA_FILE_CONTENT).build());
 
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        sonargraphSensor.describe(sensorDescriptor);
+        sonargraphSensor.execute(sensorContextTester);
+    }
+
+    @Test
+    public void testSonargraphSensorOnEmptyTestProject()
+    {
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
