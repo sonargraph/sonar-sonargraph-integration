@@ -165,8 +165,7 @@ public final class SonargraphSensor implements Sensor
                 builder.append("[").append(issue.getPresentationName()).append("]");
                 break;
             case IGNORE:
-                assert false : "Unexpected resolution type: " + type;
-                break;
+                //$FALL-THROUGH$
             default:
                 assert false : "Unhandled resolution type: " + type;
                 break;
