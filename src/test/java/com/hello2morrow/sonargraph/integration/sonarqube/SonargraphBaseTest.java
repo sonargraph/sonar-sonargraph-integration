@@ -20,6 +20,7 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.Serializable;
@@ -145,5 +146,19 @@ public final class SonargraphBaseTest
     public void testTrimDescription()
     {
         assertEquals("", SonargraphBase.trimDescription(""));
+    }
+
+    @Test
+    public void testGetNonEmptyString()
+    {
+        try
+        {
+            SonargraphBase.getNonEmptyString(null);
+            fail("This line should not be reached");
+        }
+        catch (final IllegalArgumentException e)
+        {
+            //Expected
+        }
     }
 }

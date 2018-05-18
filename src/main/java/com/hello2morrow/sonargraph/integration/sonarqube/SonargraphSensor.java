@@ -76,7 +76,6 @@ import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 
-@SuppressWarnings("deprecation")
 public final class SonargraphSensor implements Sensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);

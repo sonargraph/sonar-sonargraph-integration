@@ -271,7 +271,7 @@ final class SonargraphBase
         }
     }
 
-    private static String getNonEmptyString(final Object input)
+    static String getNonEmptyString(final Object input)
     {
         if (input instanceof String && !((String) input).isEmpty())
         {
