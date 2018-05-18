@@ -256,7 +256,10 @@ public final class SonargraphSensor implements Sensor
 
             for (final IDuplicateCodeBlockOccurrence nextOccurrence : nextOccurrences)
             {
-                if (nextOccurrence.getSourceFile().equals(sourceFile))
+                final ISourceFile nextSourceFileOfOccurence = nextOccurrence.getSourceFile();
+                final Optional<ISourceFile> nextOptionalOriginalLocation = nextSourceFileOfOccurence.getOriginalLocation();
+                if (nextSourceFileOfOccurence.equals(sourceFile)
+                        || (nextOptionalOriginalLocation.isPresent() && nextOptionalOriginalLocation.get().equals(sourceFile)))
                 {
                     final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
                     others.remove(nextOccurrence);

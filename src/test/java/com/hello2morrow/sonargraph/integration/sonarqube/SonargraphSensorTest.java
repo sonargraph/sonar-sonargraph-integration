@@ -47,6 +47,8 @@ import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomM
 
 public final class SonargraphSensorTest
 {
+    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
+
     private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
         @Override
@@ -209,8 +211,10 @@ public final class SonargraphSensorTest
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
 
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA).setContents("bla").build());
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA).setContents("bla").build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA)
+                .setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA)
+                .setContents(JAVA_FILE_CONTENT).build());
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
