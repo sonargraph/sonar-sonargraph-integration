@@ -35,14 +35,13 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
 import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Context;
 
 import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomMetricsPropertiesProvider;
 
@@ -120,14 +119,26 @@ public final class SonargraphSensorTest
         }
     };
 
-    private final RulesProfile qualityProfile = RulesProfile.create();
+    private final RulesProfile qualityProfile = RulesProfile.create(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA);
     private MetricFinder metricFinder;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "deprecation" })
     @Before
     public void before()
     {
         SonargraphBase.setCustomMetricsPropertiesProvider(customMetricsPropertiesProvider);
+
+        final SonargraphRules sonargraphRules = new SonargraphRules();
+        final Context rulesContext = SonargraphRulesTest.TestRules.createTestContext();
+        sonargraphRules.define(rulesContext);
+        final List<RulesDefinition.Rule> rules = rulesContext.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules();
+
+        for (final RulesDefinition.Rule nextRule : rules)
+        {
+            final org.sonar.api.rules.Rule nextCreated = org.sonar.api.rules.Rule.create(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key(),
+                    nextRule.name());
+            qualityProfile.addActiveRule(new org.sonar.api.rules.ActiveRule(qualityProfile, nextCreated, null));
+        }
 
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
@@ -198,46 +209,8 @@ public final class SonargraphSensorTest
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
 
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA).build());
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA).build());
-
-        sensorContextTester.setActiveRules(new ActiveRules()
-        {
-            @Override
-            public Collection<ActiveRule> findByRepository(final String repository)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            @Override
-            public Collection<ActiveRule> findByLanguage(final String language)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            @Override
-            public ActiveRule findByInternalKey(final String repository, final String internalKey)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            @Override
-            public Collection<ActiveRule> findAll()
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-
-            @Override
-            public ActiveRule find(final RuleKey ruleKey)
-            {
-                // TODO Auto-generated method stub
-                return null;
-            }
-        });
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA).setContents("bla").build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA).setContents("bla").build());
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
