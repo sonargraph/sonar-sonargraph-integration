@@ -5,5 +5,6 @@
         <description></description>
         <rootPath name="./bin"></rootPath>
         <rootPath xsi:type="ns4:xsdSourceRootPath" name="./src"></rootPath>
+        <rootPath xsi:type="ns4:xsdSourceRootPath" name="./src2"></rootPath>
     </module>
 </ns2:softwareSystem>
