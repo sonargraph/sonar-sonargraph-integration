@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
@@ -209,12 +210,14 @@ public final class SonargraphSensorTest
     public void testSonargraphSensorOnTestProject()
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
-        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
 
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+        fileSystem.add(new DefaultInputDir("projectKey", "src/com/h2m"));
         fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA)
                 .setContents(JAVA_FILE_CONTENT).build());
         fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA)
                 .setContents(JAVA_FILE_CONTENT).build());
+
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
