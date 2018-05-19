@@ -45,10 +45,6 @@ public final class SonargraphMetrics implements Metrics
 
     private void getMetricsForLevel(final IExportMetaData builtInMetaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
     {
-        assert builtInMetaData != null : "Parameter 'builtInMetaData' of method 'getMetricsForLevel' must not be null";
-        assert level != null : "Parameter 'level' of method 'getMetricsForLevel' must not be null";
-        assert metricMap != null : "Parameter 'metricMap' of method 'getMetricsForLevel' must not be null";
-
         for (final IMetricId next : builtInMetaData.getMetricIdsForLevel(level))
         {
             if (!metricMap.containsKey(next.getName()))
@@ -65,8 +61,6 @@ public final class SonargraphMetrics implements Metrics
         if (metrics == null)
         {
             final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-            assert builtInMetaData != null : "'builtInMetaData' of method 'getMetrics' must not be null";
-
             final Map<String, IMetricId> predefinedMetrics = new HashMap<>();
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), predefinedMetrics);
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
