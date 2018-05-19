@@ -89,33 +89,27 @@ public final class SonargraphSensor implements Sensor
 
         ProcessingData(final Map<String, ActiveRule> activeRules, final Map<String, Metric<Serializable>> metrics)
         {
-            assert activeRules != null : "Parameter 'activeRules' of method 'ProcessingData' must not be null";
-            assert metrics != null : "Parameter 'metrics' of method 'ProcessingData' must not be null";
             this.activeRules = activeRules;
             this.metrics = metrics;
         }
 
         boolean issueAlreadyCreated(final String ruleKey)
         {
-            assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'issueAlreadyCreated' must not be empty";
             return createdIssues.contains(ruleKey);
         }
 
         void addCreatedIssue(final String ruleKey)
         {
-            assert ruleKey != null && ruleKey.length() > 0 : "Parameter 'ruleKey' of method 'addCreatedIssue' must not be empty";
             createdIssues.add(ruleKey);
         }
 
         boolean measureAlreadyCreated(final String metricKey)
         {
-            assert metricKey != null && metricKey.length() > 0 : "Parameter 'metricKey' of method 'measureAlreadyCreated' must not be empty";
             return createdMeasures.contains(metricKey);
         }
 
         void addCreatedMeasure(final String metricKey)
         {
-            assert metricKey != null && metricKey.length() > 0 : "Parameter 'metricKey' of method 'addCreatedMeasure' must not be empty";
             createdMeasures.add(metricKey);
         }
 
@@ -144,10 +138,6 @@ public final class SonargraphSensor implements Sensor
 
     private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
     {
-        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
-        assert issue != null : "Parameter 'issue' of method 'createIssueDescription' must not be null";
-        assert detail != null : "Parameter 'detail' of method 'createIssueDescription' must not be null";
-
         final StringBuilder builder = new StringBuilder();
 
         final IResolution resolution = infoProcessor.getResolution(issue);
@@ -194,11 +184,6 @@ public final class SonargraphSensor implements Sensor
     private String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor, final IDuplicateCodeBlockIssue duplicateCodeBlockIssue,
             final IDuplicateCodeBlockOccurrence occurrence, final List<IDuplicateCodeBlockOccurrence> others)
     {
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'createIssueDescription' must not be null";
-        assert duplicateCodeBlockIssue != null : "Parameter 'duplicateCodeBlockIssue' of method 'createIssueDescription' must not be null";
-        assert occurrence != null : "Parameter 'occurrence' of method 'createIssueDescription' must not be null";
-        assert others != null : "Parameter 'others' of method 'createIssueDescription' must not be null";
-
         final StringBuilder detail = new StringBuilder();
         detail.append("Line(s) ").append(occurrence.getStartLine()).append("-").append(occurrence.getStartLine() + occurrence.getBlockSize() - 1)
                 .append(" duplicate of ");
@@ -216,21 +201,12 @@ public final class SonargraphSensor implements Sensor
 
     private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue forIssue)
     {
-        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'createIssueDescription' must not be null";
-        assert forIssue != null : "Parameter 'forIssue' of method 'createIssueDescription' must not be null";
         return createIssueDescription(infoProcessor, forIssue, "");
     }
 
     private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile,
             final InputPath inputPath, final IIssue issue, final ActiveRule rule)
     {
-        assert context != null : "Parameter 'context' of method 'createSourceFileIssues' must not be null";
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'createSourceFileIssues' must not be null";
-        assert sourceFile != null : "Parameter 'sourceFile' of method 'createSourceFileIssues' must not be null";
-        assert inputPath != null : "Parameter 'inputPath' of method 'createSourceFileIssues' must not be null";
-        assert issue != null : "Parameter 'issue' of method 'createSourceFileIssues' must not be null";
-        assert rule != null : "Parameter 'rule' of method 'createSourceFileIssues' must not be null";
-
         if (issue instanceof IDuplicateCodeBlockIssue)
         {
             final IDuplicateCodeBlockIssue nextDuplicateCodeBlockIssue = (IDuplicateCodeBlockIssue) issue;
@@ -266,11 +242,6 @@ public final class SonargraphSensor implements Sensor
     private void addIssuesToSourceFile(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
             final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
     {
-        assert context != null : "Parameter 'context' of method 'addIssuesToSourceFile' must not be null";
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
-        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
-        assert sourceFile != null : "Parameter 'sourceFile' of method 'addIssuesToSourceFile' must not be null";
-
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
         final String sourceRelPath = sourceFile.getRelativePath();
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
@@ -298,11 +269,6 @@ public final class SonargraphSensor implements Sensor
     private void addIssuesToDirectory(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
             final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final String relDirectory, final List<IIssue> issues)
     {
-        assert context != null : "Parameter 'context' of method 'addIssuesToDirectory' must not be null";
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'addIssuesToSourceFile' must not be null";
-        assert issueTypeToRuleMap != null : "Parameter 'issueTypeToRuleMap' of method 'addIssuesToSourceFile' must not be null";
-        assert relDirectory != null && relDirectory.length() > 0 : "Parameter 'relDirectory' of method 'addIssuesToDirectory' must not be empty";
-
         final String directoryLocation = Paths.get(baseDir, relDirectory).normalize().toString();
         final InputDir inputDir = fileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryLocation)));
 
@@ -327,12 +293,6 @@ public final class SonargraphSensor implements Sensor
     private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
             final ISystemInfoProcessor systemInfoProcessor, final ProcessingData data)
     {
-        assert context != null : "Parameter 'context' of method 'processSystem' must not be null";
-        assert inputComponent != null : "Parameter 'inputComponent' of method 'processSystem' must not be null";
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processSystem' must not be null";
-        assert systemInfoProcessor != null : "Parameter 'systemInfoProcessor' of method 'processSystem' must not be null";
-        assert data != null : "Parameter 'data' of method 'processSystem' must not be null";
-
         final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
         if (systemLevelOptional.isPresent())
         {
@@ -374,13 +334,6 @@ public final class SonargraphSensor implements Sensor
     private final void processModule(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem system,
             final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final ProcessingData data)
     {
-        assert context != null : "Parameter 'context' of method 'processModule' must not be null";
-        assert inputComponent != null : "Parameter 'inputComponent' of method 'processModule' must not be null";
-        assert system != null : "Parameter 'system' of method 'processModule' must not be null";
-        assert module != null : "Parameter 'module' of method 'processModule' must not be null";
-        assert moduleInfoProcessor != null : "Parameter 'moduleInfoProcessor' of method 'processModule' must not be null";
-        assert data != null : "Parameter 'data' of method 'processModule' must not be null";
-
         final Optional<IMetricLevel> metricLevelOptional = moduleInfoProcessor.getMetricLevels().stream()
                 .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
         if (metricLevelOptional.isPresent())
@@ -426,11 +379,6 @@ public final class SonargraphSensor implements Sensor
     private void createNewMeasure(final SensorContext context, final InputComponent inputComponent, final Metric<? extends Serializable> metric,
             final IMetricValue metricValue)
     {
-        assert context != null : "Parameter 'context' of method 'createNewMeasure' must not be null";
-        assert inputComponent != null : "Parameter 'inputComponent' of method 'createNewMeasure' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'createNewMeasure' must not be null";
-        assert metricValue != null : "Parameter 'metricValue' of method 'createNewMeasure' must not be null";
-
         if (metricValue.getId().isFloat())
         {
             final NewMeasure<Double> newMeasure = context.<Double> newMeasure();
@@ -452,14 +400,6 @@ public final class SonargraphSensor implements Sensor
     private void processMetrics(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
             final INamedElementContainer container, final IInfoProcessor infoProcessor, final IMetricLevel level, final ProcessingData data)
     {
-        assert context != null : "Parameter 'context' of method 'processMetrics' must not be null";
-        assert inputComponent != null : "Parameter 'inputComponent' of method 'processMetrics' must not be null";
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'processMetrics' must not be null";
-        assert container != null : "Parameter 'container' of method 'processMetrics' must not be null";
-        assert infoProcessor != null : "Parameter 'infoProcessor' of method 'processMetrics' must not be null";
-        assert level != null : "Parameter 'level' of method 'processMetrics' must not be null";
-        assert data != null : "Parameter 'data' of method 'processMetrics' must not be null";
-
         for (final IMetricId nextMetricId : infoProcessor.getMetricIdsForLevel(level))
         {
             String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
@@ -502,11 +442,6 @@ public final class SonargraphSensor implements Sensor
     private void createIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
             final Consumer<NewIssueLocation> consumer)
     {
-        assert context != null : "Parameter 'context' of method 'createIssue' must not be null";
-        assert inputComponent != null : "Parameter 'inputComponent' of method 'createIssue' must not be null";
-        assert rule != null : "Parameter 'rule' of method 'createIssue' must not be null";
-        assert msg != null && msg.length() > 0 : "Parameter 'msg' of method 'createIssue' must not be empty";
-
         final NewIssue newIssue = context.newIssue();
         newIssue.forRule(rule.getRule().ruleKey());
 
@@ -531,8 +466,6 @@ public final class SonargraphSensor implements Sensor
 
     private File getReportFile(final Configuration configuration)
     {
-        assert configuration != null : "Parameter 'configuration' of method 'getReportFile' must not be null";
-
         String relativeReportPath = null;
 
         final Optional<String> configuredRelativeReportPathOptional = configuration.get(SonargraphBase.RELATIVE_REPORT_PATH);
@@ -578,9 +511,6 @@ public final class SonargraphSensor implements Sensor
 
     private boolean isRootModule(final Configuration configuration, final InputModule inputModule)
     {
-        assert configuration != null : "Parameter 'configuration' of method 'isRootModule' must not be null";
-        assert inputModule != null : "Parameter 'inputModule' of method 'isRootModule' must not be null";
-
         boolean isRoot = true;
         final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
         if (projectKeyOptional.isPresent() && !projectKeyOptional.get().equals(inputModule.key()))
@@ -592,9 +522,6 @@ public final class SonargraphSensor implements Sensor
 
     private IModule getModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
     {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModule' must not be null";
-        assert inputModule != null : "Parameter 'inputModule' of method 'getModule' must not be null";
-
         if (!fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
         {
             LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Not trying to match '" + inputModule.key()
@@ -615,9 +542,6 @@ public final class SonargraphSensor implements Sensor
     private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
             final boolean isRoot)
     {
-        assert controller != null : "Parameter 'controller' of method 'process' must not be null";
-
-        assert controller.hasSoftwareSystem() : "No system available";
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
 
         final IModule module = getModule(softwareSystem, inputModule);
@@ -647,10 +571,7 @@ public final class SonargraphSensor implements Sensor
     public void execute(final SensorContext context)
     {
         final InputModule inputModule = context.module();
-        assert inputModule != null : "'inputModule' of method 'execute' must not be null";
-
         final Configuration configuration = context.config();
-        assert configuration != null : "'configuration' of method 'execute' must not be null";
 
         final boolean isRoot = isRootModule(configuration, inputModule);
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "[root] " : "") + "module '" + inputModule.key()

@@ -135,6 +135,7 @@ public final class SonargraphBaseTest
     @Test
     public void testToLowerCase()
     {
+        assertEquals("", SonargraphBase.toLowerCase(null, true));
         assertEquals("", SonargraphBase.toLowerCase("", true));
         assertEquals("i", SonargraphBase.toLowerCase("I", true));
         assertEquals("I", SonargraphBase.toLowerCase("i", false));

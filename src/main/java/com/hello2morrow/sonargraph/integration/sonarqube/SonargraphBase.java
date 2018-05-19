@@ -105,23 +105,16 @@ final class SonargraphBase
 
     static void setCustomMetricsPropertiesProvider(final ICustomMetricsPropertiesProvider provider)
     {
-        assert provider != null : "Parameter 'provider' of method 'setCustomMetricsPropertiesProvider' must not be null";
         customMetricsPropertiesProvider = provider;
     }
 
     static String createMetricKeyFromStandardName(final String metricIdName)
     {
-        assert metricIdName != null
-                && metricIdName.length() > 0 : "Parameter 'metricIdName' of method 'createMetricKeyFromStandardName' must not be empty";
         return METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
     }
 
     static String createCustomMetricKeyFromStandardName(final String softwareSystemName, final String metricIdName)
     {
-        assert softwareSystemName != null && softwareSystemName
-                .length() > 0 : "Parameter 'softwareSystemName' of method 'createCustomMetricKeyFromStandardName' must not be empty";
-        assert metricIdName != null
-                && metricIdName.length() > 0 : "Parameter 'metricIdName' of method 'createCustomMetricKeyFromStandardName' must not be empty";
         String customMetricKey = METRIC_ID_PREFIX + softwareSystemName + "."
                 + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
         customMetricKey = customMetricKey.replace(CUSTOM_METRIC_SEPARATOR, ' ');
@@ -130,18 +123,18 @@ final class SonargraphBase
 
     static String toLowerCase(String input, final boolean firstLower)
     {
-        assert input != null : "Parameter 'input' of method 'toLowerCase' must not be null";
-
+        if (input == null)
+        {
+            return "";
+        }
         if (input.isEmpty())
         {
             return input;
         }
-
         if (input.length() == 1)
         {
             return firstLower ? input.toLowerCase() : input.toUpperCase();
         }
-
         input = input.toLowerCase();
         return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
     }
@@ -158,10 +151,6 @@ final class SonargraphBase
 
     private static void setMetricDirection(final Double bestValue, final Double worstValue, final Metric.Builder metric)
     {
-        assert bestValue != null : "Parameter 'bestValue' of method 'setMetricDirection' must not be null";
-        assert worstValue != null : "Parameter 'worstValue' of method 'setMetricDirection' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setMetricDirection' must not be null";
-
         if (bestValue > worstValue)
         {
             metric.setDirection(Metric.DIRECTION_BETTER);
@@ -178,9 +167,6 @@ final class SonargraphBase
 
     private static void setWorstValue(final Double worstValue, final Metric.Builder metric)
     {
-        assert worstValue != null : "Parameter 'worstValue' of method 'setWorstValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setWorstValue' must not be null";
-
         if (!worstValue.equals(Double.NaN) && !worstValue.equals(Double.POSITIVE_INFINITY) && !worstValue.equals(Double.NEGATIVE_INFINITY))
         {
             metric.setWorstValue(worstValue);
@@ -189,9 +175,6 @@ final class SonargraphBase
 
     private static void setBestValue(final Double bestValue, final Metric.Builder metric)
     {
-        assert bestValue != null : "Parameter 'bestValue' of method 'setBestValue' must not be null";
-        assert metric != null : "Parameter 'metric' of method 'setBestValue' must not be null";
-
         if (!bestValue.equals(Double.NaN) && !bestValue.equals(Double.POSITIVE_INFINITY) && !bestValue.equals(Double.NEGATIVE_INFINITY))
         {
             metric.setBestValue(bestValue);
@@ -200,8 +183,6 @@ final class SonargraphBase
 
     static Metric<Serializable> createMetric(final IMetricId metricId)
     {
-        assert metricId != null : "Parameter 'metricId' of method 'createMetric' must not be null";
-
         final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
                 metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
                         .setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
@@ -215,8 +196,6 @@ final class SonargraphBase
 
     static Properties loadCustomMetrics()
     {
-        assert customMetricsPropertiesProvider != null : "'customMetricsPropertiesProvider' of method 'loadCustomMetrics' must not be null";
-
         final Properties customMetrics = new Properties();
 
         try (FileInputStream fis = new FileInputStream(new File(customMetricsPropertiesProvider.getFilePath())))
@@ -240,10 +219,6 @@ final class SonargraphBase
 
     static void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetrics)
     {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'addCustomMetric' must not be null";
-        assert metricId != null : "Parameter 'metricId' of method 'addCustomMetric' must not be null";
-        assert customMetrics != null : "Parameter 'customMetrics' of method 'addCustomMetric' must not be null";
-
         customMetrics.put(softwareSystem.getName() + CUSTOM_METRIC_SEPARATOR + metricId.getName(),
                 metricId.getPresentationName() + CUSTOM_METRIC_SEPARATOR + (metricId.isFloat() ? CUSTOM_METRIC_FLOAT : CUSTOM_METRIC_INT)
                         + CUSTOM_METRIC_SEPARATOR + metricId.getBestValue() + CUSTOM_METRIC_SEPARATOR + metricId.getWorstValue()
@@ -252,9 +227,6 @@ final class SonargraphBase
 
     static void save(final Properties customMetrics)
     {
-        assert customMetrics != null : "Parameter 'customMetrics' of method 'save' must not be null";
-        assert customMetricsPropertiesProvider != null : "'customMetricsPropertiesProvider' of method 'save' must not be null";
-
         try
         {
             final File file = new File(customMetricsPropertiesProvider.getDirectory());
@@ -282,8 +254,6 @@ final class SonargraphBase
 
     static List<Metric<Serializable>> getCustomMetrics(final Properties customMetrics)
     {
-        assert customMetrics != null : "Parameter 'customMetrics' of method 'getCustomMetrics' must not be null";
-
         if (customMetrics.isEmpty())
         {
             return Collections.emptyList();
@@ -387,27 +357,21 @@ final class SonargraphBase
 
     static String createRuleKey(final String issueTypeName)
     {
-        assert issueTypeName != null && issueTypeName.length() > 0 : "Parameter 'issueTypeName' of method 'createRuleKey' must not be empty";
         return Utility.convertMixedCaseStringToConstantName(issueTypeName).replace(" ", "_");
     }
 
     static String createRuleName(final String issueTypePresentationName)
     {
-        assert issueTypePresentationName != null
-                && issueTypePresentationName.length() > 0 : "Parameter 'issueTypePresentationName' of method 'createRuleName' must not be empty";
         return SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + issueTypePresentationName;
     }
 
     static String createRuleCategoryTag(final String categoryPresentationName)
     {
-        assert categoryPresentationName != null
-                && categoryPresentationName.length() > 0 : "Parameter 'categoryPresentationName' of method 'createRuleCategoryTag' must not be empty";
         return categoryPresentationName.replace(' ', '-').toLowerCase();
     }
 
     static boolean ignoreIssueType(final IIssueType issueType)
     {
-        assert issueType != null : "Parameter 'issueType' of method 'ignoreIssueType' must not be null";
         final String categoryName = issueType.getCategory().getName();
 
         for (final String next : IGNORE_ISSUE_TYPE_CATEGORIES)
@@ -423,20 +387,17 @@ final class SonargraphBase
 
     static boolean isErrorOrWarningWorkspoceIssue(final IIssueType issueType)
     {
-        assert issueType != null : "Parameter 'issueType' of method 'isErrorOrWarningWorkspoceIssue' must not be null";
         return WORKSPACE.equals(issueType.getCategory().getName())
                 && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
     }
 
     static boolean isScriptIssue(final IIssueType issueType)
     {
-        assert issueType != null : "Parameter 'issueType' of method 'isScriptIssue' must not be null";
         return SCRIPT_ISSUE_CATEGORY.equals(issueType.getCategory().getName());
     }
 
     private static String getIdentifyingPath(final File file)
     {
-        assert file != null : "Parameter 'file' of method 'getIdentifyingPath' must not be null";
         try
         {
             return file.getCanonicalPath().replace('\\', '/');
@@ -449,9 +410,6 @@ final class SonargraphBase
 
     private static List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'getModuleCandidates' must not be null";
-        assert baseDirectory != null : "Parameter 'baseDirectory' of method 'getModuleCandidates' must not be null";
-
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
 
@@ -497,10 +455,6 @@ final class SonargraphBase
 
     static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
     {
-        assert softwareSystem != null : "Parameter 'softwareSystem' of method 'matchModule' must not be null";
-        assert inputModuleKey != null && inputModuleKey.length() > 0 : "Parameter 'inputModuleKey' of method 'matchModule' must not be empty";
-        assert baseDirectory != null : "Parameter 'baseDirectory' of method 'matchModule' must not be null";
-
         IModule matched = null;
 
         final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
