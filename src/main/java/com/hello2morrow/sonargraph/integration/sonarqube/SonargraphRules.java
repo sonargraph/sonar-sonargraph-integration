@@ -38,12 +38,6 @@ public final class SonargraphRules implements RulesDefinition
     private void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
             final NewRepository repository)
     {
-        assert key != null && key.length() > 0 : "Parameter 'key' of method 'createRule' must not be empty";
-        assert name != null && name.length() > 0 : "Parameter 'name' of method 'createRule' must not be empty";
-        assert categoryTag != null && categoryTag.length() > 0 : "Parameter 'categoryTag' of method 'createRule' must not be empty";
-        assert severity != null && severity.length() > 0 : "Parameter 'severity' of method 'createRule' must not be empty";
-        assert description != null && description.length() > 0 : "Parameter 'description' of method 'createRule' must not be empty";
-
         final NewRule rule = repository.createRule(key);
         rule.setName(name);
         rule.addTags(SonargraphBase.SONARGRAPH_RULE_TAG, categoryTag);
@@ -53,9 +47,6 @@ public final class SonargraphRules implements RulesDefinition
 
     private void createRule(final IIssueType issueType, final NewRepository repository)
     {
-        assert issueType != null : "Parameter 'issueType' of method 'createRule' must not be null";
-        assert repository != null : "Parameter 'repository' of method 'createRule' must not be null";
-
         final String key = SonargraphBase.createRuleKey(issueType.getName());
         final String name = SonargraphBase.createRuleName(issueType.getPresentationName());
         final IIssueCategory category = issueType.getCategory();
@@ -90,7 +81,6 @@ public final class SonargraphRules implements RulesDefinition
     public void define(final Context context)
     {
         final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-        assert builtInMetaData != null : "'builtInMetaData' of method 'define' must not be null";
 
         final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
