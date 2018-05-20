@@ -163,5 +163,15 @@ public final class SonargraphBaseTest
         {
             //Expected
         }
+
+        try
+        {
+            SonargraphBase.getNonEmptyString(Integer.valueOf(42));
+            fail("This line should not be reached");
+        }
+        catch (final IllegalArgumentException e)
+        {
+            //Expected
+        }
     }
 }
