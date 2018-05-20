@@ -468,7 +468,7 @@ public final class SonargraphSensor implements Sensor
     {
         String relativeReportPath = null;
 
-        final Optional<String> configuredRelativeReportPathOptional = configuration.get(SonargraphBase.RELATIVE_REPORT_PATH);
+        final Optional<String> configuredRelativeReportPathOptional = configuration.get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
         if (configuredRelativeReportPathOptional.isPresent())
         {
             final String configuredRelativeReportPath = configuredRelativeReportPathOptional.get();
@@ -480,19 +480,19 @@ public final class SonargraphSensor implements Sensor
 
         if (relativeReportPath == null)
         {
-            relativeReportPath = SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT;
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Relative report path not configured - using default '"
-                    + SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT + "'");
+            relativeReportPath = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file path not configured - using default '"
+                    + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'");
         }
 
         final File reportFile = fileSystem.resolvePath(relativeReportPath);
         if (reportFile.exists())
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using report file '" + reportFile.getAbsolutePath() + "'");
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using XML report file '" + reportFile.getAbsolutePath() + "'");
             return reportFile;
         }
 
-        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Report file '" + reportFile.getAbsolutePath() + "' not found");
+        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file '" + reportFile.getAbsolutePath() + "' not found");
         return null;
     }
 
@@ -509,15 +509,15 @@ public final class SonargraphSensor implements Sensor
         return new ProcessingData(activeRules, metrics);
     }
 
-    private boolean isRootModule(final Configuration configuration, final InputModule inputModule)
+    private boolean isProject(final Configuration configuration, final InputModule inputModule)
     {
-        boolean isRoot = true;
+        boolean isProject = true;
         final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
         if (projectKeyOptional.isPresent() && !projectKeyOptional.get().equals(inputModule.key()))
         {
-            isRoot = false;
+            isProject = false;
         }
-        return isRoot;
+        return isProject;
     }
 
     private IModule getModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
@@ -573,20 +573,20 @@ public final class SonargraphSensor implements Sensor
         final InputModule inputModule = context.module();
         final Configuration configuration = context.config();
 
-        final boolean isRoot = isRootModule(configuration, inputModule);
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isRoot ? "[root] " : "") + "module '" + inputModule.key()
+        final boolean isProject = isProject(configuration, inputModule);
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isProject ? "project '" : "module '") + inputModule.key()
                 + "' with project base directory '" + fileSystem.baseDir() + "'");
 
         final File reportFile = getReportFile(configuration);
         if (reportFile != null)
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading report from '" + reportFile.getAbsolutePath() + "'");
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading XML report file '" + reportFile.getAbsolutePath() + "'");
 
             final ISonargraphSystemController controller = ControllerAccess.createController();
             final Result result = controller.loadSystemReport(reportFile);
             if (result.isSuccess())
             {
-                process(context, controller, inputModule, isRoot);
+                process(context, controller, inputModule, isProject);
             }
             else
             {

@@ -198,7 +198,7 @@ public final class SonargraphSensorTest
                         .setLanguage(SonargraphBase.JAVA).build());
 
         final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqube.xml");
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqube.xml");
         sensorContextTester.setSettings(settings);
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
@@ -217,7 +217,7 @@ public final class SonargraphSensorTest
                         .setLanguage(SonargraphBase.JAVA).build());
 
         final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqubeInvalid.xml");
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeInvalid.xml");
         sensorContextTester.setSettings(settings);
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
@@ -236,7 +236,7 @@ public final class SonargraphSensorTest
                         .setLanguage(SonargraphBase.JAVA).build());
 
         final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.RELATIVE_REPORT_PATH, "./src/test/report/IntegrationSonarqubeEmpty.xml");
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeEmpty.xml");
         sensorContextTester.setSettings(settings);
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);

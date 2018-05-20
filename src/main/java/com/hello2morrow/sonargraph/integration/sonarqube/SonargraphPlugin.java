@@ -22,8 +22,12 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
 @Properties({
-        @Property(key = SonargraphBase.RELATIVE_REPORT_PATH, defaultValue = SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT, name = "Relative path to the Sonargraph xml report file (default is '"
-                + SonargraphBase.RELATIVE_REPORT_PATH_DEFAULT + "')", project = true, module = true, global = true) })
+        @Property(key = SonargraphBase.XML_REPORT_FILE_PATH_KEY, defaultValue = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT, name = "XML report file path", project = true, module = false, global = false, description = ""
+                + "The Sonargraph integration reads the XML report file and adds the issues and metrics to the corresponding elements."
+                + " Per default the XML report file is expected under each module (project and sub-modules) at the relative path '"
+                + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'."
+                + " It is also possible to use an absolute path, in that case you need to provide the XML report file only at 1 location."
+                + " In both cases make sure that the xml report file is there before running the SonarQube analysis scan.") })
 public final class SonargraphPlugin implements Plugin
 {
     public SonargraphPlugin()
