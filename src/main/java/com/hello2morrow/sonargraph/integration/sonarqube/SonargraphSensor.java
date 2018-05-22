@@ -19,6 +19,7 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
@@ -509,14 +511,26 @@ public final class SonargraphSensor implements Sensor
         return new ProcessingData(activeRules, metrics);
     }
 
-    private boolean isProject(final Configuration configuration, final InputModule inputModule)
+    private boolean isProject(final InputModule inputModule)
     {
         boolean isProject = true;
-        final Optional<String> projectKeyOptional = configuration.get("sonar.projectKey");
-        if (projectKeyOptional.isPresent() && !projectKeyOptional.get().equals(inputModule.key()))
+
+        try
         {
-            isProject = false;
+            final Method definitionMethod = inputModule.getClass().getMethod("definition");
+            final Object returned = definitionMethod.invoke(inputModule);
+            if (returned instanceof ProjectDefinition)
+            {
+                isProject = ((ProjectDefinition) returned).getParent() == null;
+                return isProject;
+            }
         }
+        catch (final Exception e)
+        {
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to determine if input module of class '"
+                    + inputModule.getClass().getName() + "' is project");
+        }
+
         return isProject;
     }
 
@@ -540,13 +554,11 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
-            final boolean isRoot)
+            final boolean isProject)
     {
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
-
         final IModule module = getModule(softwareSystem, inputModule);
-
-        if (isRoot || module != null)
+        if (isProject || module != null)
         {
             final ProcessingData data = createProcessingData();
             if (module != null)
@@ -554,7 +566,7 @@ public final class SonargraphSensor implements Sensor
                 LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
                 processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
             }
-            if (isRoot)
+            if (isProject)
             {
                 LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
                 processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
@@ -571,13 +583,12 @@ public final class SonargraphSensor implements Sensor
     public void execute(final SensorContext context)
     {
         final InputModule inputModule = context.module();
-        final Configuration configuration = context.config();
+        final boolean isProject = isProject(inputModule);
 
-        final boolean isProject = isProject(configuration, inputModule);
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isProject ? "project '" : "module '") + inputModule.key()
-                + "' with project base directory '" + fileSystem.baseDir() + "'");
+                + "'");
 
-        final File reportFile = getReportFile(configuration);
+        final File reportFile = getReportFile(context.config());
         if (reportFile != null)
         {
             LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading XML report file '" + reportFile.getAbsolutePath() + "'");
@@ -594,6 +605,7 @@ public final class SonargraphSensor implements Sensor
             }
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing module '" + inputModule.key() + "'");
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing " + (isProject ? "project '" : "module '")
+                + inputModule.key() + "'");
     }
 }
