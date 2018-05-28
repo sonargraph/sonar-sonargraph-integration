@@ -1,8 +1,8 @@
 /build.eclipse/
 /target/
-**/target/
 **/.sonar
 /sonargraph_access*.log
 /src/test/AlarmClockMain/**/build
 /src/test/AlarmClockMain/.gradle
 *.log
+.sonargraphintegration
