@@ -214,6 +214,27 @@
             </lifecycleMappingMetadata>
           </configuration>
         </plugin>
+        <plugin>
+            <groupId>com.hello2morrow</groupId>
+            <artifactId>sonargraph-maven-plugin</artifactId>
+            <version>9.7.0</version>
+            <configuration>
+                <systemDirectory>${basedir}/IntegrationSonarqube.sonargraph</systemDirectory>
+                <activationCode></activationCode>
+                <autoUpdate>true</autoUpdate>
+                <prepareForSonarQube>true</prepareForSonarQube>
+                <failSet>
+                    <failOnEmptyWorkspace>false</failOnEmptyWorkspace>
+                </failSet>
+            </configuration>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>create-report</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
       </plugins>
     </pluginManagement>
   </build>
