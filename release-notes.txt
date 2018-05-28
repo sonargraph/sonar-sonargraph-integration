@@ -3,7 +3,7 @@ SonarQube Sonargraph 8 Integration Plugin
 
 2.1.5
 =====
-- Now the SonarQube API 6.7.3. is used.
+- Now the SonarQube API 6.7.3 is used.
 - Removed a lot of usages of deprecated API classes/methods.
 - Updated built-in meta file containing metric and issue information.
 - Contains a built-in quality profile.
