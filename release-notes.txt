@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+2.1.6
+=====
+- Use integration-access version 3.1.7 offering centralized custom metrics support.
+ 
+
 2.1.5
 =====
 - Now the SonarQube API 6.7.3 is used.
@@ -14,6 +19,7 @@ SonarQube Sonargraph 8 Integration Plugin
     the SonarQube server. The properties file is stored at '.sonargraphintegration/metrics.properties'.
     NOTE: When introducing script metrics for the first time a warning message is created when it is 
           necessary to restart the SonarQube server because of a modified metrics.properties file.
+
 
 2.1.4
 =====
