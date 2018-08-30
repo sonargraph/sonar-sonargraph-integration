@@ -45,8 +45,8 @@ import com.hello2morrow.sonargraph.integration.access.model.IRootDirectory;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
 import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics;
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.ICustomMetricsConsumer;
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.ICustomMetricsProvider;
+import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsConsumer;
+import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsProvider;
 
 final class SonargraphBase
 {
@@ -71,7 +71,7 @@ final class SonargraphBase
     private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
     private static final int MAX_LENGTH_DESCRIPTION = 255;
 
-    private static ICustomMetricsProvider customMetricsProvider = new ICustomMetricsProvider()
+    private static CustomMetricsProvider customMetricsProvider = new CustomMetricsProvider()
     {
         @Override
         public String getHiddenDirectoryName()
@@ -80,28 +80,26 @@ final class SonargraphBase
         }
 
         @Override
-        public void error(final String error, final IOException exception)
+        public void feedback(final Feedback feedback, final String message)
         {
-            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + error, exception);
-        }
-
-        @Override
-        public void warning(final String warning)
-        {
-            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + warning);
-        }
-
-        @Override
-        public void info(final String info)
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + info);
-        }
-
-        @Override
-        public void customMetricsSaved(final String info)
-        {
-            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + info + ", the SonarQube server needs to be restarted");
-        }
+            switch (feedback)
+            {
+            case ERROR:
+                LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
+                break;
+            case WARNING:
+                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
+                break;
+            case INFO:
+                LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
+                break;
+            case SAVED:
+                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message + ", the SonarQube server needs to be restarted");
+                break;
+            default:
+                break;
+            }
+        };
     };
 
     private SonargraphBase()
@@ -109,7 +107,7 @@ final class SonargraphBase
         super();
     }
 
-    static void setCustomMetricsPropertiesProvider(final ICustomMetricsProvider provider)
+    static void setCustomMetricsPropertiesProvider(final CustomMetricsProvider provider)
     {
         customMetricsProvider = provider;
     }
@@ -198,7 +196,7 @@ final class SonargraphBase
         CustomMetrics.addCustomMetric(softwareSystem, metricId, customMetrics, MAX_LENGTH_DESCRIPTION);
     }
 
-    static void save(final Properties customMetrics)
+    static void saveCustomMetrics(final Properties customMetrics)
     {
         CustomMetrics.save(customMetricsProvider, customMetrics);
     }
@@ -221,7 +219,7 @@ final class SonargraphBase
 
         final List<Metric<Serializable>> metrics = new ArrayList<>(customMetrics.size());
 
-        CustomMetrics.parse(customMetrics, METRIC_ID_PREFIX, MAX_LENGTH_DESCRIPTION, new ICustomMetricsConsumer()
+        CustomMetrics.parse(customMetrics, METRIC_ID_PREFIX, MAX_LENGTH_DESCRIPTION, new CustomMetricsConsumer()
         {
             @Override
             public void parsedIntMetric(final String nextMetricKey, final String nextMetricPresentationName, final String description,
@@ -248,9 +246,9 @@ final class SonargraphBase
             }
 
             @Override
-            public void unableToParseMetric(final String info)
+            public void unableToParseMetric(final String message)
             {
-                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + info);
+                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
             }
         });
 

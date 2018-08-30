@@ -18,7 +18,6 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,53 +44,25 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.ICustomMetricsProvider;
+import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsProvider;
 
 public final class SonargraphSensorTest
 {
     private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
 
-    private final ICustomMetricsProvider customMetricsPropertiesProvider = new ICustomMetricsProvider()
+    private final CustomMetricsProvider customMetricsPropertiesProvider = new CustomMetricsProvider()
     {
         @Override
-        public String getHiddenDirectoryName()
+        protected String getHiddenDirectoryName()
         {
             return SonargraphBase.SONARGRAPH_PLUGIN_KEY;
         }
 
         @Override
-        public String getDirectory()
+        protected String getParentDirectoryPathOfHiddenDirectory()
         {
-            return "./." + getHiddenDirectoryName();
-        }
-
-        @Override
-        public void error(final String error, final IOException exception)
-        {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void warning(final String warning)
-        {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void info(final String info)
-        {
-            // TODO Auto-generated method stub
-
-        }
-
-        @Override
-        public void customMetricsSaved(final String info)
-        {
-            // TODO Auto-generated method stub
-
-        }
+            return "./.";
+        };
     };
 
     private final SensorDescriptor sensorDescriptor = new SensorDescriptor()
