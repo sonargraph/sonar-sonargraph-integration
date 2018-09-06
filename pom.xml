@@ -44,6 +44,7 @@
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: support AT hello2morrow DOT com</license.mailto>
     <jdk.min.version>1.8</jdk.min.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
