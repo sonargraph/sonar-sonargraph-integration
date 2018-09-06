@@ -18,6 +18,9 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -44,9 +48,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IModule;
 import com.hello2morrow.sonargraph.integration.access.model.IRootDirectory;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.Severity;
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics;
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsConsumer;
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsProvider;
 
 final class SonargraphBase
 {
@@ -66,40 +67,35 @@ final class SonargraphBase
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
     static final String SCRIPT_ISSUE_PRESENTATION_NAME = "Script Issue";
 
-    private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
-    private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
-    private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
-    private static final int MAX_LENGTH_DESCRIPTION = 255;
-
-    private static CustomMetricsProvider customMetricsProvider = new CustomMetricsProvider()
+    interface ICustomMetricsPropertiesProvider
     {
-        @Override
-        public String getHiddenDirectoryName()
+        public default String getDirectory()
         {
-            return SONARGRAPH_PLUGIN_KEY;
+            return System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
         }
 
-        @Override
-        public void feedback(final Feedback feedback, final String message)
+        public default String getFileName()
         {
-            switch (feedback)
-            {
-            case ERROR:
-                LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
-                break;
-            case WARNING:
-                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
-                break;
-            case INFO:
-                LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
-                break;
-            case SAVED:
-                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message + ", the SonarQube server needs to be restarted");
-                break;
-            default:
-                break;
-            }
-        };
+            return "metrics.properties";
+        }
+
+        default String getFilePath()
+        {
+            return getDirectory() + "/" + getFileName();
+        }
+    }
+
+    private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
+    private static final char CUSTOM_METRIC_SEPARATOR = '|';
+    private static final String CUSTOM_METRIC_INT = "INT";
+    private static final String CUSTOM_METRIC_FLOAT = "FLOAT";
+
+    private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
+    private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
+
+    private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
+    {
+        //Default
     };
 
     private SonargraphBase()
@@ -107,9 +103,9 @@ final class SonargraphBase
         super();
     }
 
-    static void setCustomMetricsPropertiesProvider(final CustomMetricsProvider provider)
+    static void setCustomMetricsPropertiesProvider(final ICustomMetricsPropertiesProvider provider)
     {
-        customMetricsProvider = provider;
+        customMetricsPropertiesProvider = provider;
     }
 
     static String createMetricKeyFromStandardName(final String metricIdName)
@@ -119,7 +115,10 @@ final class SonargraphBase
 
     static String createCustomMetricKeyFromStandardName(final String softwareSystemName, final String metricIdName)
     {
-        return CustomMetrics.createCustomMetricKeyFromStandardName(METRIC_ID_PREFIX, softwareSystemName, metricIdName);
+        String customMetricKey = METRIC_ID_PREFIX + softwareSystemName + "."
+                + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
+        customMetricKey = customMetricKey.replace(CUSTOM_METRIC_SEPARATOR, ' ');
+        return customMetricKey;
     }
 
     static String toLowerCase(String input, final boolean firstLower)
@@ -138,6 +137,16 @@ final class SonargraphBase
         }
         input = input.toLowerCase();
         return firstLower ? input : Character.toUpperCase(input.charAt(0)) + input.substring(1);
+    }
+
+    static String trimDescription(final String description)
+    {
+        if (description != null && !description.isEmpty())
+        {
+            final String trimmedDescription = description.replaceAll("\r", " ").replaceAll("\n", " ").trim();
+            return trimmedDescription.length() > 255 ? trimmedDescription.substring(0, 252) + "..." : trimmedDescription;
+        }
+        return "";
     }
 
     private static void setMetricDirection(final Double bestValue, final Double worstValue, final Metric.Builder metric)
@@ -175,8 +184,7 @@ final class SonargraphBase
     static Metric<Serializable> createMetric(final IMetricId metricId)
     {
         final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
-                metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT)
-                        .setDescription(Utility.trimDescription(metricId.getDescription(), MAX_LENGTH_DESCRIPTION))
+                metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
                         .setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
         setBestValue(metricId.getBestValue(), builder);
@@ -188,17 +196,51 @@ final class SonargraphBase
 
     static Properties loadCustomMetrics()
     {
-        return CustomMetrics.loadCustomMetrics(customMetricsProvider);
+        final Properties customMetrics = new Properties();
+
+        try (FileInputStream fis = new FileInputStream(new File(customMetricsPropertiesProvider.getFilePath())))
+        {
+            customMetrics.load(fis);
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded custom metrics file '" + customMetricsPropertiesProvider.getFilePath() + "'");
+        }
+        catch (final FileNotFoundException e)
+        {
+            LOGGER.info(
+                    SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath() + "' not found");
+        }
+        catch (final IOException e)
+        {
+            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '"
+                    + customMetricsPropertiesProvider.getFilePath() + "'", e);
+        }
+
+        return customMetrics;
     }
 
     static void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetrics)
     {
-        CustomMetrics.addCustomMetric(softwareSystem, metricId, customMetrics, MAX_LENGTH_DESCRIPTION);
+        customMetrics.put(softwareSystem.getName() + CUSTOM_METRIC_SEPARATOR + metricId.getName(),
+                metricId.getPresentationName() + CUSTOM_METRIC_SEPARATOR + (metricId.isFloat() ? CUSTOM_METRIC_FLOAT : CUSTOM_METRIC_INT)
+                        + CUSTOM_METRIC_SEPARATOR + metricId.getBestValue() + CUSTOM_METRIC_SEPARATOR + metricId.getWorstValue()
+                        + CUSTOM_METRIC_SEPARATOR + trimDescription(metricId.getDescription()));
     }
 
-    static void saveCustomMetrics(final Properties customMetrics)
+    static void save(final Properties customMetrics)
     {
-        CustomMetrics.save(customMetricsProvider, customMetrics);
+        try
+        {
+            final File file = new File(customMetricsPropertiesProvider.getDirectory());
+            file.mkdirs();
+            customMetrics.store(new FileWriter(new File(file, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
+
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath()
+                    + "' updated, the SonarQube server needs to be restarted");
+        }
+        catch (final IOException e)
+        {
+            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom metrics file '"
+                    + customMetricsPropertiesProvider.getFilePath() + "'", e);
+        }
     }
 
     static String getNonEmptyString(final Object input)
@@ -218,39 +260,61 @@ final class SonargraphBase
         }
 
         final List<Metric<Serializable>> metrics = new ArrayList<>(customMetrics.size());
-
-        CustomMetrics.parse(customMetrics, METRIC_ID_PREFIX, MAX_LENGTH_DESCRIPTION, new CustomMetricsConsumer()
+        for (final Entry<Object, Object> nextEntry : customMetrics.entrySet())
         {
-            @Override
-            public void parsedIntMetric(final String nextMetricKey, final String nextMetricPresentationName, final String description,
-                    final Double nextBestValue, final Double nextWorstValue)
+            String notCreatedInfo = null;
+            final String nextKey = getNonEmptyString(nextEntry.getKey());
+            final String nextValue = getNonEmptyString(nextEntry.getValue());
+
+            try
             {
-                final Metric.Builder builder = new Metric.Builder(nextMetricKey, nextMetricPresentationName, ValueType.INT)
-                        .setDescription(description).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-                setBestValue(nextBestValue, builder);
-                setWorstValue(nextWorstValue, builder);
-                setMetricDirection(nextBestValue, nextWorstValue, builder);
-                metrics.add(builder.create());
+                final String[] nextSplitKey = nextKey.split("\\" + CUSTOM_METRIC_SEPARATOR);
+                final String[] nextSplitValue = nextValue.split("\\" + CUSTOM_METRIC_SEPARATOR);
+
+                if (nextSplitKey.length == 2 && nextSplitValue.length == 5)
+                {
+                    final String nextSoftwareSystemName = nextSplitKey[0];
+                    final String nextMetricIdName = nextSplitKey[1];
+
+                    final String nextMetricKey = createCustomMetricKeyFromStandardName(nextSoftwareSystemName, nextMetricIdName);
+                    final String nextMetricPresentationName = nextSplitValue[0];
+                    ValueType nextValueType = null;
+                    final String nextTypeInfo = nextSplitValue[1];
+                    if (CUSTOM_METRIC_FLOAT.equalsIgnoreCase(nextTypeInfo))
+                    {
+                        nextValueType = ValueType.FLOAT;
+                    }
+                    else
+                    {
+                        nextValueType = ValueType.INT;
+                    }
+                    final Double nextBestValue = Double.valueOf(nextSplitValue[2]);
+                    final Double nextWorstValue = Double.valueOf(nextSplitValue[3]);
+                    final String nextDescription = nextSplitValue[4];
+
+                    final Metric.Builder builder = new Metric.Builder(nextMetricKey, nextMetricPresentationName, nextValueType)
+                            .setDescription(trimDescription(nextDescription)).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+                    setBestValue(nextBestValue, builder);
+                    setWorstValue(nextWorstValue, builder);
+                    setMetricDirection(nextBestValue, nextWorstValue, builder);
+
+                    metrics.add(builder.create());
+                }
+                else
+                {
+                    notCreatedInfo = "Unable to create custom metric from '" + nextKey + "=" + nextValue;
+                }
+            }
+            catch (final Exception e)
+            {
+                notCreatedInfo = "Unable to create custom metric from '" + nextKey + "=" + nextValue + " - " + e.getLocalizedMessage();
             }
 
-            @Override
-            public void parsedFloatMetric(final String nextMetricKey, final String nextMetricPresentationName, final String description,
-                    final Double nextBestValue, final Double nextWorstValue)
+            if (notCreatedInfo != null)
             {
-                final Metric.Builder builder = new Metric.Builder(nextMetricKey, nextMetricPresentationName, ValueType.FLOAT)
-                        .setDescription(description).setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-                setBestValue(nextBestValue, builder);
-                setWorstValue(nextWorstValue, builder);
-                setMetricDirection(nextBestValue, nextWorstValue, builder);
-                metrics.add(builder.create());
+                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + notCreatedInfo);
             }
-
-            @Override
-            public void unableToParseMetric(final String message)
-            {
-                LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + message);
-            }
-        });
+        }
 
         return metrics;
     }

@@ -1,2 +1,4 @@
 <?xml version="1.0" ?>
-<analyzerConfiguration version="9.8.1.100" analyzer="ScriptRunner"></analyzerConfiguration>
+<analyzerConfiguration version="9.7.0.100" analyzer="ScriptRunner">
+    <stringEntry value="Default" name="0:./Test.xml"></stringEntry>
+</analyzerConfiguration>

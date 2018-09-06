@@ -5,7 +5,7 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
-  <version>2.1.6</version>
+  <version>2.1.5</version>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarQube Sonargraph 9 Integration Plugin</name>
@@ -46,7 +46,7 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>3.1.7</version>
+      <version>3.1.5</version>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
@@ -220,7 +220,7 @@
             <version>9.7.0</version>
             <configuration>
                 <systemDirectory>${basedir}/IntegrationSonarqube.sonargraph</systemDirectory>
-                <activationCode>5B7C-6ACB-41E5-1E8F</activationCode>
+                <activationCode></activationCode>
                 <autoUpdate>true</autoUpdate>
                 <prepareForSonarQube>true</prepareForSonarQube>
                 <failSet>

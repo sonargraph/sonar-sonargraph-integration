@@ -573,7 +573,7 @@ public final class SonargraphSensor implements Sensor
             }
             if (customMetrics != null)
             {
-                SonargraphBase.saveCustomMetrics(customMetrics);
+                SonargraphBase.save(customMetrics);
                 customMetrics = null;
             }
         }

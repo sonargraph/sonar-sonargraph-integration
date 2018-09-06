@@ -144,6 +144,14 @@ public final class SonargraphBaseTest
     }
 
     @Test
+    public void testTrimDescription()
+    {
+        assertEquals("", SonargraphBase.trimDescription(null));
+        assertEquals("", SonargraphBase.trimDescription(""));
+        assertEquals("Test", SonargraphBase.trimDescription("Test"));
+    }
+
+    @Test
     public void testGetNonEmptyString()
     {
         try

@@ -44,25 +44,19 @@ import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
-import com.hello2morrow.sonargraph.integration.access.persistence.CustomMetrics.CustomMetricsProvider;
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomMetricsPropertiesProvider;
 
 public final class SonargraphSensorTest
 {
     private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
 
-    private final CustomMetricsProvider customMetricsPropertiesProvider = new CustomMetricsProvider()
+    private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
         @Override
-        protected String getHiddenDirectoryName()
+        public String getDirectory()
         {
-            return SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+            return "./." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
         }
-
-        @Override
-        protected String getParentDirectoryPathOfHiddenDirectory()
-        {
-            return "./.";
-        };
     };
 
     private final SensorDescriptor sensorDescriptor = new SensorDescriptor()
