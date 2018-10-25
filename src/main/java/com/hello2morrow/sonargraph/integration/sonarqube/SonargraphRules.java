@@ -100,6 +100,13 @@ public final class SonargraphRules implements RulesDefinition
                         + SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
                 repository);
 
+        createRule(SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME),
+                SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME),
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR,
+                "Description '" + SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME + "', category '"
+                        + SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
+                repository);
+
         repository.done();
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");

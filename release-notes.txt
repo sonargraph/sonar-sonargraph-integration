@@ -1,6 +1,17 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+2.1.6
+=====
+- Updated built-in meta file containing metric and issue information.
+- Use the newest integration access library (3.1.9).
+- Ignore system setup related issues (only report them in the console).
+- Now plugin issues (issues created by installed Sonargraph plugins) are supported, they are
+  activated (or deactivated) with the single rule 'Sonargraph Integration: Plugin Issue'.
+- FIXED: Now script based issues also work for directories and source files (when the rule
+  'Sonargraph Integration: Script Issue' is activated).
+
+
 2.1.5
 =====
 - Now the SonarQube API 6.7.3 is used.
@@ -15,6 +26,7 @@ SonarQube Sonargraph 8 Integration Plugin
     NOTE: When introducing script metrics for the first time a warning message is created when it is 
           necessary to restart the SonarQube server because of a modified metrics.properties file.
 
+
 2.1.4
 =====
 - Updated meta file containing metric and issue ids (added relational cohesion metric).
@@ -27,24 +39,16 @@ SonarQube Sonargraph 8 Integration Plugin
 
 2.1.2
 =====
-New Features
-------------
 - Now issues are added to directories and namespaces (which can be mapped to directories).
 
 
 2.1.1
 =====
-
-New Features
-------------
 - Issues having resolutions additionally show all resolution info (assignee, priority, description).
 
 
 2.1.0
 =====
-
-New Features
-------------
 - Now the original location of a refactored element is used to add refactoring definitions.
 - Fix tasks are now available are rule.
 - Resolutions in general are supported. 
