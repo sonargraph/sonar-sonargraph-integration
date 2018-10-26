@@ -242,7 +242,7 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void addIssuesToSourceFile(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
-            final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
+            final Map<String, ActiveRule> keyToRule, final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
     {
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
         final String sourceRelPath = sourceFile.getRelativePath();
@@ -254,7 +254,7 @@ public final class SonargraphSensor implements Sensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
                 if (nextRule != null)
                 {
                     createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, nextIssue, nextRule);
@@ -269,7 +269,7 @@ public final class SonargraphSensor implements Sensor
     }
 
     private void addIssuesToDirectory(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
-            final Map<String, ActiveRule> issueTypeToRuleMap, final String baseDir, final String relDirectory, final List<IIssue> issues)
+            final Map<String, ActiveRule> keyToRule, final String baseDir, final String relDirectory, final List<IIssue> issues)
     {
         final String directoryLocation = Paths.get(baseDir, relDirectory).normalize().toString();
         final InputDir inputDir = fileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryLocation)));
@@ -278,7 +278,7 @@ public final class SonargraphSensor implements Sensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = issueTypeToRuleMap.get(SonargraphBase.createRuleKey(nextIssue.getIssueType().getName()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
                 if (nextRule != null)
                 {
                     createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
@@ -303,25 +303,26 @@ public final class SonargraphSensor implements Sensor
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
                 && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem));
+        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
+
         for (final IIssue nextIssue : systemIssues)
         {
             final IIssueType nextIssueType = nextIssue.getIssueType();
-            final String nextRuleKey = SonargraphBase.isScriptIssue(nextIssueType) ? SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME)
-                    : SonargraphBase.createRuleKey(nextIssueType.getName());
-            final ActiveRule nextRule = data.getActiveRules().get(nextRuleKey);
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
             if (nextRule != null && !data.issueAlreadyCreated(SonargraphBase.createRuleKey(nextIssueType.getName())))
             {
                 createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
         }
 
-        final List<IIssue> workspaceIssues = systemInfoProcessor
-                .getIssues(issue -> SonargraphBase.isErrorOrWarningWorkspoceIssue(issue.getIssueType()));
-        if (!workspaceIssues.isEmpty())
+        final List<IIssue> ignoredErrorOrWarningIssues = systemInfoProcessor
+                .getIssues(issue -> SonargraphBase.isIgnoredErrorOrWarningIssue(issue.getIssueType()));
+        if (!ignoredErrorOrWarningIssues.isEmpty())
         {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + workspaceIssues.size() + " workspace issue(s)");
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + ignoredErrorOrWarningIssues.size()
+                    + " system setup related error/warning issue(s)");
             int i = 1;
-            for (final IIssue nextIssue : workspaceIssues)
+            for (final IIssue nextIssue : ignoredErrorOrWarningIssues)
             {
                 LOGGER.warn("[" + i + "] " + nextIssue.getPresentationName());
                 for (final INamedElement nextAffected : nextIssue.getAffectedNamedElements())
@@ -345,14 +346,13 @@ public final class SonargraphSensor implements Sensor
 
         final List<IIssue> systemIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
                 && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(module));
+        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
+
         for (final IIssue nextIssue : systemIssues)
         {
             final IIssueType nextIssueType = nextIssue.getIssueType();
             final String nextRealRuleKey = SonargraphBase.createRuleKey(nextIssueType.getName());
-            final String nextRuleKeyToCheck = SonargraphBase.isScriptIssue(nextIssueType)
-                    ? SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME)
-                    : nextRealRuleKey;
-            final ActiveRule nextRule = data.getActiveRules().get(nextRuleKeyToCheck);
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
             if (nextRule != null && !data.issueAlreadyCreated(nextRealRuleKey))
             {
                 createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
@@ -364,16 +364,16 @@ public final class SonargraphSensor implements Sensor
                 .getIssuesForSourceFiles(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
         for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
         {
-            addIssuesToSourceFile(context, moduleInfoProcessor, data.getActiveRules(), moduleInfoProcessor.getBaseDirectory(),
-                    issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
+            addIssuesToSourceFile(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(),
+                    issuesPerSourceFile.getValue());
         }
 
         final Map<String, List<IIssue>> directoryIssueMap = moduleInfoProcessor
                 .getIssuesForDirectories(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
         for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
         {
-            addIssuesToDirectory(context, moduleInfoProcessor, data.getActiveRules(), moduleInfoProcessor.getBaseDirectory(),
-                    issuesPerDirectory.getKey(), issuesPerDirectory.getValue());
+            addIssuesToDirectory(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerDirectory.getKey(),
+                    issuesPerDirectory.getValue());
         }
     }
 

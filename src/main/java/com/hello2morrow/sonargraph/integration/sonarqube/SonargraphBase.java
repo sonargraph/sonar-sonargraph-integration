@@ -61,11 +61,15 @@ final class SonargraphBase
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
     static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
 
-    static final String WORKSPACE = "Workspace";
     static final String SCRIPT_ISSUE_CATEGORY = "ScriptBased";
     static final String SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME = "Script Based";
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
     static final String SCRIPT_ISSUE_PRESENTATION_NAME = "Script Issue";
+
+    static final String PLUGIN_ISSUE_CATEGORY = "PluginBased";
+    static final String PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME = "Plugin Based";
+    static final String PLUGIN_ISSUE_NAME = "PluginIssue";
+    static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
     interface ICustomMetricsPropertiesProvider
     {
@@ -91,7 +95,8 @@ final class SonargraphBase
     private static final String CUSTOM_METRIC_FLOAT = "FLOAT";
 
     private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
-    private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList(WORKSPACE, "InstallationConfiguration");
+    private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration",
+            "Session", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition");
 
     private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
@@ -360,6 +365,19 @@ final class SonargraphBase
         return Utility.convertMixedCaseStringToConstantName(issueTypeName).replace(" ", "_");
     }
 
+    static String createRuleKeyToCheck(final IIssueType issueType)
+    {
+        if (isScriptIssue(issueType))
+        {
+            return SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME);
+        }
+        if (isPluginIssue(issueType))
+        {
+            return SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME);
+        }
+        return SonargraphBase.createRuleKey(issueType.getName());
+    }
+
     static String createRuleName(final String issueTypePresentationName)
     {
         return SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + issueTypePresentationName;
@@ -385,15 +403,19 @@ final class SonargraphBase
         return false;
     }
 
-    static boolean isErrorOrWarningWorkspoceIssue(final IIssueType issueType)
+    static boolean isIgnoredErrorOrWarningIssue(final IIssueType issueType)
     {
-        return WORKSPACE.equals(issueType.getCategory().getName())
-                && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
+        return ignoreIssueType(issueType) && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
     }
 
     static boolean isScriptIssue(final IIssueType issueType)
     {
         return SCRIPT_ISSUE_CATEGORY.equals(issueType.getCategory().getName());
+    }
+
+    static boolean isPluginIssue(final IIssueType issueType)
+    {
+        return PLUGIN_ISSUE_CATEGORY.equals(issueType.getCategory().getName());
     }
 
     private static String getIdentifyingPath(final File file)

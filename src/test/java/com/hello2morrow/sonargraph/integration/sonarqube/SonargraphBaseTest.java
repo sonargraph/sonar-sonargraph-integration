@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -25,8 +26,10 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
@@ -50,6 +53,11 @@ public final class SonargraphBaseTest
         assertEquals("SCRIPT_ISSUE", SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME));
         assertEquals("Sonargraph Integration: Script Issue", SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME));
         assertEquals("script-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME));
+
+        assertEquals("PLUGIN_ISSUE", SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME));
+        assertEquals("Sonargraph Integration: Plugin Issue", SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME));
+        assertEquals("plugin-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME));
+
         //Metrics
         assertEquals("sg_i.Sonargraph.NUMBER_OF_STATEMENTS",
                 SonargraphBase.createCustomMetricKeyFromStandardName("Sonargraph", "NumberOfStatements"));
@@ -63,28 +71,42 @@ public final class SonargraphBaseTest
         assertNotNull(exportMetaData);
 
         int ignored = 0;
-        int errorWarningWorkspace = 0;
+        int ignoredErrorOrWarningIssue = 0;
         int script = 0;
+        int plugin = 0;
+
+        final Set<String> ignoredIssueType = new HashSet<>();
+        final Set<String> ruleKeysToCheck = new HashSet<>();
 
         for (final IIssueType nextIssueType : exportMetaData.getIssueTypes().values())
         {
             if (SonargraphBase.ignoreIssueType(nextIssueType))
             {
                 ignored++;
+                ignoredIssueType.add(nextIssueType.getCategory().getName());
             }
-            else if (SonargraphBase.isErrorOrWarningWorkspoceIssue(nextIssueType))
+            else if (SonargraphBase.isIgnoredErrorOrWarningIssue(nextIssueType))
             {
-                errorWarningWorkspace++;
+                ignoredErrorOrWarningIssue++;
             }
             else if (SonargraphBase.isScriptIssue(nextIssueType))
             {
                 script++;
             }
+            else if (SonargraphBase.isPluginIssue(nextIssueType))
+            {
+                plugin++;
+            }
+
+            ruleKeysToCheck.add(SonargraphBase.createRuleKeyToCheck(nextIssueType));
         }
 
+        assertFalse(ruleKeysToCheck.isEmpty());
+        assertTrue(ignoredIssueType.size() == 7);
         assertTrue(ignored > 0);
-        assertTrue(errorWarningWorkspace == 0);
+        assertTrue(ignoredErrorOrWarningIssue == 0);
         assertTrue(script == 0);
+        assertTrue(plugin == 0);
 
         final List<Metric<Serializable>> metrics = new ArrayList<>();
         for (final IMetricId nextMetricId : exportMetaData.getMetricIds().values())
