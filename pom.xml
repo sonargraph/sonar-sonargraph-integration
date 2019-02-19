@@ -5,7 +5,7 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
-  <version>2.1.7</version>
+  <version>3.0.0</version>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarQube Sonargraph 9 Integration Plugin</name>
@@ -44,13 +44,14 @@
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: support AT hello2morrow DOT com</license.mailto>
     <jdk.min.version>1.8</jdk.min.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>3.1.10</version>
+      <version>3.2.1</version>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
@@ -221,11 +222,8 @@
         <plugin>
             <groupId>com.hello2morrow</groupId>
             <artifactId>sonargraph-maven-plugin</artifactId>
-            <!--version>9.7.0</version-->
             <configuration>
                 <systemDirectory>${basedir}/IntegrationSonarqube.sonargraph</systemDirectory>
-                <activationCode></activationCode>
-                <autoUpdate>true</autoUpdate>
                 <prepareForSonarQube>true</prepareForSonarQube>
                 <failSet>
                     <failOnEmptyWorkspace>false</failOnEmptyWorkspace>
