@@ -246,7 +246,7 @@ public final class SonargraphSensor implements Sensor
     {
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
         final String sourceRelPath = sourceFile.getRelativePath();
-        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).normalize().toString();
+        final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).toAbsolutePath().normalize().toString();
 
         final InputPath inputPath = fileSystem
                 .inputFile(fileSystem.predicates().hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
@@ -271,7 +271,8 @@ public final class SonargraphSensor implements Sensor
     private void addIssuesToDirectory(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
             final Map<String, ActiveRule> keyToRule, final String baseDir, final String relDirectory, final List<IIssue> issues)
     {
-        final String directoryLocation = Paths.get(baseDir, relDirectory).normalize().toString();
+        final String directoryLocation = Paths.get(baseDir, relDirectory).toAbsolutePath().normalize().toString();
+
         final InputDir inputDir = fileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryLocation)));
 
         if (inputDir != null)

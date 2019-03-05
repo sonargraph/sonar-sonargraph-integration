@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
@@ -48,7 +48,9 @@ import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomM
 
 public final class SonargraphSensorTest
 {
-    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
+    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
+            + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
+            + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
 
     private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
@@ -245,16 +247,16 @@ public final class SonargraphSensorTest
     }
 
     @Test
-    public void testSonargraphSensorOnTestProject()
+    public void testSonargraphSensorOnTestProject() throws IOException
     {
-        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
+        final String basePath = "./src/test/test-project";
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File(basePath).getCanonicalFile());
 
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
-        fileSystem.add(new DefaultInputDir("projectKey", "src/com/h2m"));
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA)
-                .setContents(JAVA_FILE_CONTENT).build());
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA)
-                .setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
