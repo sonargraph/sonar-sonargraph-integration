@@ -44,6 +44,7 @@ import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
@@ -51,8 +52,6 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.config.Configuration;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -126,15 +125,13 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private final RulesProfile qualityProfile;
     private final FileSystem fileSystem;
     private final MetricFinder metricFinder;
     private Properties customMetrics;
 
-    public SonargraphSensor(final FileSystem fileSystem, final RulesProfile qualityProfile, final MetricFinder metricFinder)
+    public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder)
     {
         this.fileSystem = fileSystem;
-        this.qualityProfile = qualityProfile;
         this.metricFinder = metricFinder;
     }
 
@@ -446,7 +443,7 @@ public final class SonargraphSensor implements Sensor
             final Consumer<NewIssueLocation> consumer)
     {
         final NewIssue newIssue = context.newIssue();
-        newIssue.forRule(rule.getRule().ruleKey());
+        newIssue.forRule(rule.ruleKey());
 
         final NewIssueLocation newIssueLocation = newIssue.newLocation();
         newIssueLocation.on(inputComponent);
@@ -499,10 +496,10 @@ public final class SonargraphSensor implements Sensor
         return null;
     }
 
-    private ProcessingData createProcessingData()
+    private ProcessingData createProcessingData(final SensorContext context)
     {
         final Map<String, ActiveRule> activeRules = new HashMap<>();
-        qualityProfile.getActiveRulesByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).forEach(a -> activeRules.put(a.getRuleKey(), a));
+        context.activeRules().findByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).forEach(a -> activeRules.put(a.ruleKey().rule(), a));
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + activeRules.size() + " rule(s) activated");
 
         final Map<String, Metric<Serializable>> metrics = metricFinder.findAll().stream()
@@ -558,10 +555,11 @@ public final class SonargraphSensor implements Sensor
             final boolean isProject)
     {
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
+
         final IModule module = getModule(softwareSystem, inputModule);
         if (isProject || module != null)
         {
-            final ProcessingData data = createProcessingData();
+            final ProcessingData data = createProcessingData(context);
             if (module != null)
             {
                 LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
