@@ -5,7 +5,7 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
-  <version>3.0.0</version>
+  <version>3.1.0</version>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarQube Sonargraph 9 Integration Plugin</name>
