@@ -37,7 +37,6 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
-import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
@@ -143,11 +142,8 @@ public final class SonargraphSensorTest
         rulesBuilder = new ActiveRulesBuilder();
         for (final RulesDefinition.Rule nextRule : rules)
         {
-            final NewActiveRule.Builder ruleBuilder = new NewActiveRule.Builder();
-            ruleBuilder.setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key()));
-            ruleBuilder.setName(nextRule.name());
-            ruleBuilder.setLanguage(SonargraphBase.JAVA);
-            rulesBuilder.addRule(ruleBuilder.build());
+            rulesBuilder.create(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
+                    .setLanguage(SonargraphBase.JAVA).activate();
         }
 
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
@@ -227,6 +223,7 @@ public final class SonargraphSensorTest
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeInvalid.xml");
         sensorContextTester.setSettings(settings);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
@@ -246,6 +243,7 @@ public final class SonargraphSensorTest
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeEmpty.xml");
         sensorContextTester.setSettings(settings);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
@@ -257,6 +255,7 @@ public final class SonargraphSensorTest
     {
         final String basePath = "./src/test/test-project";
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File(basePath).getCanonicalFile());
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
         fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
@@ -274,6 +273,7 @@ public final class SonargraphSensorTest
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+        sensorContextTester.setActiveRules(rulesBuilder.build());
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
