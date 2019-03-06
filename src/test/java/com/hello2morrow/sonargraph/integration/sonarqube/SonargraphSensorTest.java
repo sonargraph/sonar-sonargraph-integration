@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,15 +33,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
@@ -48,7 +49,9 @@ import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomM
 
 public final class SonargraphSensorTest
 {
-    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
+    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
+            + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
+            + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
 
     private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
@@ -122,10 +125,10 @@ public final class SonargraphSensorTest
         }
     };
 
-    private final RulesProfile qualityProfile = RulesProfile.create(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA);
     private MetricFinder metricFinder;
+    private ActiveRulesBuilder rulesBuilder;
 
-    @SuppressWarnings({ "unchecked", "deprecation" })
+    @SuppressWarnings({ "unchecked" })
     @Before
     public void before()
     {
@@ -136,11 +139,11 @@ public final class SonargraphSensorTest
         sonargraphRules.define(rulesContext);
         final List<RulesDefinition.Rule> rules = rulesContext.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules();
 
+        rulesBuilder = new ActiveRulesBuilder();
         for (final RulesDefinition.Rule nextRule : rules)
         {
-            final org.sonar.api.rules.Rule nextCreated = org.sonar.api.rules.Rule.create(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key(),
-                    nextRule.name());
-            qualityProfile.addActiveRule(new org.sonar.api.rules.ActiveRule(qualityProfile, nextCreated, null));
+            rulesBuilder.create(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
+                    .setLanguage(SonargraphBase.JAVA).activate();
         }
 
         final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
@@ -200,8 +203,9 @@ public final class SonargraphSensorTest
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqube.xml");
         sensorContextTester.setSettings(settings);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }
@@ -219,8 +223,9 @@ public final class SonargraphSensorTest
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeInvalid.xml");
         sensorContextTester.setSettings(settings);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }
@@ -238,25 +243,27 @@ public final class SonargraphSensorTest
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeEmpty.xml");
         sensorContextTester.setSettings(settings);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }
 
     @Test
-    public void testSonargraphSensorOnTestProject()
+    public void testSonargraphSensorOnTestProject() throws IOException
     {
-        final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
+        final String basePath = "./src/test/test-project";
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File(basePath).getCanonicalFile());
+        sensorContextTester.setActiveRules(rulesBuilder.build());
 
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
-        fileSystem.add(new DefaultInputDir("projectKey", "src/com/h2m"));
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C1.java").setLanguage(SonargraphBase.JAVA)
-                .setContents(JAVA_FILE_CONTENT).build());
-        fileSystem.add(TestInputFileBuilder.create("projectKey", "src/com/h2m/C2.java").setLanguage(SonargraphBase.JAVA)
-                .setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }
@@ -266,7 +273,8 @@ public final class SonargraphSensorTest
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));
         final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, qualityProfile, metricFinder);
+        sensorContextTester.setActiveRules(rulesBuilder.build());
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(sensorContextTester);
     }

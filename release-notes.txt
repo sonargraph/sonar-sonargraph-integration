@@ -1,6 +1,12 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+3.0.0
+=====
+- Use the newest integration access library (3.2.1) that allows executing
+  the plugin on Java 11 runtime.
+
+
 2.1.7
 =====
 - Use the newest integration access library (3.1.10).
