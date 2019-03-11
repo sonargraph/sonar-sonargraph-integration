@@ -70,20 +70,20 @@ public final class SonargraphBaseTest
         final IExportMetaData exportMetaData = SonargraphBase.readBuiltInMetaData();
         assertNotNull(exportMetaData);
 
-        int ignored = 0;
+        int ignoredIssuesCount = 0;
         int ignoredErrorOrWarningIssue = 0;
-        int script = 0;
-        int plugin = 0;
+        int scriptIssuesCount = 0;
+        int pluginIssuesCount = 0;
 
-        final Set<String> ignoredIssueType = new HashSet<>();
+        final Set<String> ignoredIssueTypes = new HashSet<>();
         final Set<String> ruleKeysToCheck = new HashSet<>();
 
         for (final IIssueType nextIssueType : exportMetaData.getIssueTypes().values())
         {
             if (SonargraphBase.ignoreIssueType(nextIssueType))
             {
-                ignored++;
-                ignoredIssueType.add(nextIssueType.getCategory().getName());
+                ignoredIssuesCount++;
+                ignoredIssueTypes.add(nextIssueType.getCategory().getName());
             }
             else if (SonargraphBase.isIgnoredErrorOrWarningIssue(nextIssueType))
             {
@@ -91,22 +91,24 @@ public final class SonargraphBaseTest
             }
             else if (SonargraphBase.isScriptIssue(nextIssueType))
             {
-                script++;
+                scriptIssuesCount++;
             }
             else if (SonargraphBase.isPluginIssue(nextIssueType))
             {
-                plugin++;
+                pluginIssuesCount++;
             }
 
             ruleKeysToCheck.add(SonargraphBase.createRuleKeyToCheck(nextIssueType));
         }
 
         assertFalse(ruleKeysToCheck.isEmpty());
-        assertTrue(ignoredIssueType.size() == 7);
-        assertTrue(ignored > 0);
-        assertTrue(ignoredErrorOrWarningIssue == 0);
-        assertTrue(script == 0);
-        assertTrue(plugin == 0);
+        final Set<String> referenceIgnored = new HashSet<>(SonargraphBase.IGNORE_ISSUE_TYPE_CATEGORIES);
+        referenceIgnored.remove("Session");
+        assertEquals(referenceIgnored, ignoredIssueTypes);
+        assertTrue(ignoredIssuesCount > 0);
+        assertEquals(0, ignoredErrorOrWarningIssue);
+        assertEquals(0, scriptIssuesCount);
+        assertEquals(0, pluginIssuesCount);
 
         final List<Metric<Serializable>> metrics = new ArrayList<>();
         for (final IMetricId nextMetricId : exportMetaData.getMetricIds().values())

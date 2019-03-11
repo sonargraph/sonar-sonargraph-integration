@@ -95,8 +95,9 @@ final class SonargraphBase
     private static final String CUSTOM_METRIC_FLOAT = "FLOAT";
 
     private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
-    private static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration",
-            "Session", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition");
+    static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableList(
+            Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
+                    "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition"));
 
     private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
     {
