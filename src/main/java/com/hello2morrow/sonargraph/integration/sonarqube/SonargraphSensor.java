@@ -135,6 +135,215 @@ public final class SonargraphSensor implements Sensor
         this.metricFinder = metricFinder;
     }
 
+    @Override
+    public void describe(final SensorDescriptor descriptor)
+    {
+        descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+    }
+
+    @Override
+    public void execute(final SensorContext context)
+    {
+        final InputModule inputModule = context.module();
+        final boolean isProject = isProject(inputModule);
+
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isProject ? "project '" : "module '") + inputModule.key()
+                + "'");
+
+        final File reportFile = getReportFile(context.config());
+        if (reportFile != null)
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading XML report file '" + reportFile.getAbsolutePath() + "'");
+
+            final ISonargraphSystemController controller = ControllerAccess.createController();
+
+            final File baseDir = getSystemBaseDirectory(context.config());
+            Result result;
+            if (baseDir == null)
+            {
+                result = controller.loadSystemReport(reportFile);
+            }
+            else
+            {
+                LOGGER.info(
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Adjusting baseDirectory of Sonargraph system to '" + baseDir + "'");
+                result = controller.loadSystemReport(reportFile, baseDir);
+            }
+            if (result.isSuccess())
+            {
+                process(context, controller, inputModule, isProject);
+            }
+            else
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + result.toString());
+            }
+        }
+
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing " + (isProject ? "project '" : "module '")
+                + inputModule.key() + "'");
+    }
+
+    private File getReportFile(final Configuration configuration)
+    {
+        String relativeReportPath = null;
+        final Optional<String> configuredRelativeReportPathOptional = configuration.get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
+        if (configuredRelativeReportPathOptional.isPresent())
+        {
+            final String configuredRelativeReportPath = configuredRelativeReportPathOptional.get();
+            if (!configuredRelativeReportPath.isEmpty())
+            {
+                relativeReportPath = configuredRelativeReportPath;
+            }
+        }
+
+        if (relativeReportPath == null)
+        {
+            relativeReportPath = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file path not configured - using default '"
+                    + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'");
+        }
+
+        final File reportFile = fileSystem.resolvePath(relativeReportPath);
+        if (reportFile.exists())
+        {
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using XML report file '" + reportFile.getAbsolutePath() + "'");
+            return reportFile;
+        }
+
+        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file '" + reportFile.getAbsolutePath() + "' not found");
+        return null;
+    }
+
+    private File getSystemBaseDirectory(final Configuration configuration)
+    {
+        final Optional<String> basePathOptional = configuration.get(SonargraphBase.SONARGRAPH_BASE_DIR_KEY);
+        if (!basePathOptional.isPresent())
+        {
+            return null;
+        }
+
+        final String path = basePathOptional.get();
+        final File reportFile = fileSystem.resolvePath(path);
+        if (reportFile.exists())
+        {
+            return reportFile;
+        }
+
+        return null;
+    }
+
+    private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
+            final boolean isProject)
+    {
+        final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
+
+        final IModule module = getModule(softwareSystem, inputModule);
+        if (isProject || module != null)
+        {
+            final ProcessingData data = createProcessingData(context);
+            if (module != null)
+            {
+                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
+                processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
+            }
+            if (isProject)
+            {
+                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
+                processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
+            }
+            if (customMetrics != null)
+            {
+                SonargraphBase.save(customMetrics);
+                customMetrics = null;
+            }
+        }
+    }
+
+    private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
+            final ISystemInfoProcessor systemInfoProcessor, final ProcessingData data)
+    {
+        final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
+        if (systemLevelOptional.isPresent())
+        {
+            processMetrics(context, inputComponent, softwareSystem, softwareSystem, systemInfoProcessor, systemLevelOptional.get(), data);
+        }
+
+        final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
+                && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem));
+        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
+
+        for (final IIssue nextIssue : systemIssues)
+        {
+            final IIssueType nextIssueType = nextIssue.getIssueType();
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
+            if (nextRule != null && !data.issueAlreadyCreated(SonargraphBase.createRuleKey(nextIssueType.getName())))
+            {
+                createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
+            }
+        }
+
+        final List<IIssue> ignoredErrorOrWarningIssues = systemInfoProcessor
+                .getIssues(issue -> SonargraphBase.isIgnoredErrorOrWarningIssue(issue.getIssueType()));
+        if (!ignoredErrorOrWarningIssues.isEmpty())
+        {
+            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + ignoredErrorOrWarningIssues.size()
+                    + " system setup related error/warning issue(s)");
+            int i = 1;
+            for (final IIssue nextIssue : ignoredErrorOrWarningIssues)
+            {
+                LOGGER.warn("[" + i + "] " + nextIssue.getPresentationName());
+                for (final INamedElement nextAffected : nextIssue.getAffectedNamedElements())
+                {
+                    LOGGER.warn(" - " + nextAffected.getName() + " [" + nextAffected.getPresentationKind() + "]");
+                }
+                i++;
+            }
+        }
+    }
+
+    private final void processModule(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem system,
+            final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final ProcessingData data)
+    {
+        final Optional<IMetricLevel> metricLevelOptional = moduleInfoProcessor.getMetricLevels().stream()
+                .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
+        if (metricLevelOptional.isPresent())
+        {
+            processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metricLevelOptional.get(), data);
+        }
+
+        final List<IIssue> systemIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
+                && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(module));
+        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
+
+        for (final IIssue nextIssue : systemIssues)
+        {
+            final IIssueType nextIssueType = nextIssue.getIssueType();
+            final String nextRealRuleKey = SonargraphBase.createRuleKey(nextIssueType.getName());
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
+            if (nextRule != null && !data.issueAlreadyCreated(nextRealRuleKey))
+            {
+                createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                data.addCreatedIssue(nextRealRuleKey);
+            }
+        }
+
+        final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor
+                .getIssuesForSourceFiles(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
+        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
+        {
+            addIssuesToSourceFile(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(),
+                    issuesPerSourceFile.getValue());
+        }
+
+        final Map<String, List<IIssue>> directoryIssueMap = moduleInfoProcessor
+                .getIssuesForDirectories(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
+        for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
+        {
+            addIssuesToDirectory(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerDirectory.getKey(),
+                    issuesPerDirectory.getValue());
+        }
+    }
+
     private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
     {
         final StringBuilder builder = new StringBuilder();
@@ -290,91 +499,6 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
-            final ISystemInfoProcessor systemInfoProcessor, final ProcessingData data)
-    {
-        final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
-        if (systemLevelOptional.isPresent())
-        {
-            processMetrics(context, inputComponent, softwareSystem, softwareSystem, systemInfoProcessor, systemLevelOptional.get(), data);
-        }
-
-        final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
-                && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem));
-        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
-
-        for (final IIssue nextIssue : systemIssues)
-        {
-            final IIssueType nextIssueType = nextIssue.getIssueType();
-            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
-            if (nextRule != null && !data.issueAlreadyCreated(SonargraphBase.createRuleKey(nextIssueType.getName())))
-            {
-                createIssue(context, inputComponent, nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
-            }
-        }
-
-        final List<IIssue> ignoredErrorOrWarningIssues = systemInfoProcessor
-                .getIssues(issue -> SonargraphBase.isIgnoredErrorOrWarningIssue(issue.getIssueType()));
-        if (!ignoredErrorOrWarningIssues.isEmpty())
-        {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + ignoredErrorOrWarningIssues.size()
-                    + " system setup related error/warning issue(s)");
-            int i = 1;
-            for (final IIssue nextIssue : ignoredErrorOrWarningIssues)
-            {
-                LOGGER.warn("[" + i + "] " + nextIssue.getPresentationName());
-                for (final INamedElement nextAffected : nextIssue.getAffectedNamedElements())
-                {
-                    LOGGER.warn(" - " + nextAffected.getName() + " [" + nextAffected.getPresentationKind() + "]");
-                }
-                i++;
-            }
-        }
-    }
-
-    private final void processModule(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem system,
-            final IModule module, final IModuleInfoProcessor moduleInfoProcessor, final ProcessingData data)
-    {
-        final Optional<IMetricLevel> metricLevelOptional = moduleInfoProcessor.getMetricLevels().stream()
-                .filter(level -> level.getName().equals(IMetricLevel.MODULE)).findAny();
-        if (metricLevelOptional.isPresent())
-        {
-            processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metricLevelOptional.get(), data);
-        }
-
-        final List<IIssue> systemIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
-                && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(module));
-        final Map<String, ActiveRule> keyToRule = data.getActiveRules();
-
-        for (final IIssue nextIssue : systemIssues)
-        {
-            final IIssueType nextIssueType = nextIssue.getIssueType();
-            final String nextRealRuleKey = SonargraphBase.createRuleKey(nextIssueType.getName());
-            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
-            if (nextRule != null && !data.issueAlreadyCreated(nextRealRuleKey))
-            {
-                createIssue(context, inputComponent, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
-                data.addCreatedIssue(nextRealRuleKey);
-            }
-        }
-
-        final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor
-                .getIssuesForSourceFiles(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
-        for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
-        {
-            addIssuesToSourceFile(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerSourceFile.getKey(),
-                    issuesPerSourceFile.getValue());
-        }
-
-        final Map<String, List<IIssue>> directoryIssueMap = moduleInfoProcessor
-                .getIssuesForDirectories(issue -> !issue.isIgnored() && !SonargraphBase.ignoreIssueType(issue.getIssueType()));
-        for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
-        {
-            addIssuesToDirectory(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(), issuesPerDirectory.getKey(),
-                    issuesPerDirectory.getValue());
-        }
-    }
-
     @SuppressWarnings("unchecked")
     private void createNewMeasure(final SensorContext context, final InputComponent inputComponent, final Metric<? extends Serializable> metric,
             final IMetricValue metricValue)
@@ -458,44 +582,6 @@ public final class SonargraphSensor implements Sensor
         newIssue.save();
     }
 
-    @Override
-    public void describe(final SensorDescriptor descriptor)
-    {
-        descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-    }
-
-    private File getReportFile(final Configuration configuration)
-    {
-        String relativeReportPath = null;
-
-        final Optional<String> configuredRelativeReportPathOptional = configuration.get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
-        if (configuredRelativeReportPathOptional.isPresent())
-        {
-            final String configuredRelativeReportPath = configuredRelativeReportPathOptional.get();
-            if (!configuredRelativeReportPath.isEmpty())
-            {
-                relativeReportPath = configuredRelativeReportPath;
-            }
-        }
-
-        if (relativeReportPath == null)
-        {
-            relativeReportPath = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file path not configured - using default '"
-                    + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'");
-        }
-
-        final File reportFile = fileSystem.resolvePath(relativeReportPath);
-        if (reportFile.exists())
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using XML report file '" + reportFile.getAbsolutePath() + "'");
-            return reportFile;
-        }
-
-        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file '" + reportFile.getAbsolutePath() + "' not found");
-        return null;
-    }
-
     private ProcessingData createProcessingData(final SensorContext context)
     {
         final Map<String, ActiveRule> activeRules = new HashMap<>();
@@ -551,60 +637,4 @@ public final class SonargraphSensor implements Sensor
         return SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir());
     }
 
-    private void process(final SensorContext context, final ISonargraphSystemController controller, final InputModule inputModule,
-            final boolean isProject)
-    {
-        final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
-
-        final IModule module = getModule(softwareSystem, inputModule);
-        if (isProject || module != null)
-        {
-            final ProcessingData data = createProcessingData(context);
-            if (module != null)
-            {
-                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing module metrics/issues");
-                processModule(context, inputModule, softwareSystem, module, controller.createModuleInfoProcessor(module), data);
-            }
-            if (isProject)
-            {
-                LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing system metrics/issues");
-                processSystem(context, inputModule, softwareSystem, controller.createSystemInfoProcessor(), data);
-            }
-            if (customMetrics != null)
-            {
-                SonargraphBase.save(customMetrics);
-                customMetrics = null;
-            }
-        }
-    }
-
-    @Override
-    public void execute(final SensorContext context)
-    {
-        final InputModule inputModule = context.module();
-        final boolean isProject = isProject(inputModule);
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing " + (isProject ? "project '" : "module '") + inputModule.key()
-                + "'");
-
-        final File reportFile = getReportFile(context.config());
-        if (reportFile != null)
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading XML report file '" + reportFile.getAbsolutePath() + "'");
-
-            final ISonargraphSystemController controller = ControllerAccess.createController();
-            final Result result = controller.loadSystemReport(reportFile);
-            if (result.isSuccess())
-            {
-                process(context, controller, inputModule, isProject);
-            }
-            else
-            {
-                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + result.toString());
-            }
-        }
-
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing " + (isProject ? "project '" : "module '")
-                + inputModule.key() + "'");
-    }
 }

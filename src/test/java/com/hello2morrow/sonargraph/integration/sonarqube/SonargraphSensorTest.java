@@ -269,6 +269,30 @@ public final class SonargraphSensorTest
     }
 
     @Test
+    public void testSonargraphSensorOnTestProjectWithReportFromDifferentOrigin() throws IOException
+    {
+        final String basePath = "./src/test/test-project";
+        final SensorContextTester sensorContextTester = SensorContextTester.create(new File(basePath).getCanonicalFile());
+
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/test-project/test-project_from_different_origin.xml");
+        settings.setProperty(SonargraphBase.SONARGRAPH_BASE_DIR_KEY, "./src/test/test-project");
+        sensorContextTester.setSettings(settings);
+
+        sensorContextTester.setActiveRules(rulesBuilder.build());
+
+        final DefaultFileSystem fileSystem = sensorContextTester.fileSystem();
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
+                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
+        sonargraphSensor.describe(sensorDescriptor);
+        sonargraphSensor.execute(sensorContextTester);
+    }
+
+    @Test
     public void testSonargraphSensorOnEmptyTestProject()
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("./src/test/test-project"));

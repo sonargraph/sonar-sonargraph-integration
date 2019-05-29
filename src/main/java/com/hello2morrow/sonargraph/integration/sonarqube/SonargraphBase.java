@@ -61,6 +61,8 @@ final class SonargraphBase
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
     static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
 
+    static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
+
     static final String SCRIPT_ISSUE_CATEGORY = "ScriptBased";
     static final String SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME = "Script Based";
     static final String SCRIPT_ISSUE_NAME = "ScriptIssue";
@@ -431,6 +433,28 @@ final class SonargraphBase
         }
     }
 
+    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
+    {
+        IModule matched = null;
+
+        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
+        if (moduleCandidates.size() == 1)
+        {
+            matched = moduleCandidates.get(0);
+        }
+
+        if (matched == null)
+        {
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found for '" + inputModuleKey + "'");
+        }
+        else
+        {
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
+        }
+
+        return matched;
+    }
+
     private static List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
@@ -474,27 +498,5 @@ final class SonargraphBase
         }
 
         return Collections.emptyList();
-    }
-
-    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
-    {
-        IModule matched = null;
-
-        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
-        if (moduleCandidates.size() == 1)
-        {
-            matched = moduleCandidates.get(0);
-        }
-
-        if (matched == null)
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found for '" + inputModuleKey + "'");
-        }
-        else
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
-        }
-
-        return matched;
     }
 }
