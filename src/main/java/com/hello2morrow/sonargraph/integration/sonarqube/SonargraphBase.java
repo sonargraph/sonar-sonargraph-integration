@@ -433,29 +433,38 @@ final class SonargraphBase
         }
     }
 
-    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
+    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory, final boolean isProject)
     {
         IModule matched = null;
 
-        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
-        if (moduleCandidates.size() == 1)
+        final String sqMsgPart = "SonarQube " + (isProject ? "project" : "module") + " '" + inputModuleKey + "'.";
+        final List<IModule> moduleCandidates = getSonargraphModuleCandidates(softwareSystem, baseDirectory);
+        if (moduleCandidates.isEmpty())
+        {
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No Sonargraph module match found for " + sqMsgPart);
+        }
+        else if (moduleCandidates.size() == 1)
         {
             matched = moduleCandidates.get(0);
-        }
-
-        if (matched == null)
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found for '" + inputModuleKey + "'");
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph module '" + matched.getName() + "' for " + sqMsgPart);
         }
         else
         {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skip Sonargraph module processing as " + moduleCandidates.size()
+                    + " modules are detected as potential matches for " + sqMsgPart);
         }
 
         return matched;
     }
 
-    private static List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    /**
+     * Determines the Sonargraph module(s) with the highest number of root directories that can be located underneath the given baseDirectory.
+     *
+     * @param softwareSystem
+     * @param baseDirectory
+     * @return A list of matching Sonargraph modules. Problems are indicated by list size of 0 (no match) or > 1 (several modules found).
+     */
+    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
@@ -476,8 +485,8 @@ final class SonargraphBase
                     final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
                     if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
                     {
-                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched root directory '" + nextIdentifyingPath + "' underneath '"
-                                + identifyingBaseDirectoryPath + "'");
+                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph root directory '" + nextIdentifyingPath
+                                + "' underneath '" + identifyingBaseDirectoryPath + "'");
                         matchedRootDirs++;
                     }
                 }

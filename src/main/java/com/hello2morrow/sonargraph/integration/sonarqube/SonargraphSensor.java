@@ -81,6 +81,10 @@ public final class SonargraphSensor implements Sensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
 
+    /**
+     * Container for active rules, metrics, created measures and created issues. It is needed to avoid creating the same measures twice if the
+     * Sonargraph system contains only a single module.
+     */
     static final class ProcessingData
     {
         private final Set<String> createdMeasures = new LinkedHashSet<>();
@@ -153,8 +157,6 @@ public final class SonargraphSensor implements Sensor
         final File reportFile = getReportFile(context.config());
         if (reportFile != null)
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Reading XML report file '" + reportFile.getAbsolutePath() + "'");
-
             final ISonargraphSystemController controller = ControllerAccess.createController();
 
             final File baseDir = getSystemBaseDirectory(context.config());
@@ -237,11 +239,11 @@ public final class SonargraphSensor implements Sensor
     {
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
 
-        final IModule module = getModule(softwareSystem, inputModule);
+        final IModule module = getModule(softwareSystem, inputModule, isProject);
         final String projectOnlyConfig = context.config().get(SonargraphBase.PROJECT_ONLY).orElse(null);
-        if (projectOnlyConfig != null && Boolean.parseBoolean(projectOnlyConfig) && isProject && module != null)
+        if (projectOnlyConfig != null && Boolean.parseBoolean(projectOnlyConfig) && isProject && module == null)
         {
-            processEverything(context, inputModule, softwareSystem);
+            processEverything(context, inputModule, softwareSystem, controller);
         }
         else if (isProject || module != null)
         {
@@ -264,9 +266,23 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private void processEverything(final SensorContext context, final InputModule inputModule, final ISoftwareSystem softwareSystem)
+    private void processEverything(final SensorContext context, final InputModule inputModule, final ISoftwareSystem softwareSystem,
+            final ISonargraphSystemController controller)
     {
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": [TODO] Processing all system and module information");
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME
+                + ": Processing all Sonargraph system and module information for SonarQube project '" + inputModule.key() + "'.");
+
+        final ProcessingData processingData = createProcessingData(context);
+        final ISystemInfoProcessor systemInfoProcessor = controller.createSystemInfoProcessor();
+        processSystem(context, inputModule, softwareSystem, systemInfoProcessor, processingData);
+
+        for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
+        {
+            final IModule module = nextEntry.getValue();
+            final IModuleInfoProcessor moduleInfoProcessor = controller.createModuleInfoProcessor(module);
+
+            processModule(context, inputModule, softwareSystem, module, moduleInfoProcessor, processingData);
+        }
     }
 
     private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,
@@ -321,11 +337,11 @@ public final class SonargraphSensor implements Sensor
             processMetrics(context, inputComponent, system, module, moduleInfoProcessor, metricLevelOptional.get(), data);
         }
 
-        final List<IIssue> systemIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
+        final List<IIssue> moduleIssues = moduleInfoProcessor.getIssues(issue -> !issue.isIgnored()
                 && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(module));
         final Map<String, ActiveRule> keyToRule = data.getActiveRules();
 
-        for (final IIssue nextIssue : systemIssues)
+        for (final IIssue nextIssue : moduleIssues)
         {
             final IIssueType nextIssueType = nextIssue.getIssueType();
             final String nextRealRuleKey = SonargraphBase.createRuleKey(nextIssueType.getName());
@@ -560,6 +576,8 @@ public final class SonargraphSensor implements Sensor
             final Optional<IMetricValue> metricValueOptional = infoProcessor.getMetricValueForElement(nextMetricId, level, container.getFqName());
             if (metricValueOptional.isPresent())
             {
+                //TODO [IK -> DM] I don't understand this code. Why is it necessary to check if a measure has already been created?
+                //How and when can this happen? In case there is a single module present in a Software System we don't want to add the same measures twice?
                 if (!data.measureAlreadyCreated(nextMetricKey))
                 {
                     createNewMeasure(context, inputComponent, metric, metricValueOptional.get());
@@ -628,7 +646,7 @@ public final class SonargraphSensor implements Sensor
         return isProject;
     }
 
-    private IModule getModule(final ISoftwareSystem softwareSystem, final InputModule inputModule)
+    private IModule getModule(final ISoftwareSystem softwareSystem, final InputModule inputModule, final boolean isProject)
     {
         if (!fileSystem.hasFiles(f -> SonargraphBase.JAVA.equals(f.language())))
         {
@@ -644,7 +662,7 @@ public final class SonargraphSensor implements Sensor
             return null;
         }
 
-        return SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir());
+        return SonargraphBase.matchModule(softwareSystem, inputModule.key(), fileSystem.baseDir(), isProject);
     }
 
 }

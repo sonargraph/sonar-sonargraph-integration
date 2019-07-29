@@ -152,7 +152,7 @@ public final class SonargraphBaseTest
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue(result.isSuccess());
 
-        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir());
+        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir(), false);
         assertNotNull("No match found for 'Bla'", matched);
     }
 
