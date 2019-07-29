@@ -223,10 +223,10 @@ public final class SonargraphSensor implements Sensor
         }
 
         final String path = basePathOptional.get();
-        final File reportFile = fileSystem.resolvePath(path);
-        if (reportFile.exists())
+        final File baseDir = fileSystem.resolvePath(path);
+        if (baseDir.exists())
         {
-            return reportFile;
+            return baseDir;
         }
 
         return null;
@@ -238,7 +238,12 @@ public final class SonargraphSensor implements Sensor
         final ISoftwareSystem softwareSystem = controller.getSoftwareSystem();
 
         final IModule module = getModule(softwareSystem, inputModule);
-        if (isProject || module != null)
+        final String projectOnlyConfig = context.config().get(SonargraphBase.PROJECT_ONLY).orElse(null);
+        if (projectOnlyConfig != null && Boolean.parseBoolean(projectOnlyConfig) && isProject && module != null)
+        {
+            processEverything(context, inputModule, softwareSystem);
+        }
+        else if (isProject || module != null)
         {
             final ProcessingData data = createProcessingData(context);
             if (module != null)
@@ -257,6 +262,11 @@ public final class SonargraphSensor implements Sensor
                 customMetrics = null;
             }
         }
+    }
+
+    private void processEverything(final SensorContext context, final InputModule inputModule, final ISoftwareSystem softwareSystem)
+    {
+        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": [TODO] Processing all system and module information");
     }
 
     private void processSystem(final SensorContext context, final InputComponent inputComponent, final ISoftwareSystem softwareSystem,

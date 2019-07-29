@@ -1,0 +1,1 @@
+D:\02_programs\sonarqube\sonar-scanner-4.0.0.1744-windows\bin\sonar-scanner-debug.bat -Dsonar.projectKey=SampleProject -Dsonar.sonargraph.integration:report.path=./AlarmClock.xml  -Dsonar.sonargraph.integration:project.only=true

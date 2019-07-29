@@ -1,0 +1,19 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.hello2morrow.sonargraph.test</groupId>
+		<artifactId>AlarmClockMain</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>AlarmClock</artifactId>
+	<packaging>pom</packaging>
+	<name>AlarmClock</name>
+	<modules>
+		<module>View</module>
+		<module>Model</module>
+		<module>Foundation</module>
+		
+	</modules>
+	<description>Second-level module containing other modules.</description>
+</project>

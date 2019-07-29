@@ -58,10 +58,10 @@ final class SonargraphBase
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
+    static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
+    static final String PROJECT_ONLY = CONFIG_PREFIX + ":" + "project.only";
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
     static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
-
-    static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
 
     static final String SCRIPT_ISSUE_CATEGORY = "ScriptBased";
     static final String SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME = "Script Based";

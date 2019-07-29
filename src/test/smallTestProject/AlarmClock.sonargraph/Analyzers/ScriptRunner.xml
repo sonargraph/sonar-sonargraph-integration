@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="8.9.2.0" analyzer="ScriptRunner">
+    <stringEntry value="Alarm" name="0:./CountLinesOfCode.xml"></stringEntry>
+</analyzerConfiguration>
