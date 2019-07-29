@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<script version="8.5.2.0">
+    <description></description>
+    <source>
+{
+printn 'Compilation Error: Misplaced "}"'
+</source>
+    <timeout>10</timeout>
+    <parameterDefinitions></parameterDefinitions>
+    <languages></languages>
+</script>

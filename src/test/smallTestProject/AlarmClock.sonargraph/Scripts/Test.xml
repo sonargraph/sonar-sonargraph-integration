@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<script version="8.5.0.333">
+    <description></description>
+    <source>println "parameterString: " + parameterString
+println "parameterInteger: " + parameterInteger
+println "parameterBoolean: " + parameterBoolean
+</source>
+    <timeout>10</timeout>
+    <parameterDefinitions>
+        <parameterDefinition name="String" type="STRING" description="" defaultValue="" candidates=""></parameterDefinition>
+        <parameterDefinition name="Integer" type="INTEGER" description="" defaultValue="" candidates=""></parameterDefinition>
+        <parameterDefinition name="Boolean" type="BOOLEAN" description="" defaultValue="" candidates=""></parameterDefinition>
+    </parameterDefinitions>
+    <languages></languages>
+</script>

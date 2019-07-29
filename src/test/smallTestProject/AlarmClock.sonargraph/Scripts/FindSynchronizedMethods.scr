@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<script version="8.5.2.0">
+    <description>The desciption</description>
+    <source>
+		println "Hello World 1!"
+		println "Hello World 2!"
+	</source>
+    <timeout>10</timeout>
+    <parameterDefinitions></parameterDefinitions>
+    <languages></languages>
+</script>
