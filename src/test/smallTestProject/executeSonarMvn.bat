@@ -1,0 +1,1 @@
+mvnDebug sonar:sonar -Dsonar.sonargraph.integration:report.path=./AlarmClock.xml
