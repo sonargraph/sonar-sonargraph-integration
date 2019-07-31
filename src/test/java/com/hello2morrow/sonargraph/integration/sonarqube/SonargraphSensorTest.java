@@ -67,61 +67,61 @@ public final class SonargraphSensorTest
         @Override
         public SensorDescriptor requireProperty(final String... propertyKey)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor requireProperties(final String... propertyKeys)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor onlyWhenConfiguration(final Predicate<Configuration> predicate)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor onlyOnLanguages(final String... languageKeys)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor onlyOnLanguage(final String languageKey)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor onlyOnFileType(final Type type)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor name(final String sensorName)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor global()
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor createIssuesForRuleRepository(final String... repositoryKey)
         {
-            return null;
+            return this;
         }
 
         @Override
         public SensorDescriptor createIssuesForRuleRepositories(final String... repositoryKeys)
         {
-            return null;
+            return this;
         }
     };
 
@@ -142,6 +142,12 @@ public final class SonargraphSensorTest
         rulesBuilder = new ActiveRulesBuilder();
         for (final RulesDefinition.Rule nextRule : rules)
         {
+            //When migrating to SonarQbue Plugin API > 7.9, this must be used.  
+            //            final NewActiveRule.Builder builder = new NewActiveRule.Builder();
+            //            final NewActiveRule rule = builder.setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
+            //                    .setLanguage(SonargraphBase.JAVA).build();
+            //            rulesBuilder.addRule(rule);
+
             rulesBuilder.create(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
                     .setLanguage(SonargraphBase.JAVA).activate();
         }

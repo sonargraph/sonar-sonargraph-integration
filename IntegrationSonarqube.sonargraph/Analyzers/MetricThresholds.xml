@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
-<analyzerConfiguration version="9.7.0.100" analyzer="MetricThresholds">
-    <stringEntry value="0.0:2.0:ERROR" name="CoreAcd:System"></stringEntry>
-    <stringEntry value="0:1000:WARNING" name="CoreLinesOfCode:SourceFile"></stringEntry>
-    <stringEntry value="0:15:WARNING" name="CoreModifiedCcn:Routine"></stringEntry>
+<analyzerConfiguration version="9.11.2.100" analyzer="MetricThresholds">
+	<stringEntry value="0:1000:WARNING" name="CoreLinesOfCode:SourceFile"></stringEntry>
+	<stringEntry value="0:15:WARNING" name="CoreModifiedCcn:Routine"></stringEntry>
 </analyzerConfiguration>
