@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
-<analyzerConfiguration version="9.7.0.100" analyzer="ScriptRunner">
-    <stringEntry value="Default" name="0:./Test.xml"></stringEntry>
+<analyzerConfiguration version="9.11.2.100" analyzer="ScriptRunner">
+	<stringEntry value="Default" name="0:./Test.xml"></stringEntry>
+	<stringEntry value="Default" name="1:./Java/UsageOfSystemOutPrintln.xml"></stringEntry>
 </analyzerConfiguration>

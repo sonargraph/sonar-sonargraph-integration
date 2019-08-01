@@ -1,0 +1,4 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="9.11.2.100" analyzer="PackageCyclesSystem">
+	<intEntry value="2" name="CriticalNamespaceCycleSize"></intEntry>
+</analyzerConfiguration>
