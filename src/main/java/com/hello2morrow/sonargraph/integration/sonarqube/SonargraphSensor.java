@@ -74,10 +74,8 @@ import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 public final class SonargraphSensor implements Sensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
+    private static final int ZERO_LINE_OFFSET = 0;
 
-    /**
-     * Container for active Sonargraph rules and metrics.
-     */
     static final class ActiveRulesAndMetrics
     {
         private final Map<String, ActiveRule> activeRules;
@@ -214,7 +212,7 @@ public final class SonargraphSensor implements Sensor
             final IModule module = nextEntry.getValue();
             final IModuleInfoProcessor moduleInfoProcessor = controller.createModuleInfoProcessor(module);
 
-            processModule(context, softwareSystem, module, moduleInfoProcessor, rulesAndMetrics);
+            processModule(context, moduleInfoProcessor, rulesAndMetrics);
         }
 
         if (customMetrics != null)
@@ -263,8 +261,8 @@ public final class SonargraphSensor implements Sensor
         }
     }
 
-    private final void processModule(final SensorContext context, final ISoftwareSystem system, final IModule module,
-            final IModuleInfoProcessor moduleInfoProcessor, final ActiveRulesAndMetrics rulesAndMetrics)
+    private final void processModule(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
+            final ActiveRulesAndMetrics rulesAndMetrics)
     {
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
         final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor
@@ -369,20 +367,22 @@ public final class SonargraphSensor implements Sensor
                 {
                     final List<IDuplicateCodeBlockOccurrence> others = new ArrayList<>(nextOccurrences);
                     others.remove(nextOccurrence);
-                    createIssue(context, inputPath, rule,
-                            createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others),
-                            location -> location.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), 0),
-                                    new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), 1))));
+                    final String issueDescription = createIssueDescription(moduleInfoProcessor, nextDuplicateCodeBlockIssue, nextOccurrence, others);
+                    createIssue(context, inputPath, rule, issueDescription,
+                            location -> location.at(new DefaultTextRange(new DefaultTextPointer(nextOccurrence.getStartLine(), ZERO_LINE_OFFSET),
+                                    new DefaultTextPointer(nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(), ZERO_LINE_OFFSET))));
                 }
             }
         }
         else
         {
-            createIssue(context, inputPath, rule, createIssueDescription(moduleInfoProcessor, issue), location ->
+            final String issueDescription = createIssueDescription(moduleInfoProcessor, issue);
+            createIssue(context, inputPath, rule, issueDescription, location ->
             {
                 final int line = issue.getLine();
                 final int lineToUse = line <= 0 ? 1 : line;
-                location.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, 0), new DefaultTextPointer(lineToUse, 1)));
+                location.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, ZERO_LINE_OFFSET),
+                        new DefaultTextPointer(lineToUse, ZERO_LINE_OFFSET)));
             });
         }
     }
@@ -403,7 +403,14 @@ public final class SonargraphSensor implements Sensor
                 final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
                 if (nextRule != null)
                 {
-                    createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, nextIssue, nextRule);
+                    try
+                    {
+                        createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, nextIssue, nextRule);
+                    }
+                    catch (final Exception e)
+                    {
+                        LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '" + nextIssue + "'. ", e);
+                    }
                 }
             }
         }
@@ -427,7 +434,14 @@ public final class SonargraphSensor implements Sensor
                 final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
                 if (nextRule != null)
                 {
-                    createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                    try
+                    {
+                        createIssue(context, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                    }
+                    catch (final Exception e)
+                    {
+                        LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '" + nextIssue + "'. ", e);
+                    }
                 }
             }
         }

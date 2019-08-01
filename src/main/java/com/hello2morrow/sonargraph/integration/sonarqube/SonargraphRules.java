@@ -52,9 +52,8 @@ public final class SonargraphRules implements RulesDefinition
         final IIssueCategory category = issueType.getCategory();
         final String categoryPresentationName = category.getPresentationName();
         final String categoryTag = SonargraphBase.createRuleCategoryTag(categoryPresentationName);
-        final String description = "Description '"
-                + (issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName()) + "', category '"
-                + categoryPresentationName + "'";
+        final String issuePresentationName = issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName();
+        final String description = createDescription(issuePresentationName, categoryPresentationName);
 
         final String severity;
         switch (issueType.getSeverity())
@@ -81,7 +80,6 @@ public final class SonargraphRules implements RulesDefinition
     public void define(final Context context)
     {
         final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-
         final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
@@ -93,22 +91,27 @@ public final class SonargraphRules implements RulesDefinition
             }
         }
 
+        final String scriptIssueDescription = createDescription(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME,
+                SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME);
         createRule(SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME),
                 SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME),
-                SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR,
-                "Description '" + SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME + "', category '"
-                        + SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR, scriptIssueDescription,
                 repository);
 
+        final String pluginIssueDescription = createDescription(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME,
+                SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME);
         createRule(SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME),
                 SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME),
-                SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR,
-                "Description '" + SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME + "', category '"
-                        + SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME + "'",
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME), Severity.MINOR, pluginIssueDescription,
                 repository);
 
         repository.done();
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
+    }
+
+    private String createDescription(final String issuePresentationName, final String issueCategoryPresentationName)
+    {
+        return String.format("Description '%s', category '%s'", issuePresentationName, issueCategoryPresentationName);
     }
 }
