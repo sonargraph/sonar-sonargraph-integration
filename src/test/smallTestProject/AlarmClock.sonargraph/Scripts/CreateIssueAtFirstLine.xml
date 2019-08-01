@@ -1,0 +1,31 @@
+<?xml version="1.0" ?>
+<script version="9.11.2.100">
+	<description></description>
+	<source><![CDATA[//Create visitor. For language specific visitor use <language>Access.createVisitor()
+ICoreVisitor v = coreAccess.createVisitor()
+
+//Example stub-method to process types.
+v.onSourceFile
+{
+    ISourceFileAccess sourceFile ->
+    
+    if (!sourceFile.external)
+    {
+        result.addWarningIssue(sourceFile, "FIXME", "Mööp", 1);
+    }
+    
+}
+//Traverse the model
+coreAccess.visitModel(v)
+
+//If you know exactly which elements you want to find, use the search API (check the JavaDoc [F1] for details):
+//
+//ElementAccess systemOut = coreAccess.findElementByFqn("Workspace:External [Java]:[Unknown]:java:lang:System:System:out")
+//println "Found system out: " + (systemOut != null)
+]]></source>
+	<parameterDefinitions>
+		<parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+		<parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+	</parameterDefinitions>
+	<languages></languages>
+</script>

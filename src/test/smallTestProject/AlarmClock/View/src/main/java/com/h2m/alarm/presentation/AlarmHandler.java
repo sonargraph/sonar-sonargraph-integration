@@ -1,3 +1,4 @@
+
 package com.h2m.alarm.presentation;
 
 import java.util.ArrayList;
@@ -13,7 +14,7 @@ public abstract class AlarmHandler implements IObserver
     static
     {
     }
-    
+
     protected AlarmHandler()
     {
         s_AlarmHandler.add(this);
@@ -24,7 +25,7 @@ public abstract class AlarmHandler implements IObserver
         return s_AlarmHandler;
     }
 
-    public final void handleEvent(Observable observable, String event)
+    public final void handleEvent(final Observable observable, final String event)
     {
         assert observable != null : "'observable' must not be null";
         assert event != null : "'event' must not be null";
