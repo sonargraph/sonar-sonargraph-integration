@@ -51,7 +51,7 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>3.2.2</version>
+      <version>3.3.0</version>
     </dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
@@ -143,6 +143,7 @@
               <goal>check</goal>
             </goals>
           </execution>
+          <?m2e ignore?>
         </executions>
       </plugin>
       <plugin>
@@ -212,7 +213,7 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
-                    <ignore />
+                    <?m2e ignore?>
                   </action>
                 </pluginExecution>
               </pluginExecutions>
