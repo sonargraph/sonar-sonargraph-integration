@@ -50,7 +50,7 @@ import org.sonar.api.config.Configuration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
 import com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
@@ -123,7 +123,7 @@ public final class SonargraphSensor implements Sensor
         final File reportFile = getReportFile(context.config());
         if (reportFile != null)
         {
-            final ISonargraphSystemController controller = ControllerAccess.createController();
+            final ISonargraphSystemController controller = ControllerFactory.createController();
 
             final File baseDir = getSystemBaseDirectory(context.config());
             Result result;

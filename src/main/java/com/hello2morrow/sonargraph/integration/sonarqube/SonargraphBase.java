@@ -37,7 +37,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
 import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
 import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
@@ -339,7 +339,7 @@ final class SonargraphBase
         {
             if (inputStream != null)
             {
-                final IMetaDataController controller = ControllerAccess.createMetaDataController();
+                final IMetaDataController controller = ControllerFactory.createMetaDataController();
                 final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {

@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
@@ -122,7 +122,7 @@ public final class SonargraphBaseTest
     @Test
     public void testCustomMetrics()
     {
-        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue(result.isSuccess());
 
@@ -148,7 +148,7 @@ public final class SonargraphBaseTest
                         .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
                         .setLanguage(SonargraphBase.JAVA).build());
 
-        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue(result.isSuccess());
 
