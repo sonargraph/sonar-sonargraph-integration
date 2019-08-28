@@ -228,8 +228,10 @@
 		<issueFilter description="Ignore issues of internal components containing legacy/generated code" information="Ignoring issues of 0 internal component(s) (processed 2)" numberOfExcludedElements="0" numberOfIncludedElements="2"></issueFilter>
 		<module language="Java" description="" kind="_a5" fqName="Workspace:M1" id="_a4" name="M1" presentationName="M1">
 			<rootDirectory kind="_a7" fqName="Workspace:M1:Class|./bin" id="_a6" name="Class|./bin" presentationName="./bin">
-				<sourceElement locationOnly="true" kind="_b6" fqName="Workspace:M1:./src:com:h2m:C1.java" id="_c0" name="C1.java" presentationName="./com/h2m/C1.java"></sourceElement>
+			<!--
+			 	<sourceElement locationOnly="true" kind="_b6" fqName="Workspace:M1:./src:com:h2m:C1.java" id="_c0" name="C1.java" presentationName="./com/h2m/C1.java"></sourceElement>
 				<sourceElement locationOnly="true" kind="_b6" fqName="Workspace:M1:./src:com:h2m:C2.java" id="_c5" name="C2.java" presentationName="./com/h2m/C2.java"></sourceElement>
+			-->
 			</rootDirectory>
 			<rootDirectory kind="_a9" fqName="Workspace:M1:./src" id="_a8" name="./src" presentationName="./src">
 				<physicalRecursiveElement relativeDirectoryPath="./com/h3m" originalLocation="_c7" kind="_b0" fqName="Workspace:M1:./src:com:h3m" id="_af" name="h3m" presentationName="com.h3m"></physicalRecursiveElement>
@@ -824,9 +826,9 @@
 		</elementIssues>
 	</issues>
 	<resolutions numberOfResolutions="4">
-		<resolution type="Todo" prio="Medium" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:272547927" issueIds="_d2" description="Review." information="Todo" assignee="Dietmar" date="2018-05-15T22:27:56.031+02:00" applicable="true" task="true" refactoring="false"></resolution>
+		<resolution type="Todo" prio="Medium" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:272547927" issueIds="_d2" description="Review." information="Todo" assignee="Dietmar" date="2018-05-15T15:27:56.031-05:00" applicable="true" task="true" refactoring="false"></resolution>
 		<resolution type="Refactoring" prio="Medium" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:1849390983" issueIds="_d3" description="" information="" assignee="" date="2018-05-15T22:28:11.898+02:00" applicable="true" task="true" refactoring="true"></resolution>
 		<resolution type="Ignore" prio="None" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:282701737" issueIds="_d6" description="" information="Threshold Violation (Error), CoreLinesOfCode:SourceFile" assignee="" date="2018-05-19T00:40:59.379+02:00" applicable="true" task="false" refactoring="false"></resolution>
-		<resolution type="Fix" prio="Medium" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:167129215" issueIds="_d7" description="Do it." information="Threshold Violation, CoreCommentLines:SourceFile" assignee="Dietmar" date="2018-05-19T00:42:08.056+02:00" applicable="true" task="true" refactoring="false"></resolution>
+		<resolution type="Fix" prio="Medium" fqName="Files:BaseDirectory:SystemDirectory:Models:Parser:Modifiable.vm:167129215" issueIds="_d7" description="Do it." information="Threshold Violation, CoreCommentLines:SourceFile" assignee="Dietmar" date="2018-05-18T17:42:08.056-05:00" applicable="true" task="true" refactoring="false"></resolution>
 	</resolutions>
 </ns3:report>

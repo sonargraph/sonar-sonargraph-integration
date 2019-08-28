@@ -29,7 +29,7 @@ import org.sonar.api.utils.log.Loggers;
 public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
 {
     private static final Logger LOGGER = Loggers.get(SonargraphProfile.class);
-    private static final List<String> ACTIVATE_RULES_WITH_KEY = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP",
+    static final List<String> ACTIVATE_RULES_WITH_KEY = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP",
             "CRITICAL_NAMESPACE_CYCLE_GROUP", "CRITICAL_COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING",
             "MOVE_REFACTORING", "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "SCRIPT_ISSUE", "DUPLICATE_CODE_BLOCK");
 

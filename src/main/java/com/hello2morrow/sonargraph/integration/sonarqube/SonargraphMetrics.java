@@ -66,7 +66,7 @@ public final class SonargraphMetrics implements Metrics
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
             final List<Metric<Serializable>> customMetrics = SonargraphBase.getCustomMetrics();
             metrics = new ArrayList<>(predefinedMetrics.size() + customMetrics.size());
-            predefinedMetrics.values().forEach(i -> metrics.add(SonargraphBase.createMetric(i)));
+            predefinedMetrics.values().forEach(metricId -> metrics.add(SonargraphBase.createMetric(metricId)));
             customMetrics.forEach(c -> metrics.add(c));
 
             LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + predefinedMetrics.size() + " predefined and "
