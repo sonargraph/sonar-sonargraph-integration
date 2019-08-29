@@ -59,7 +59,7 @@ import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMe
 
 public final class SonargraphSensorTest
 {
-    private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
+    private static final String DUMMY_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
             + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
             + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
 
@@ -210,7 +210,9 @@ public final class SonargraphSensorTest
 
         final MapSettings settings = new MapSettings();
         settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqube_9-11-2.xml");
+        settings.setProperty(SonargraphBase.SONARGRAPH_BASE_DIR_KEY, ".");
         context.setSettings(settings);
+
         context.setActiveRules(rulesBuilder.build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
@@ -306,9 +308,9 @@ public final class SonargraphSensorTest
 
         final DefaultFileSystem fileSystem = context.fileSystem();
         fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
-                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+                .setLanguage(SonargraphBase.JAVA).setContents(DUMMY_CONTENT).build());
         fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
-                .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
+                .setLanguage(SonargraphBase.JAVA).setContents(DUMMY_CONTENT).build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
         sonargraphSensor.describe(sensorDescriptor);
