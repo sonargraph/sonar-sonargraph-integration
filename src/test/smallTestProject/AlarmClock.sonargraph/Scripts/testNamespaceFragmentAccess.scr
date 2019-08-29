@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<script version="9.0.0.100">
+    <description></description>
+    <source><![CDATA[//Create visitor. For language specific visitor use <language>Access.createVisitor()
+ICoreVisitor v = coreAccess.createVisitor()
+
+MetricIdAccess id = coreAccess.getOrCreateMetricId("ChildrenPerFragment","Number children in namespace fragment", "Counting children of namespace fragments", false);
+
+//Example stub-method to process types.
+v.onNamespaceFragment {
+
+    NamespaceFragmentAccess namespaceFragmentAccess ->
+
+        int children = namespaceFragmentAccess.getChildren().size();
+    
+        result.addMetricValue(id, namespaceFragmentAccess, children)
+     
+        v.visitChildren(namespaceFragmentAccess)
+}
+
+
+//Traverse the model
+coreAccess.visitModel(v)
+]]></source>
+    <parameterDefinitions>
+        <parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+        <parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+    </parameterDefinitions>
+    <languages></languages>
+</script>

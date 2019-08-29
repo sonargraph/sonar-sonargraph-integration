@@ -1,12 +1,21 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+3.1.1
+=====
+- Allow processing of a Sonargraph report that has been generated on a different machine.
+  Configuration key "sonar.sonargraph.integration:system.basedir" can be used to specify 
+  the absolute path of the parent directory of the XYZ.sonargraph directory. 
+  This base directory will be used to resolve the relative root directories of the Sonargraph workspace.
+
+
 3.1.0
 =====
 - Make the plugin executable with SonarQube 7.6. The officially supported plugin API version is 6.7.6.
   IMPORTANT: With SQ > 7.6 no metrics and issues are supported for directories anymore. 
   This information for those elements determined by Sonargraph is still available for SQ < 7.6.
 - Make the plugin compatible with Sonargraph 9.10.
+
 
 3.0.0
 =====

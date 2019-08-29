@@ -37,7 +37,7 @@ import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
 import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
 import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
@@ -51,6 +51,21 @@ import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
 final class SonargraphBase
 {
+    static class CustomMetricsPropertiesProvider
+    {
+        public static final String METRICS_PROPERTIES_FILENAME = "metrics.properties";
+
+        public String getDirectory()
+        {
+            return System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+        }
+
+        public String getFilePath()
+        {
+            return getDirectory() + "/" + METRICS_PROPERTIES_FILENAME;
+        }
+    }
+
     static final String SONARGRAPH_PLUGIN_KEY = "sonargraphintegration";
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
@@ -58,6 +73,8 @@ final class SonargraphBase
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
+    static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
+    static final String PROJECT_ONLY = CONFIG_PREFIX + ":" + "project.only";
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
     static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
 
@@ -71,24 +88,6 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_NAME = "PluginIssue";
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
-    interface ICustomMetricsPropertiesProvider
-    {
-        public default String getDirectory()
-        {
-            return System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
-        }
-
-        public default String getFileName()
-        {
-            return "metrics.properties";
-        }
-
-        default String getFilePath()
-        {
-            return getDirectory() + "/" + getFileName();
-        }
-    }
-
     private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
     private static final char CUSTOM_METRIC_SEPARATOR = '|';
     private static final String CUSTOM_METRIC_INT = "INT";
@@ -99,19 +98,9 @@ final class SonargraphBase
             Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
                     "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition"));
 
-    private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
-    {
-        //Default
-    };
-
     private SonargraphBase()
     {
         super();
-    }
-
-    static void setCustomMetricsPropertiesProvider(final ICustomMetricsPropertiesProvider provider)
-    {
-        customMetricsPropertiesProvider = provider;
     }
 
     static String createMetricKeyFromStandardName(final String metricIdName)
@@ -200,7 +189,7 @@ final class SonargraphBase
         return builder.create();
     }
 
-    static Properties loadCustomMetrics()
+    static Properties loadCustomMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
         final Properties customMetrics = new Properties();
 
@@ -231,14 +220,13 @@ final class SonargraphBase
                         + CUSTOM_METRIC_SEPARATOR + trimDescription(metricId.getDescription()));
     }
 
-    static void save(final Properties customMetrics)
+    static void save(final Properties customMetrics, final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
-        try
+        final File directory = new File(customMetricsPropertiesProvider.getDirectory());
+        directory.mkdirs();
+        try (FileWriter writer = new FileWriter(new File(directory, CustomMetricsPropertiesProvider.METRICS_PROPERTIES_FILENAME)))
         {
-            final File file = new File(customMetricsPropertiesProvider.getDirectory());
-            file.mkdirs();
-            customMetrics.store(new FileWriter(new File(file, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
-
+            customMetrics.store(writer, "Custom Metrics");
             LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath()
                     + "' updated, the SonarQube server needs to be restarted");
         }
@@ -325,9 +313,9 @@ final class SonargraphBase
         return metrics;
     }
 
-    static List<Metric<Serializable>> getCustomMetrics()
+    static List<Metric<Serializable>> getCustomMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
-        return getCustomMetrics(loadCustomMetrics());
+        return getCustomMetrics(loadCustomMetrics(customMetricsPropertiesProvider));
     }
 
     static IExportMetaData readBuiltInMetaData()
@@ -337,7 +325,7 @@ final class SonargraphBase
         {
             if (inputStream != null)
             {
-                final IMetaDataController controller = ControllerAccess.createMetaDataController();
+                final IMetaDataController controller = ControllerFactory.createMetaDataController();
                 final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {
@@ -431,7 +419,38 @@ final class SonargraphBase
         }
     }
 
-    private static List<IModule> getModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory, final boolean isProject)
+    {
+        IModule matched = null;
+
+        final String sqMsgPart = "SonarQube " + (isProject ? "project" : "module") + " '" + inputModuleKey + "'.";
+        final List<IModule> moduleCandidates = getSonargraphModuleCandidates(softwareSystem, baseDirectory);
+        if (moduleCandidates.isEmpty())
+        {
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No Sonargraph module match found for " + sqMsgPart);
+        }
+        else if (moduleCandidates.size() == 1)
+        {
+            matched = moduleCandidates.get(0);
+            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph module '" + matched.getName() + "' for " + sqMsgPart);
+        }
+        else
+        {
+            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skip Sonargraph module processing as " + moduleCandidates.size()
+                    + " modules are detected as potential matches for " + sqMsgPart);
+        }
+
+        return matched;
+    }
+
+    /**
+     * Determines the Sonargraph module(s) with the highest number of root directories that can be located underneath the given baseDirectory.
+     *
+     * @param softwareSystem
+     * @param baseDirectory
+     * @return A list of matching Sonargraph modules. Problems are indicated by list size of 0 (no match) or > 1 (several modules found).
+     */
+    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
@@ -452,8 +471,8 @@ final class SonargraphBase
                     final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
                     if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
                     {
-                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched root directory '" + nextIdentifyingPath + "' underneath '"
-                                + identifyingBaseDirectoryPath + "'");
+                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph root directory '" + nextIdentifyingPath
+                                + "' underneath '" + identifyingBaseDirectoryPath + "'");
                         matchedRootDirs++;
                     }
                 }
@@ -474,27 +493,5 @@ final class SonargraphBase
         }
 
         return Collections.emptyList();
-    }
-
-    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory)
-    {
-        IModule matched = null;
-
-        final List<IModule> moduleCandidates = getModuleCandidates(softwareSystem, baseDirectory);
-        if (moduleCandidates.size() == 1)
-        {
-            matched = moduleCandidates.get(0);
-        }
-
-        if (matched == null)
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No module match found for '" + inputModuleKey + "'");
-        }
-        else
-        {
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched module '" + matched.getName() + "'");
-        }
-
-        return matched;
     }
 }

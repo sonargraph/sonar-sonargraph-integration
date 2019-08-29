@@ -1,0 +1,37 @@
+<?xml version="1.0" ?>
+<script version="9.11.2.100">
+	<description></description>
+	<source><![CDATA[//Use the Properties view to determine the fully qualified element name.
+ElementAccess systemElement = javaAccess.findElementByFqn("Workspace:External [Java]:[Unknown]:java:lang:System:System")
+
+if (systemElement != null)
+{
+    //to ensure good performance, it is always a good idea to narrow down the search by providing a search root.
+    SearchResult<FieldAccess> fields = javaAccess.findFields(systemElement, { f-> f.name.equals("java.lang.System.out") || f.name.equals("java.lang.System.err")}, 2)
+
+    for (FieldAccess field : fields.getAllMatches())
+    {
+        List<AggregatedDependencyAccess> agg = field.getIncomingDependencies(Aggregator.METHOD, true, DependencyKind.READ);
+        for (AggregatedDependencyAccess next : agg)
+        {
+            result.addElement(next.from.parent);
+            for (DependencyAccess dep : next.dependencies)
+            {
+                if (!dep.getFrom().isExternal())
+                {
+                    println "Dependency: $dep.nameWithSignature"
+                    result.addWarningIssue(dep, "Don't use System.$field.shortName", "Use LOGGER instead");
+                }
+            }
+        }
+    }
+}
+]]></source>
+	<parameterDefinitions>
+		<parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+		<parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+	</parameterDefinitions>
+	<languages>
+		<language>Java</language>
+	</languages>
+</script>

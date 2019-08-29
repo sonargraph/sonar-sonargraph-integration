@@ -36,7 +36,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.Metric;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerAccess;
+import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
@@ -70,20 +70,20 @@ public final class SonargraphBaseTest
         final IExportMetaData exportMetaData = SonargraphBase.readBuiltInMetaData();
         assertNotNull(exportMetaData);
 
-        int ignoredIssuesCount = 0;
+        int ignoredIssueTypesCount = 0;
         int ignoredErrorOrWarningIssue = 0;
         int scriptIssuesCount = 0;
         int pluginIssuesCount = 0;
 
-        final Set<String> ignoredIssueTypes = new HashSet<>();
+        final Set<String> ignoredIssueCategories = new HashSet<>();
         final Set<String> ruleKeysToCheck = new HashSet<>();
 
         for (final IIssueType nextIssueType : exportMetaData.getIssueTypes().values())
         {
             if (SonargraphBase.ignoreIssueType(nextIssueType))
             {
-                ignoredIssuesCount++;
-                ignoredIssueTypes.add(nextIssueType.getCategory().getName());
+                ignoredIssueTypesCount++;
+                ignoredIssueCategories.add(nextIssueType.getCategory().getName());
             }
             else if (SonargraphBase.isIgnoredErrorOrWarningIssue(nextIssueType))
             {
@@ -104,11 +104,11 @@ public final class SonargraphBaseTest
         assertFalse(ruleKeysToCheck.isEmpty());
         final Set<String> referenceIgnored = new HashSet<>(SonargraphBase.IGNORE_ISSUE_TYPE_CATEGORIES);
         referenceIgnored.remove("Session");
-        assertEquals(referenceIgnored, ignoredIssueTypes);
-        assertTrue(ignoredIssuesCount > 0);
-        assertEquals(0, ignoredErrorOrWarningIssue);
-        assertEquals(0, scriptIssuesCount);
-        assertEquals(0, pluginIssuesCount);
+        assertEquals("Wrong number of ignored issue categories", referenceIgnored, ignoredIssueCategories);
+        assertEquals("Wrong nubmer of ignored issue types", 50, ignoredIssueTypesCount);
+        assertEquals("Wrong number of ignored error or warning issue types", 0, ignoredErrorOrWarningIssue);
+        assertEquals("Wrong number of script issue types", 0, scriptIssuesCount);
+        assertEquals("Wrong number of plugin issue types", 0, pluginIssuesCount);
 
         final List<Metric<Serializable>> metrics = new ArrayList<>();
         for (final IMetricId nextMetricId : exportMetaData.getMetricIds().values())
@@ -116,15 +116,15 @@ public final class SonargraphBaseTest
             metrics.add(SonargraphBase.createMetric(nextMetricId));
         }
 
-        assertTrue(metrics.size() > 0);
+        assertEquals("Wrong number of metrics", 94, metrics.size());
     }
 
     @Test
     public void testCustomMetrics()
     {
-        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
-        assertTrue(result.isSuccess());
+        assertTrue("Failed to load report", result.isSuccess());
 
         final Properties customMetrics = new Properties();
         final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
@@ -133,10 +133,10 @@ public final class SonargraphBaseTest
             SonargraphBase.addCustomMetric(controller.getSoftwareSystem(), nextMetricId, customMetrics);
         }
 
-        assertEquals(customMetrics.size(), metricIds.size());
+        assertEquals("Wrong number of custom metrics", customMetrics.size(), metricIds.size());
 
         final List<Metric<Serializable>> metrics = SonargraphBase.getCustomMetrics(customMetrics);
-        assertEquals(metrics.size(), metricIds.size());
+        assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
     }
 
     @Test
@@ -148,11 +148,11 @@ public final class SonargraphBaseTest
                         .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
                         .setLanguage(SonargraphBase.JAVA).build());
 
-        final ISonargraphSystemController controller = ControllerAccess.createController();
+        final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
-        assertTrue(result.isSuccess());
+        assertTrue("Failed to load report", result.isSuccess());
 
-        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir());
+        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir(), false);
         assertNotNull("No match found for 'Bla'", matched);
     }
 

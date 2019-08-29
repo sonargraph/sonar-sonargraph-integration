@@ -17,6 +17,10 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.List;
+
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.Plugin.Context;
@@ -66,5 +70,9 @@ public final class SonargraphPluginTest
         final Context context = TestPlugin.createTestContext();
         final SonargraphPlugin sonargraphPlugin = new SonargraphPlugin();
         sonargraphPlugin.define(context);
+
+        @SuppressWarnings("rawtypes")
+        final List extensions = context.getExtensions();
+        assertEquals("Wrong number of extensions", 4, extensions.size());
     }
 }

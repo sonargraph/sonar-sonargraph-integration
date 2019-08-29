@@ -1,28 +1,115 @@
 <?xml version="1.0" ?>
-<script version="9.7.0.100">
-    <description></description>
-    <source><![CDATA[//Create visitor. For language specific visitor use <language>Access.createVisitor()
-ICoreVisitor v = coreAccess.createVisitor()
+<script version="9.12.0.100">
+	<description></description>
+	<source><![CDATA[ICoreVisitor v = coreAccess.createVisitor()
+MetricIdAccess metric = coreAccess.getOrCreateMetricId("SQ_Test_Metric", "SonarQube Test Metric",
+    "This is a metric for the SonarQube Junit tests", false, 15, 30, "Test")
 
-v.onModule
+
+//v.onLogicalSystem
+//{
+//    ILogicalSystemAccess system ->
+//    if (!system.external)
+//    {
+//        result.addMetricValue(metric, system, 13)
+//        v.visitChildren(system)
+//    }
+//}
+//
+//v.onLogicalSystemNamespace
+//{
+//    ILogicalNamespaceAccess systemNamespace ->
+//    if (!systemNamespace.external)
+//    {
+//        result.addMetricValue(metric, systemNamespace, 12)
+//        v.visitChildren(systemNamespace)
+//    }
+//}
+//
+//v.onLogicalSystemProgrammingElement
+//{
+//    ILogicalProgrammingElementAccess systemProgrammingElement ->
+//    if (!systemProgrammingElement.external)
+//    {
+//        result.addMetricValue(metric, systemProgrammingElement, 11)
+//        v.visitChildren(systemProgrammingElement)
+//    }
+//}
+//
+//v.onLogicalModule
+//{
+//    ILogicalModuleAccess module ->
+//    if (!module.external)
+//    {
+//        result.addMetricValue(metric, module, 10)
+//        v.visitChildren(module)
+//    }
+//}
+//
+//v.onLogicalModuleNamespace
+//{
+//    ILogicalNamespaceAccess moduleNamespace ->
+//    if (!moduleNamespace.external)
+//    {
+//        result.addMetricValue(metric, moduleNamespace, 9)
+//        v.visitChildren(moduleNamespace)
+//    }
+//}
+//
+//v.onLogicalModuleProgrammingElement
+//{
+//    ILogicalProgrammingElementAccess moduleProgrammingElement ->
+//    result.addMetricValue(metric, moduleProgrammingElement, 8)
+//}
+//
+//v.onModule
+//{
+//    ModuleAccess module ->
+//    result.addWarningIssue(module, "ModuleIssue", "This is a module issue")
+//    result.addMetricValue(metric, module, 42)
+//    v.visitChildren(module)
+//}
+//
+//v.onType
+//{
+//    ITypeAccess type ->
+//    if (type.external || type.excluded)
+//    {
+//        return
+//    }
+//    
+//    if (type.name.equals("com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"))
+//    {
+//        result.addWarningIssue(type, "TypeIssue", "This is a type issue")
+//        result.addMetricValue(metric, type, 100)
+//    }
+//}
+/*
+v.onExternalElementContainer
 {
-    ModuleAccess module ->
-    result.addWarningIssue(module, "ModuleIssue", "This is a module issue")
-    MetricIdAccess m = coreAccess.getOrCreateMetricId("ModuleMetric", "Module Metric", "This is a module metric", false, "SC")
-    result.addMetricValue(m, module, 42)
-    
+    ExternalElementContainerAccess externalContainer ->
+    println("externalContainer: $externalContainer")
+    result.addWarningIssue(externalContainer, "ContainerIssue", "This is a container issue")
+    try
+    {
+        result.addMetricValue(metric, externalContainer, 1000)
+    }
+    catch(IllegalArgumentException ex)
+    {
+        //expected
+    }
+    v.visitChildren(externalContainer)
 }
+*/
+
 //Traverse the model
 coreAccess.visitModel(v)
 
-//If you know exactly which elements you want to find, use the search API (check the JavaDoc [F1] for details):
-//
-//ElementAccess systemOut = coreAccess.findElementByFqn("Workspace:External [Java]:[Unknown]:java:lang:System:System:out")
-//println "Found system out: " + (systemOut != null)
+result.addMetricValue(metric, coreAccess, 13)
 ]]></source>
-    <parameterDefinitions>
-        <parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
-        <parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
-    </parameterDefinitions>
-    <languages></languages>
+	<parameterDefinitions>
+		<parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+		<parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+	</parameterDefinitions>
+	<languages></languages>
 </script>

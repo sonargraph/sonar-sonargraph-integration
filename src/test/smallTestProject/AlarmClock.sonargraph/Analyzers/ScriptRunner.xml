@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="9.11.2.100" analyzer="ScriptRunner">
+	<stringEntry value="Alarm" name="0:./CountLinesOfCode.xml"></stringEntry>
+	<stringEntry value="Default" name="1:./CreateIssueAtFirstLine.xml"></stringEntry>
+	<stringEntry value="Default" name="2:./Java/UsageOfSystemOutPrintln.xml"></stringEntry>
+</analyzerConfiguration>

@@ -1,0 +1,7 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="8.5.0.0" analyzer="MetricThresholds">
+    <stringEntry value="0:48" name="CoreAcd:Module"></stringEntry>
+    <stringEntry value="0.0:75.0" name="CoreAcd:System"></stringEntry>
+    <stringEntry value="0:900" name="CoreLinesOfCode:SourceFile"></stringEntry>
+    <stringEntry value="0:25" name="CoreModifiedCcn:Routine"></stringEntry>
+</analyzerConfiguration>

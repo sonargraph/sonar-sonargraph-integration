@@ -1,0 +1,1995 @@
+<?xml version="1.0" ?>
+<ns2:report xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" id="_0" systemId="ae8982aeeb97a896d5c5f4668d46a1ee" name="IntegrationSonarqube" version="9.11.2.100" systemPath="D:\00_repo\sonar-sonargraph-integration\IntegrationSonarqube.sonargraph" timestamp="2019-08-28T13:23:49.484+02:00" currentVirtualModel="Modifiable.vm" systemDescription="" analyzerExecutionLevel="full">
+	<metaData>
+		<issueProviders>
+			<issueProvider id="_25" name="./Java/UsageOfSystemOutPrintln.xml" presentationName="./Java/UsageOfSystemOutPrintln.xml"></issueProvider>
+			<issueProvider id="_26" name="./Test.xml" presentationName="./Test.xml"></issueProvider>
+		</issueProviders>
+		<issueCategories>
+			<category id="_16" name="ArchitecturalView" presentationName="Architectural View"></category>
+			<category id="_17" name="ArchitectureConsistency" presentationName="Architecture Consistency"></category>
+			<category id="_18" name="ArchitectureDefinition" presentationName="Architecture Definition"></category>
+			<category id="_19" name="ArchitectureViolation" presentationName="Architecture Violation"></category>
+			<category id="_1a" name="CycleGroup" presentationName="Cycle Group"></category>
+			<category id="_1b" name="DuplicateCode" presentationName="Duplicate Code"></category>
+			<category id="_1c" name="InstallationConfiguration" presentationName="Installation Configuration"></category>
+			<category id="_1d" name="PluginBased" presentationName="Plugin Based"></category>
+			<category id="_1e" name="Refactoring" presentationName="Refactoring"></category>
+			<category id="_1f" name="ScriptBased" presentationName="Script Based"></category>
+			<category id="_20" name="ScriptDefinition" presentationName="Script Definition"></category>
+			<category id="_21" name="SystemConfiguration" presentationName="System Configuration"></category>
+			<category id="_22" name="ThresholdViolation" presentationName="Threshold Violation"></category>
+			<category id="_23" name="Todo" presentationName="Todo"></category>
+			<category id="_24" name="Workspace" presentationName="Workspace"></category>
+		</issueCategories>
+		<issueTypes>
+			<issueType severity="Warning" category="_1f" provider="_25" id="_27" name="Don't use System.out" presentationName="Don't use System.out"></issueType>
+			<issueType severity="Warning" category="_1f" provider="_26" id="_28" name="ModuleIssue" presentationName="ModuleIssue"></issueType>
+			<issueType severity="Warning" category="_1f" provider="_26" id="_29" name="TypeIssue" presentationName="TypeIssue"></issueType>
+		</issueTypes>
+		<metricProviders>
+			<provider id="_2f" name="Core" presentationName="Core"></provider>
+			<provider id="_36" name="JavaLanguageProvider" presentationName="Java"></provider>
+			<provider id="_9a" name="./Test.xml" presentationName="./Test.xml"></provider>
+		</metricProviders>
+		<metricCategories>
+			<category id="_69" name="Architecture" presentationName="Architecture" orderNumber="0"></category>
+			<category id="_35" name="CodeAnalysis" presentationName="Code Analysis" orderNumber="1"></category>
+			<category id="_39" name="Cycle" presentationName="Cycle" orderNumber="2"></category>
+			<category id="_2b" name="CohesionAndCoupling" presentationName="Cohesion/Coupling" orderNumber="3"></category>
+			<category id="_43" name="Dependency" presentationName="Dependency" orderNumber="4"></category>
+			<category id="_3c" name="Size" presentationName="Size" orderNumber="5"></category>
+			<category id="_2c" name="JohnLakos" presentationName="John Lakos" orderNumber="7"></category>
+			<category id="_93" name="CraigLarman" presentationName="Craig Larman" orderNumber="8"></category>
+			<category id="_31" name="RobertMartin" presentationName="Robert C. Martin" orderNumber="9"></category>
+			<category id="_4a" name="ThomasMccabe" presentationName="Thomas J. McCabe" orderNumber="10"></category>
+			<category id="_53" name="MacCormack" presentationName="MacCormack, Rusnak, Baldwin" orderNumber="11"></category>
+			<category id="_99" name="Script" presentationName="Script" orderNumber="2147483646"></category>
+			<category id="_98" name="Test" presentationName="Test" orderNumber="2147483646"></category>
+		</metricCategories>
+		<metricLevels>
+			<level id="_2d" name="System" presentationName="System" orderNumber="0"></level>
+			<level id="_2e" name="Module" presentationName="Module" orderNumber="10"></level>
+			<level id="_32" name="JavaPackage" presentationName="Java Package" orderNumber="40"></level>
+			<level id="_45" name="Component" presentationName="Component" orderNumber="50"></level>
+			<level id="_3f" name="SourceFile" presentationName="Source File" orderNumber="60"></level>
+			<level id="_60" name="LogicalProgrammingElement" presentationName="Logical Programming Element" orderNumber="65"></level>
+			<level id="_5b" name="Type" presentationName="Type" orderNumber="70"></level>
+			<level id="_4b" name="Routine" presentationName="Routine" orderNumber="80"></level>
+		</metricLevels>
+		<metricIds>
+			<metricId id="_2a" name="CoreAcd" presentationName="ACD" description="Average component dependency according to John Lakos. Average number of components a component depends on directly and indirectly. This metric can be used to characterize the overall average coupling of internal components." categories="_2b _2c" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_30" name="CoreAbstractnessModule" presentationName="Abstractness (Module)" description="Abstractness according to Robert C. Martin based on module level dependencies. Total number of abstract types divided by the total number of concrete types. The metric has a range of [0,1]. 0 means that the container contains no abstract types. 1 means that the container contains nothing but abstract types." categories="_31" provider="_2f" isFloat="true" levels="_32" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="1.0" direction="Indifferent"></metricId>
+			<metricId id="_33" name="CoreAbstractnessSystem" presentationName="Abstractness (System)" description="Abstractness according to Robert C. Martin based on system level dependencies. Total number of abstract types divided by the total number of concrete types. The metric has a range of [0,1]. 0 means that the container contains no abstract types. 1 means that the container contains nothing but abstract types." categories="_31" provider="_2f" isFloat="true" levels="_32" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="1.0" direction="Indifferent"></metricId>
+			<metricId id="_34" name="JavaAverageClassMemberVisibility" presentationName="Average Java Class Member Visibility (%)" description="Average of Java class member visibility in a Java package" categories="_35" provider="_36" isFloat="true" levels="_32" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_37" name="JavaAveragePackagePublicVisibility" presentationName="Average Java Public Visibility (%)" description="Average of Java public visibility for all Java packages in a Java module" categories="_35" provider="_36" isFloat="true" levels="_2e" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_38" name="CoreBiggestComponentCycleGroup" presentationName="Biggest Component Cycle Group" description="Number of components in biggest cycle." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_3a" name="JavaBiggestPackageCycleGroup" presentationName="Biggest Java Package Cycle Group" description="Biggest Java package cycle group." categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_3b" name="JavaByteCodeInstructions" presentationName="Byte Code Instructions" description="Number of Java byte code instructions." categories="_3c" provider="_36" isFloat="false" levels="_2d" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_3d" name="CoreCcd" presentationName="CCD" description="Cumulative component dependency according to John Lakos. Cumulated depends upon values." categories="_2b _2c" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_3e" name="CoreCodeCommentLines" presentationName="Code Comment Lines" description="Counts all comment lines excluding header comments and blank comment lines." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_40" name="CoreCommentLines" presentationName="Comment Lines" description="Counts all comment lines excluding blank comment lines." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_41" name="CoreComponentDependenciesToRemoveComponents" presentationName="Component Dependencies to Remove (Components)" description="Number of component dependencies to remove to break up all  component cycles." categories="_35 _39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_42" name="JavaComponentDependenciesToRemovePackages" presentationName="Component Dependencies to Remove (Java Packages)" description="Number of component dependencies to remove to break up all Java package cycle groups." categories="_35 _43" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_44" name="CoreComponentRankModule" presentationName="Component Rank (Module)" description="Component Rank is based on Google's page rank algorithm. The total component rank over all components in the selected group adds up to 100. The higher the rank, the more 'important' a component is in a system. Having many incoming dependencies or being referenced by other important components increases rank." categories="_35" provider="_2f" isFloat="true" levels="_45" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="100.0" direction="Indifferent"></metricId>
+			<metricId id="_46" name="CoreComponentRankSystem" presentationName="Component Rank (System)" description="Component Rank is based on Google's page rank algorithm. The total component rank over all components in the selected group adds up to 100. The higher the rank, the more 'important' a component is in a system. Having many incoming dependencies or being referenced by other important components increases rank." categories="_35" provider="_2f" isFloat="true" levels="_45" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="100.0" direction="Indifferent"></metricId>
+			<metricId id="_47" name="CoreCyclicityComponents" presentationName="Cyclicity (Components)" description="Cumulated cyclicity of component cycles." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_48" name="JavaCyclicityPackages" presentationName="Cyclicity (Java Packages)" description="Cumulated cyclicity of Java package cycle groups." categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_49" name="CoreCcn" presentationName="Cyclomatic Complexity" description="Cyclomatic complexity according to Thomas J. McCabe. Number of decision points in a method plus one for the method entry." categories="_4a" provider="_2f" isFloat="false" levels="_4b" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4c" name="CoreDependsUponModule" presentationName="Depends Upon (Module)" description="Depends upon module level according to DependsOn by John Lakos. Total number of components that a component directly and indirectly depends upon in containing module." categories="_2b _2c" provider="_2f" isFloat="false" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4d" name="CoreDependsUponSystem" presentationName="Depends Upon (System)" description="Depends upon system level according to DependsOn by John Lakos. Total number of components that a component directly and indirectly depends upon in system." categories="_2b _2c" provider="_2f" isFloat="false" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4e" name="CoreDistanceModule" presentationName="Distance (Module)" description="Distance according to Robert C. Martin based on module level dependencies. Abstractness + Instability - 1. The metric has a range of [-1,1]. This is a variation of the original metric definition. A negative sign means 'in the zone of pain' and a positive sign means 'in the zone of uselessness'. A 'good' value should be around 0." categories="_31" provider="_2f" isFloat="true" levels="_32" bestValue="0.0" worstValue="NaN" minValue="-1.0" maxValue="1.0" direction="OptimumAtZero"></metricId>
+			<metricId id="_4f" name="CoreDistanceSystem" presentationName="Distance (System)" description="Distance according to Robert C. Martin based on system level dependencies. Abstractness + Instability - 1. The metric has a range of [-1,1]. This is a variation of the original metric definition. A negative sign means 'in the zone of pain' and a positive sign means 'in the zone of uselessness'. A 'good' value should be around 0." categories="_31" provider="_2f" isFloat="true" levels="_32" bestValue="0.0" worstValue="NaN" minValue="-1.0" maxValue="1.0" direction="OptimumAtZero"></metricId>
+			<metricId id="_50" name="CoreExtendedCcn" presentationName="Extended Cyclomatic Complexity" description="As cyclomatic complexity adding the number of logical '&amp;&amp;' and '||' operations." categories="_4a" provider="_2f" isFloat="false" levels="_4b" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_51" name="CoreMlFanInModule" presentationName="Fan In Maintainability Level (Module)" description="Percentage of higher-level components in the same module that depend directly or indirectly on this component." categories="_2b" provider="_2f" isFloat="true" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_52" name="CoreFanInModule" presentationName="Fan In Visibility (Module)" description="Percentage of components in the same module that depend directly or indirectly on this component." categories="_2b _53" provider="_2f" isFloat="true" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_54" name="CoreFanInSystem" presentationName="Fan In Visibility (System)" description="Percentage of internal components in the system that depend directly or indirectly on this component." categories="_2b _53" provider="_2f" isFloat="true" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_55" name="CoreFanOutModule" presentationName="Fan Out Visibility (Module)" description="Percentage of components in the same module that this component depends upon." categories="_2b _53" provider="_2f" isFloat="true" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_56" name="CoreFanOutSystem" presentationName="Fan Out Visibility (System)" description="Percentage of internal components in the system that this component depends upon." categories="_2b _53" provider="_2f" isFloat="true" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_57" name="CoreMaxAcd" presentationName="Highest ACD" description="Highest ACD." categories="_2b _2c" provider="_2f" isFloat="true" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_58" name="CoreInstabilityModule" presentationName="Instability (Module)" description="Instability according to Robert C. Martin based on module level dependencies. The metric has a range of [0,1]. If there are no outgoing dependencies, then the Instability will be 0 and the measured element is stable. If there are no incoming dependencies, then the Instability will be 1 and the measured element is instable. Stable means that the element is not so easy to be changed. Instable means that it is easier to be changed." categories="_31" provider="_2f" isFloat="true" levels="_32 _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_59" name="CoreInstabilitySysytem" presentationName="Instability (System)" description="Instability according to Robert C. Martin based on system level dependencies. The metric has a range of [0,1]. If there are no outgoing dependencies, then I will be 0 and the measured element is stable. If there are no incoming dependencies, then I will be 1 and the measured element is instable. Stable means that the element is not so easy to be changed. Instable means that it is easier to be changed. " categories="_31" provider="_2f" isFloat="true" levels="_32 _45" bestValue="0.0" worstValue="1.0" minValue="0.0" maxValue="1.0" direction="HigherWorse"></metricId>
+			<metricId id="_5a" name="JavaClassMemberVisibility" presentationName="Java Member Visibility (%)" description="Percentage of non-private Java members in a class" categories="_35" provider="_36" isFloat="true" levels="_5b" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_5c" name="JavaPackagePublicVisibility" presentationName="Java Public Visibility (%)" description="Percentage of public Java types in a Java package" categories="_35" provider="_36" isFloat="true" levels="_32" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_5d" name="CoreLcom4" presentationName="LCOM4" description="Determines the number of components in a class. A component is composed of fields, methods and types defined top level including all their nested programming elements. Constructors, destructors, empty, abstract and overridden methods of classes are not included in the calculation. The metric represents the unrelated portions of code in a class. A value of 1 indicates the highest cohesion possible - which is normally desirable. High values might indicate that a class is a candidate for a refactoring. Consider that utility classes by nature have high LCOM4 values." categories="_2b" provider="_2f" isFloat="false" levels="_5b" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_5e" name="CoreLinesOfCode" presentationName="Lines of Code" description="Lines of code excluding blank and comment lines." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_5f" name="CoreLogicalCohesionModule" presentationName="Logical Cohesion (Module)" description="Number of dependencies 'to' and 'from' other top-level logical programming elements in the same namespace on module level." categories="_2b" provider="_2f" isFloat="false" levels="_60" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_61" name="CoreLogicalCohesionSystem" presentationName="Logical Cohesion (System)" description="Number of dependencies 'to' and 'from' other top-level logical programming elements in the same namespace on system level." categories="_2b" provider="_2f" isFloat="false" levels="_60" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_62" name="CoreLogicalCouplingModule" presentationName="Logical Coupling (Module)" description="Number of dependencies 'to' and 'from' other top-level logical programming elements in other namespaces on module level." categories="_2b" provider="_2f" isFloat="false" levels="_60" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_63" name="CoreLogicalCouplingSystem" presentationName="Logical Coupling (System)" description="Number of dependencies 'to' and 'from' other top-level logical programming elements in other namespaces on system level." categories="_2b" provider="_2f" isFloat="false" levels="_60" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_64" name="CoreMaintainabilityLevel" presentationName="Maintainability Level" description="This metric estimates maintainability as a percentage. 100% is the best possible value. To do that it looks at the dependency structure between components (source files in most languages). Cyclic dependencies and low level classes with a lot of incoming dependencies have a negative influence on the metric. Keeping good vertical boundaries and not having too many layers will have a positive influence. It is also recommended to have as many components as possible that are independent, i.e. have no incoming dependencies and therefore can be changed without influencing the rest of the system. In Java and C# the metric also considers the value of the relative cyclicity metric for packages/namespaces. If you have large cycle groups they will have a negative influence on the metric value." categories="_2b" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="100.0" worstValue="0.0" minValue="0.0" maxValue="100.0" direction="LowerWorse"></metricId>
+			<metricId id="_65" name="CoreModifiedCcn" presentationName="Modified Cyclomatic Complexity" description="As cyclomatic complexity but switch statements only add 1 independent from the number of cases." categories="_4a" provider="_2f" isFloat="false" levels="_4b" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_66" name="CoreModifiedExtendedCcn" presentationName="Modified Extended Cyclomatic Complexity" description="As cyclomatic complexity but switch statements only add 1 independent from the number of cases and adding the number of logical '&amp;&amp;' and '||' operations." categories="_4a" provider="_2f" isFloat="false" levels="_4b" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_67" name="CoreNccd" presentationName="NCCD" description="Normalized cumulative component dependency  according to John Lakos. The ratio between the cumulative component dependency and the cumulative component dependency of a balanced binary tree of the same size. A value greater than 1 indicates a more vertical design. A value less than 1 indicates a more horizontal design." categories="_2b _2c" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_68" name="CoreArtifactCount" presentationName="Number of Artifacts" description="Number of active architecture artifacts" categories="_69" provider="_2f" isFloat="false" levels="_2d" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_6a" name="CoreDuplicates" presentationName="Number of Code Duplicates" description="Number of duplicated code blocks." categories="_35" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6b" name="CoreComponentCycleGroups" presentationName="Number of Component Cycle Groups" description="Number of all component cycle groups, warnings and errors." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6c" name="CoreComponents" presentationName="Number of Components" description="Number of components." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_6d" name="CoreComponentsIgnoringIssues" presentationName="Number of Components (Ignoring Issues)" description="Number of components ignoring issues." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_6e" name="CoreComponentsInDeprecatedArtifacts" presentationName="Number of Components in Deprecated Artifacts" description="Number of components that are assigned to deprecated artifact" categories="_69" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6f" name="CoreViolatingComponents" presentationName="Number of Components with Violations" description="Number of components that contain architecture violations" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_70" name="CoreCriticalComponentCycleGroups" presentationName="Number of Critical Component Cycle Groups" description="Number of component cycle groups marked as errors." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_71" name="JavaCriticalPackageCycleGroups" presentationName="Number of Critical Java Package Cycle Groups" description="Number of Java package cycle groups marked as errors." categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_72" name="CoreCyclicComponents" presentationName="Number of Cyclic Components" description="Number of cyclic components." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_73" name="JavaCyclicPackages" presentationName="Number of Cyclic Java Packages" description="Number of cyclic Java packages." categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_74" name="CoreCyclicModules" presentationName="Number of Cyclic Modules" description="Number of cyclic modules." categories="_39" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_75" name="CoreDuplicatedLines" presentationName="Number of Duplicated Code Lines" description="Number of duplicated lines in duplicated code blocks." categories="_35" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_76" name="CoreEmptyArtifactCount" presentationName="Number of Empty Artifacts" description="Number of active architecture artifacts that are empty" categories="_69" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_77" name="CoreIgnoredDuplicates" presentationName="Number of Ignored Code Duplicates" description="Number of ignored duplicated code blocks." categories="_35" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_78" name="CoreIgnoredCyclicComponents" presentationName="Number of Ignored Cyclic Components" description="Number of ignored cyclic components." categories="_39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_79" name="JavaIgnoredCyclicPackages" presentationName="Number of Ignored Cyclic Java Packages" description="Number of ignored cyclic Java packages." categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7a" name="CoreIgnoredViolationsParserDependencies" presentationName="Number of Ignored Violations (Parser Dependencies)" description="Number of parser dependencies in ignored architecture violations" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7b" name="CoreIncomingDependenciesModule" presentationName="Number of Incoming Dependencies (Module)" description="Number of incoming dependencies on module level." categories="_31" provider="_2f" isFloat="false" levels="_32 _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7c" name="CoreIncomingDependenciesSystem" presentationName="Number of Incoming Dependencies (System)" description="Number of incoming dependencies on system level." categories="_31" provider="_2f" isFloat="false" levels="_32 _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7d" name="JavaPackages" presentationName="Number of Java Packages" description="Number of Java packages containing types." categories="_3c" provider="_36" isFloat="false" levels="_2d _2e" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_7e" name="CoreElementsInDeprecatedArtifacts" presentationName="Number of Logical Elements in Deprecated Artifacts" description="Number of logical programming elements that are assigned to deprecated artifact" categories="_69" provider="_2f" isFloat="false" levels="_2d" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7f" name="CoreMethods" presentationName="Number of Methods" description="Number of member functions." categories="_3c" provider="_2f" isFloat="false" levels="_5b" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_80" name="CoreModules" presentationName="Number of Modules" description="Number of modules." categories="_3c" provider="_2f" isFloat="false" levels="_2d" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_81" name="CoreOutgoingDependenciesModule" presentationName="Number of Outgoing Dependencies (Module)" description="Number of outgoing dependencies on module level." categories="_31" provider="_2f" isFloat="false" levels="_32 _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_82" name="CoreOutgoingDependenciesSystem" presentationName="Number of Outgoing Dependencies (System)" description="Number of outgoing dependencies on system level." categories="_31" provider="_2f" isFloat="false" levels="_32 _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_83" name="CoreParameters" presentationName="Number of Parameters" description="Number of parameters." categories="_3c" provider="_2f" isFloat="false" levels="_4b" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_84" name="CoreStatements" presentationName="Number of Statements" description="Counts all statements." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f _5b _4b" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_85" name="CoreTypesModule" presentationName="Number of Types (Module)" description="Number of types (classes, enums or similar) in container on module level." categories="_3c" provider="_2f" isFloat="false" levels="_32 _45" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_86" name="CoreTypesSystem" presentationName="Number of Types (System)" description="Number of types (classes, enums or similar) in container on system level." categories="_3c" provider="_2f" isFloat="false" levels="_32" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_87" name="CoreUnassignedLogicalElements" presentationName="Number of Unassigned Logical Elements" description="Number of internal logical elements that are not assigned to any artifact" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_88" name="CoreUnassignedComponents" presentationName="Number of Unassigned Physical Components" description="Number of internal physical components that are not assigned to any artifact" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_89" name="CoreViolationsComponentDependencies" presentationName="Number of Violations (Component Dependencies)" description="Number of architecture-violating component dependencies" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8a" name="CoreViolationsParserDependencies" presentationName="Number of Violations (Parser Dependencies)" description="Number of architecture-violating parser dependencies" categories="_69" provider="_2f" isFloat="false" levels="_2d _2e _45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8b" name="JavaPackageCycleGroups" presentationName="Number of all Java Package Cycle Groups" description="Number of all Java package cycle groups, errors and warnings" categories="_39" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8c" name="CoreParserDependenciesToRemoveComponents" presentationName="Parser Dependencies to Remove (Components)" description="Number of code lines to change to break up all  component cycles." categories="_35 _39" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8d" name="JavaParserDependenciesToRemovePackages" presentationName="Parser Dependencies to Remove (Java Packages)" description="Number of code lines to change to break up all Java package cycle groups)." categories="_35 _43" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8e" name="CorePhysicalCohesion" presentationName="Physical Cohesion" description="Number of dependencies 'to' and 'from' other components in the same module." categories="_2b" provider="_2f" isFloat="false" levels="_45" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_8f" name="CorePhysicalCoupling" presentationName="Physical Coupling" description="Number of dependencies 'to' and 'from' other components in other modules." categories="_2b" provider="_2f" isFloat="false" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_90" name="CorePropagationCost" presentationName="Propagation Cost" description="Propagation cost metric according to MacCormack, Rusnak and Baldwin." categories="_2b _53" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_91" name="CoreRacd" presentationName="RACD" description="Relative average component dependency. Average component dependency divided by the number of internal components multiplied by 100 (in percent)." categories="_2b _2c" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_92" name="CoreRelationalCohesionModule" presentationName="Relational Cohesion (Module)" description="Relation cohesion according to Craig Larman (adapted). Number of internal namespace dependencies divided by the number of top-level logical programming elements in the same namespace on module level. Higher numbers suggest more cohesion. " categories="_93 _2b" provider="_2f" isFloat="true" levels="_32" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_94" name="CoreRelationalCohesionSystem" presentationName="Relational Cohesion (System)" description="Relation cohesion according to Craig Larman (adapted). Number of internal namespace dependencies divided by the number of top-level logical programming elements in the same namespace on system level. Higher numbers suggest more cohesion. " categories="_93 _2b" provider="_2f" isFloat="true" levels="_32" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_95" name="CoreRelativeCyclicityComponents" presentationName="Relative Cyclicity (Components)" description="Relative component cyclicity in percent." categories="_39" provider="_2f" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_96" name="JavaRelativeCyclicityPackages" presentationName="Relative Cyclicity (Java Packages)" description="Relative Java package cyclicity in percent." categories="_39" provider="_36" isFloat="true" levels="_2d _2e" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_97" name="SQ_Test_Metric" presentationName="SonarQube Test Metric" description="This is a metric for the SonarQube Junit tests" categories="_98 _99" provider="_9a" isFloat="false" levels="_2d _2e _5b" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_9b" name="CoreSourceElementCount" presentationName="Source Element Count" description="Number of programming elements (i.e. types, fields, methods, functions, ...) plus number of statements." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f _5b" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_9c" name="CoreStructuralDebtIndexComponents" presentationName="Structural Debt Index (Components)" description="Cumulative structural debt index of component cycles." categories="_35" provider="_2f" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_9d" name="JavaStructuralDebtIndexPackages" presentationName="Structural Debt Index (Java Packages)" description="Cumulative structural debt index of all Java package cycle groups." categories="_35" provider="_36" isFloat="false" levels="_2d _2e" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_9e" name="CoreTotalLines" presentationName="Total Lines" description="Counts all lines including empty and comment lines." categories="_3c" provider="_2f" isFloat="false" levels="_2d _2e _3f" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_9f" name="CoreUsedFromModule" presentationName="Used From (Module)" description="Number of all depending elements (direct and indirect) + 1 (including self) in containing module." categories="_2b _2c" provider="_2f" isFloat="false" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_a0" name="CoreUsedFromSystem" presentationName="Used From (System)" description="Number of all depending elements (direct and indirect) + 1 (including self) in system." categories="_2b _2c" provider="_2f" isFloat="false" levels="_45" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+		</metricIds>
+	</metaData>
+	<features>
+		<feature name="Architecture" presentationName="Architecture" licensed="true"></feature>
+		<feature name="CohesionAndCouplingMetrics" presentationName="Cohesion And Coupling Metrics" licensed="true"></feature>
+		<feature name="CycleBreakUp" presentationName="Cycle Break Up" licensed="true"></feature>
+		<feature name="DuplicateCode" presentationName="Duplicate Code" licensed="true"></feature>
+		<feature name="Platform" presentationName="Platform" licensed="true"></feature>
+		<feature name="Plugins" presentationName="Plugins" licensed="true"></feature>
+		<feature name="Reporting" presentationName="Reporting" licensed="true"></feature>
+		<feature name="Scripts" presentationName="Scripts" licensed="true"></feature>
+		<feature name="ScriptsAutomated" presentationName="Scripts Automated" licensed="true"></feature>
+		<feature name="Snapshots" presentationName="Snapshots" licensed="true"></feature>
+		<feature name="Systems" presentationName="Systems" licensed="true"></feature>
+		<feature name="VirtualModels" presentationName="Virtual Models" licensed="true"></feature>
+	</features>
+	<analyzers>
+		<analyzer description="Checks for architecture violations" licensed="true" executionLevel="minimal" executed="true" id="_1" name="ArchitectureCheck" presentationName="Architecture Check"></analyzer>
+		<analyzer description="Calculates number of violatong/ignored parser dependencies" licensed="true" executionLevel="minimal" executed="true" id="_2" name="ArchitectureCheckMetrics" presentationName="Architecture Metrics"></analyzer>
+		<analyzer description="Calculates cohesion and coupling metrics" licensed="true" executionLevel="full" executed="true" id="_10" name="CohesionAndCouplingMetrics" presentationName="Cohesion and Coupling Metrics"></analyzer>
+		<analyzer description="Analyzes component / compilation unit cycles on module level" licensed="true" executionLevel="advanced" executed="true" id="_e" name="ComponentCyclesModule" presentationName="Component Cycles (Module)"></analyzer>
+		<analyzer description="Computes component cycle metrics on module level" licensed="true" executionLevel="advanced" executed="true" id="_c" name="ComponentCyclesModuleMetrics" presentationName="Component Cycle Metrics (Module)"></analyzer>
+		<analyzer description="Analyzes component / compilation unit cycles on system level" licensed="true" executionLevel="advanced" executed="true" id="_f" name="ComponentCyclesSystem" presentationName="Component Cycles (System)"></analyzer>
+		<analyzer description="Computes component cycle metrics on system level" licensed="true" executionLevel="advanced" executed="true" id="_d" name="ComponentCyclesSystemMetrics" presentationName="Component Cycle Metrics (System)"></analyzer>
+		<analyzer description="Calculates John Lakos metrics on module level" licensed="true" executionLevel="full" executed="true" id="_13" name="CumulateDependenciesModule" presentationName="Module Dependencies"></analyzer>
+		<analyzer description="Calculates John Lakos metrics on system level" licensed="true" executionLevel="full" executed="true" id="_15" name="CumulateDependenciesSystem" presentationName="System Dependencies"></analyzer>
+		<analyzer description="Cumulates sizes" licensed="true" executionLevel="minimal" executed="true" id="_3" name="CumulateSize" presentationName="Cumulate size"></analyzer>
+		<analyzer description="Search duplicate code on system level" licensed="true" executionLevel="full" executed="true" id="_11" name="DuplicateCode" presentationName="Duplicate Code"></analyzer>
+		<analyzer description="Calculates duplicate code metrics" licensed="true" executionLevel="full" executed="true" id="_12" name="DuplicateCodeMetrics" presentationName="Duplicate Code Metrics"></analyzer>
+		<analyzer description="Computes Java visibility metrics" licensed="true" executionLevel="basic" executed="true" id="_5" name="JavaVisibilityMetrics" presentationName="Java Visibility Metrics"></analyzer>
+		<analyzer description="Calculates maintainability level metrics" licensed="true" executionLevel="advanced" executed="true" id="_b" name="MaintainabilityLevel" presentationName="Calculate Maintainability Level"></analyzer>
+		<analyzer description="Checks for metric threshold violations" licensed="true" executionLevel="minimal" executed="true" id="_4" name="MetricThresholds" presentationName="Metric Thresholds"></analyzer>
+		<analyzer description="Analyzes module cycles on system level" licensed="true" executionLevel="basic" executed="true" id="_6" name="ModuleCyclesSystem" presentationName="Module Cycles"></analyzer>
+		<analyzer description="Analyzes package cycles on module level" licensed="true" executionLevel="basic" executed="true" id="_9" name="PackageCyclesModule" presentationName="Package Cycles (Module)"></analyzer>
+		<analyzer description="Computes package cycle metrcis on module level" licensed="true" executionLevel="basic" executed="true" id="_7" name="PackageCyclesModuleMetrics" presentationName="Package Cycle Metrics (Module)"></analyzer>
+		<analyzer description="Analyzes package cycles on system level" licensed="true" executionLevel="basic" executed="true" id="_a" name="PackageCyclesSystem" presentationName="Package Cycles (System)"></analyzer>
+		<analyzer description="Computes package cycle metrcis on system level" licensed="true" executionLevel="basic" executed="true" id="_8" name="PackageCyclesSystemMetrics" presentationName="Package Cycle Metrics (System)"></analyzer>
+		<analyzer description="Runs scripts configured for automated execution" licensed="true" executionLevel="full" executed="true" id="_14" name="ScriptRunner" presentationName="Script Runner"></analyzer>
+	</analyzers>
+	<plugins></plugins>
+	<duplicateCodeConfiguration>
+		<entry>MinimalLineLength:3</entry>
+		<entry>MinimalBlockLength:25</entry>
+		<entry>MaximalNumberOfCopies:100</entry>
+		<entry>MaximalTolerancePerEdit:3</entry>
+		<entry>MaximalRelativeTolerancePercentage:35</entry>
+	</duplicateCodeConfiguration>
+	<scriptRunnerConfiguration>
+		<entry>./Test.xml:[Default]</entry>
+		<entry>./Java/UsageOfSystemOutPrintln.xml:[Default]</entry>
+	</scriptRunnerConfiguration>
+	<metricThresholds>
+		<threshold id="_a1" metricId="_65" metricLevel="_4b" upperThreshold="15"></threshold>
+		<threshold id="_a2" metricId="_5e" metricLevel="_3f" upperThreshold="1000"></threshold>
+	</metricThresholds>
+	<elementKinds>
+		<elementKind id="_db" standardKind="JavaNonInitializer" presentationKind="Java Non Initializer"></elementKind>
+		<elementKind id="_ae" standardKind="JavaLogicalModuleNamespace" presentationKind="Package"></elementKind>
+		<elementKind id="_a9" standardKind="JavaClassRootDirectoryPath" presentationKind="Java Class Root Directory/Archive"></elementKind>
+		<elementKind id="_154" standardKind="JavaLogicalSystemNamespace" presentationKind="Package"></elementKind>
+		<elementKind id="_156" standardKind="LogicalSystemProgrammingElement" presentationKind="Logical System Programming Element"></elementKind>
+		<elementKind id="_b7" standardKind="JavaInternalCompilationUnit" presentationKind="Java Internal Compilation Unit"></elementKind>
+		<elementKind id="_b3" standardKind="LogicalModuleProgrammingElement" presentationKind="Logical Module Programming Element"></elementKind>
+		<elementKind id="_a4" standardKind="JavaModule" presentationKind="Java Module"></elementKind>
+		<elementKind id="_ac" standardKind="JavaExternal" presentationKind="Java External"></elementKind>
+		<elementKind id="_b5" standardKind="JavaType" presentationKind="Java Type"></elementKind>
+		<elementKind id="_150" standardKind="JavaField" presentationKind="Java Field"></elementKind>
+		<elementKind id="_152" standardKind="SoftwareSystem" presentationKind="System"></elementKind>
+		<elementKind id="_b0" standardKind="JavaPackageFragment" presentationKind="Package"></elementKind>
+		<elementKind id="_a6" standardKind="JavaSourceRootDirectoryPath" presentationKind="Java Source Root Directory/Archive"></elementKind>
+		<elementKind id="_df" standardKind="JavaConstructor" presentationKind="Java Constructor"></elementKind>
+	</elementKinds>
+	<workspace>
+		<workspaceFilter description="Exclude files from the workspace" information="Excluded 0 files(s)" numberOfExcludedElements="0"></workspaceFilter>
+		<productionCodeFilter description="Exclude internal components containing test code" information="Excluded 0 internal component(s) (processed 12)" numberOfExcludedElements="0" numberOfIncludedElements="12"></productionCodeFilter>
+		<issueFilter description="Ignore issues of internal components containing legacy/generated code" information="Ignoring issues of 0 internal component(s) (processed 12)" numberOfExcludedElements="0" numberOfIncludedElements="12"></issueFilter>
+		<module moduleId="a8bbc6213c8fc15c749562ad8b26f6f5" language="Java" description="" kind="_a4" fqName="Workspace:IntegrationSonarqube" id="_a3" name="IntegrationSonarqube" presentationName="IntegrationSonarqube">
+			<rootDirectory kind="_a6" fqName="Workspace:IntegrationSonarqube:./src/main/java" id="_a5" name="./src/main/java" presentationName="./src/main/java">
+				<physicalRecursiveElement relativeDirectoryPath="./com/hello2morrow/sonargraph/integration/sonarqube" kind="_b0" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube" id="_af" name="sonarqube" presentationName="com.hello2morrow.sonargraph.integration.sonarqube"></physicalRecursiveElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java" id="_b6" name="SonargraphBase.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics.java" id="_bd" name="SonargraphMetrics.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphMetrics.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin.java" id="_c3" name="SonargraphPlugin.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphPlugin.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile.java" id="_c9" name="SonargraphProfile.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphProfile.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java" id="_cf" name="SonargraphRules.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphRules.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java" id="_d5" name="SonargraphSensor.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphSensor.java"></sourceElement>
+				<programmingElement line="52" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase" source="_b6" id="_b4" name="SonargraphBase" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"></programmingElement>
+				<programmingElement line="36" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics.java:SonargraphMetrics" source="_bd" id="_bc" name="SonargraphMetrics" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics"></programmingElement>
+				<programmingElement line="31" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin.java:SonargraphPlugin" source="_c3" id="_c2" name="SonargraphPlugin" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin"></programmingElement>
+				<programmingElement line="29" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile.java:SonargraphProfile" source="_c9" id="_c8" name="SonargraphProfile" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfile"></programmingElement>
+				<programmingElement line="29" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules" source="_cf" id="_ce" name="SonargraphRules" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules"></programmingElement>
+				<programmingElement line="74" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor" source="_d5" id="_d4" name="SonargraphSensor" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor"></programmingElement>
+				<programmingElement line="76" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:ICustomMetricsPropertiesProvider" source="_b6" id="_d9" name="ICustomMetricsPropertiesProvider" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider"></programmingElement>
+				<programmingElement line="78" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:ICustomMetricsPropertiesProvider:getDirectory()" source="_b6" id="_da" name="getDirectory()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider.getDirectory() : String"></programmingElement>
+				<programmingElement line="83" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:ICustomMetricsPropertiesProvider:getFileName()" source="_b6" id="_dc" name="getFileName()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider.getFileName() : String"></programmingElement>
+				<programmingElement line="88" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:ICustomMetricsPropertiesProvider:getFilePath()" source="_b6" id="_dd" name="getFilePath()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider.getFilePath() : String"></programmingElement>
+				<programmingElement line="109" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:SonargraphBase()" source="_b6" id="_de" name="SonargraphBase()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.SonargraphBase()"></programmingElement>
+				<programmingElement line="228" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:addCustomMetric(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.model.IMetricId,java.util.Properties)" source="_b6" id="_e0" name="addCustomMetric(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.model.IMetricId,java.util.Properties)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.addCustomMetric(ISoftwareSystem,IMetricId,Properties) : void"></programmingElement>
+				<programmingElement line="124" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createCustomMetricKeyFromStandardName(java.lang.String,java.lang.String)" source="_b6" id="_e1" name="createCustomMetricKeyFromStandardName(java.lang.String,java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createCustomMetricKeyFromStandardName(String,String) : String"></programmingElement>
+				<programmingElement line="192" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createMetric(com.hello2morrow.sonargraph.integration.access.model.IMetricId)" source="_b6" id="_e2" name="createMetric(com.hello2morrow.sonargraph.integration.access.model.IMetricId)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createMetric(IMetricId) : Metric&lt;Serializable&gt;"></programmingElement>
+				<programmingElement line="119" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createMetricKeyFromStandardName(java.lang.String)" source="_b6" id="_e3" name="createMetricKeyFromStandardName(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createMetricKeyFromStandardName(String) : String"></programmingElement>
+				<programmingElement line="389" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createRuleCategoryTag(java.lang.String)" source="_b6" id="_e4" name="createRuleCategoryTag(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createRuleCategoryTag(String) : String"></programmingElement>
+				<programmingElement line="366" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createRuleKey(java.lang.String)" source="_b6" id="_e5" name="createRuleKey(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createRuleKey(String) : String"></programmingElement>
+				<programmingElement line="371" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createRuleKeyToCheck(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" source="_b6" id="_e6" name="createRuleKeyToCheck(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createRuleKeyToCheck(IIssueType) : String"></programmingElement>
+				<programmingElement line="384" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:createRuleName(java.lang.String)" source="_b6" id="_e7" name="createRuleName(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.createRuleName(String) : String"></programmingElement>
+				<programmingElement line="104" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:customMetricsPropertiesProvider:SonargraphBase$1" source="_b6" id="_e8" name="SonargraphBase$1" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.new ICustomMetricsPropertiesProvider() {...}"></programmingElement>
+				<programmingElement line="330" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:getCustomMetrics()" source="_b6" id="_e9" name="getCustomMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.getCustomMetrics() : List&lt;Metric&lt;Serializable&gt;&gt;"></programmingElement>
+				<programmingElement line="263" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:getCustomMetrics(java.util.Properties)" source="_b6" id="_ea" name="getCustomMetrics(java.util.Properties)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.getCustomMetrics(Properties) : List&lt;Metric&lt;Serializable&gt;&gt;"></programmingElement>
+				<programmingElement line="424" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:getIdentifyingPath(java.io.File)" source="_b6" id="_eb" name="getIdentifyingPath(java.io.File)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.getIdentifyingPath(File) : String"></programmingElement>
+				<programmingElement line="254" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:getNonEmptyString(java.lang.Object)" source="_b6" id="_ec" name="getNonEmptyString(java.lang.Object)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.getNonEmptyString(Object) : String"></programmingElement>
+				<programmingElement line="467" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:getSonargraphModuleCandidates(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem, java.io.File)" source="_b6" id="_ed" name="getSonargraphModuleCandidates(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem, java.io.File)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.getSonargraphModuleCandidates(ISoftwareSystem, File) : List&lt;IModule&gt;"></programmingElement>
+				<programmingElement line="394" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:ignoreIssueType(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" source="_b6" id="_ee" name="ignoreIssueType(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ignoreIssueType(IIssueType) : boolean"></programmingElement>
+				<programmingElement line="409" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:isIgnoredErrorOrWarningIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" source="_b6" id="_ef" name="isIgnoredErrorOrWarningIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.isIgnoredErrorOrWarningIssue(IIssueType) : boolean"></programmingElement>
+				<programmingElement line="419" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:isPluginIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" source="_b6" id="_f0" name="isPluginIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.isPluginIssue(IIssueType) : boolean"></programmingElement>
+				<programmingElement line="414" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:isScriptIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" source="_b6" id="_f1" name="isScriptIssue(com.hello2morrow.sonargraph.integration.access.model.IIssueType)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.isScriptIssue(IIssueType) : boolean"></programmingElement>
+				<programmingElement line="205" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:loadCustomMetrics()" source="_b6" id="_f2" name="loadCustomMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.loadCustomMetrics() : Properties"></programmingElement>
+				<programmingElement line="436" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:matchModule(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,java.lang.String,java.io.File,boolean)" source="_b6" id="_f3" name="matchModule(com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,java.lang.String,java.io.File,boolean)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.matchModule(ISoftwareSystem,String,File,boolean) : IModule"></programmingElement>
+				<programmingElement line="335" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:readBuiltInMetaData()" source="_b6" id="_f4" name="readBuiltInMetaData()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.readBuiltInMetaData() : IExportMetaData"></programmingElement>
+				<programmingElement line="236" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:save(java.util.Properties)" source="_b6" id="_f5" name="save(java.util.Properties)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.save(Properties) : void"></programmingElement>
+				<programmingElement line="184" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:setBestValue(java.lang.Double,org.sonar.api.measures.Metric$Builder)" source="_b6" id="_f6" name="setBestValue(java.lang.Double,org.sonar.api.measures.Metric$Builder)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.setBestValue(Double,Metric$Builder) : void"></programmingElement>
+				<programmingElement line="114" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:setCustomMetricsPropertiesProvider(com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider)" source="_b6" id="_f7" name="setCustomMetricsPropertiesProvider(com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase$ICustomMetricsPropertiesProvider)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.setCustomMetricsPropertiesProvider(SonargraphBase$ICustomMetricsPropertiesProvider) : void"></programmingElement>
+				<programmingElement line="160" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:setMetricDirection(java.lang.Double,java.lang.Double,org.sonar.api.measures.Metric$Builder)" source="_b6" id="_f8" name="setMetricDirection(java.lang.Double,java.lang.Double,org.sonar.api.measures.Metric$Builder)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.setMetricDirection(Double,Double,Metric$Builder) : void"></programmingElement>
+				<programmingElement line="176" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:setWorstValue(java.lang.Double,org.sonar.api.measures.Metric$Builder)" source="_b6" id="_f9" name="setWorstValue(java.lang.Double,org.sonar.api.measures.Metric$Builder)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.setWorstValue(Double,Metric$Builder) : void"></programmingElement>
+				<programmingElement line="132" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:toLowerCase(java.lang.String,boolean)" source="_b6" id="_fa" name="toLowerCase(java.lang.String,boolean)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.toLowerCase(String,boolean) : String"></programmingElement>
+				<programmingElement line="150" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase.java:SonargraphBase:trimDescription(java.lang.String)" source="_b6" id="_fb" name="trimDescription(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.trimDescription(String) : String"></programmingElement>
+				<programmingElement line="41" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics.java:SonargraphMetrics:SonargraphMetrics()" source="_bd" id="_fc" name="SonargraphMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics.SonargraphMetrics()"></programmingElement>
+				<programmingElement line="59" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics.java:SonargraphMetrics:getMetrics()" source="_bd" id="_fd" name="getMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics.getMetrics() : List&lt;Metric&gt;"></programmingElement>
+				<programmingElement line="46" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics.java:SonargraphMetrics:getMetricsForLevel(com.hello2morrow.sonargraph.integration.access.model.IExportMetaData, com.hello2morrow.sonargraph.integration.access.model.IMetricLevel, java.util.Map&lt;java.lang.String, com.hello2morrow.sonargraph.integration.access.model.IMetricId&gt;)" source="_bd" id="_fe" name="getMetricsForLevel(com.hello2morrow.sonargraph.integration.access.model.IExportMetaData, com.hello2morrow.sonargraph.integration.access.model.IMetricLevel, java.util.Map&lt;java.lang.String, com.hello2morrow.sonargraph.integration.access.model.IMetricId&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics.getMetricsForLevel(IExportMetaData, IMetricLevel, Map&lt;String, IMetricId&gt;) : void"></programmingElement>
+				<programmingElement line="33" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin.java:SonargraphPlugin:SonargraphPlugin()" source="_c3" id="_ff" name="SonargraphPlugin()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin.SonargraphPlugin()"></programmingElement>
+				<programmingElement line="39" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin.java:SonargraphPlugin:define(org.sonar.api.Plugin$Context)" source="_c3" id="_100" name="define(org.sonar.api.Plugin$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin.define(Plugin$Context) : void"></programmingElement>
+				<programmingElement line="36" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile.java:SonargraphProfile:SonargraphProfile()" source="_c9" id="_101" name="SonargraphProfile()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfile.SonargraphProfile()"></programmingElement>
+				<programmingElement line="42" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile.java:SonargraphProfile:define(org.sonar.api.server.profile.BuiltInQualityProfilesDefinition$Context)" source="_c9" id="_102" name="define(org.sonar.api.server.profile.BuiltInQualityProfilesDefinition$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfile.define(BuiltInQualityProfilesDefinition$Context) : void"></programmingElement>
+				<programmingElement line="33" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules:SonargraphRules()" source="_cf" id="_103" name="SonargraphRules()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules.SonargraphRules()"></programmingElement>
+				<programmingElement line="113" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules:createDescription(java.lang.String,java.lang.String)" source="_cf" id="_104" name="createDescription(java.lang.String,java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules.createDescription(String,String) : String"></programmingElement>
+				<programmingElement line="48" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules:createRule(com.hello2morrow.sonargraph.integration.access.model.IIssueType,org.sonar.api.server.rule.RulesDefinition$NewRepository)" source="_cf" id="_105" name="createRule(com.hello2morrow.sonargraph.integration.access.model.IIssueType,org.sonar.api.server.rule.RulesDefinition$NewRepository)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules.createRule(IIssueType,RulesDefinition$NewRepository) : void"></programmingElement>
+				<programmingElement line="38" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules:createRule(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.sonar.api.server.rule.RulesDefinition$NewRepository)" source="_cf" id="_106" name="createRule(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.sonar.api.server.rule.RulesDefinition$NewRepository)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules.createRule(String,String,String,String,String,RulesDefinition$NewRepository) : void"></programmingElement>
+				<programmingElement line="80" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules.java:SonargraphRules:define(org.sonar.api.server.rule.RulesDefinition$Context)" source="_cf" id="_107" name="define(org.sonar.api.server.rule.RulesDefinition$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules.define(RulesDefinition$Context) : void"></programmingElement>
+				<programmingElement line="79" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:ActiveRulesAndMetrics" source="_d5" id="_108" name="ActiveRulesAndMetrics" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics"></programmingElement>
+				<programmingElement line="84" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:ActiveRulesAndMetrics:ActiveRulesAndMetrics(java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.util.Map&lt;java.lang.String, org.sonar.api.batch.measure.Metric&lt;java.io.Serializable&gt;&gt;)" source="_d5" id="_109" name="ActiveRulesAndMetrics(java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.util.Map&lt;java.lang.String, org.sonar.api.batch.measure.Metric&lt;java.io.Serializable&gt;&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics.ActiveRulesAndMetrics(Map&lt;String, ActiveRule&gt;, Map&lt;String, Metric&lt;Serializable&gt;&gt;)"></programmingElement>
+				<programmingElement line="90" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:ActiveRulesAndMetrics:getActiveRules()" source="_d5" id="_10a" name="getActiveRules()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics.getActiveRules() : Map&lt;String, ActiveRule&gt;"></programmingElement>
+				<programmingElement line="95" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:ActiveRulesAndMetrics:getMetrics()" source="_d5" id="_10b" name="getMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics.getMetrics() : Map&lt;String, Metric&lt;Serializable&gt;&gt;"></programmingElement>
+				<programmingElement line="105" kind="_df" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:SonargraphSensor(org.sonar.api.batch.fs.FileSystem,org.sonar.api.batch.measure.MetricFinder)" source="_d5" id="_10c" name="SonargraphSensor(org.sonar.api.batch.fs.FileSystem,org.sonar.api.batch.measure.MetricFinder)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.SonargraphSensor(FileSystem,MetricFinder)"></programmingElement>
+				<programmingElement line="424" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:addIssuesToDirectory(org.sonar.api.batch.sensor.SensorContext, com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.lang.String, java.lang.String, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IIssue&gt;)" source="_d5" id="_10d" name="addIssuesToDirectory(org.sonar.api.batch.sensor.SensorContext, com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.lang.String, java.lang.String, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IIssue&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.addIssuesToDirectory(SensorContext, IModuleInfoProcessor, Map&lt;String, ActiveRule&gt;, String, String, List&lt;IIssue&gt;) : void"></programmingElement>
+				<programmingElement line="390" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:addIssuesToSourceFile(org.sonar.api.batch.sensor.SensorContext, com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.lang.String, com.hello2morrow.sonargraph.integration.access.model.ISourceFile, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IIssue&gt;)" source="_d5" id="_10e" name="addIssuesToSourceFile(org.sonar.api.batch.sensor.SensorContext, com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, java.util.Map&lt;java.lang.String, org.sonar.api.batch.rule.ActiveRule&gt;, java.lang.String, com.hello2morrow.sonargraph.integration.access.model.ISourceFile, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IIssue&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.addIssuesToSourceFile(SensorContext, IModuleInfoProcessor, Map&lt;String, ActiveRule&gt;, String, ISourceFile, List&lt;IIssue&gt;) : void"></programmingElement>
+				<programmingElement line="544" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createActiveRulesAndMetrics(org.sonar.api.batch.sensor.SensorContext)" source="_d5" id="_10f" name="createActiveRulesAndMetrics(org.sonar.api.batch.sensor.SensorContext)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createActiveRulesAndMetrics(SensorContext) : SonargraphSensor$ActiveRulesAndMetrics"></programmingElement>
+				<programmingElement line="525" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createIssue(org.sonar.api.batch.sensor.SensorContext, org.sonar.api.batch.fs.InputComponent, org.sonar.api.batch.rule.ActiveRule, java.lang.String, java.util.function.Consumer&lt;org.sonar.api.batch.sensor.issue.NewIssueLocation&gt;)" source="_d5" id="_110" name="createIssue(org.sonar.api.batch.sensor.SensorContext, org.sonar.api.batch.fs.InputComponent, org.sonar.api.batch.rule.ActiveRule, java.lang.String, java.util.function.Consumer&lt;org.sonar.api.batch.sensor.issue.NewIssueLocation&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createIssue(SensorContext, InputComponent, ActiveRule, String, Consumer&lt;NewIssueLocation&gt;) : void"></programmingElement>
+				<programmingElement line="348" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.IIssue)" source="_d5" id="_111" name="createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.IIssue)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createIssueDescription(IInfoProcessor,IIssue) : String"></programmingElement>
+				<programmingElement line="285" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.IIssue,java.lang.String)" source="_d5" id="_112" name="createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.IIssue,java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createIssueDescription(IInfoProcessor,IIssue,String) : String"></programmingElement>
+				<programmingElement line="330" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue, com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence&gt;)" source="_d5" id="_113" name="createIssueDescription(com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor, com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue, com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence, java.util.List&lt;com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createIssueDescription(IModuleInfoProcessor, IDuplicateCodeBlockIssue, IDuplicateCodeBlockOccurrence, List&lt;IDuplicateCodeBlockOccurrence&gt;) : String"></programmingElement>
+				<programmingElement line="504" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createMeasure(org.sonar.api.batch.sensor.SensorContext, org.sonar.api.batch.fs.InputComponent, org.sonar.api.batch.measure.Metric&lt;? extends java.io.Serializable&gt;, com.hello2morrow.sonargraph.integration.access.model.IMetricValue)" source="_d5" id="_114" name="createMeasure(org.sonar.api.batch.sensor.SensorContext, org.sonar.api.batch.fs.InputComponent, org.sonar.api.batch.measure.Metric&lt;? extends java.io.Serializable&gt;, com.hello2morrow.sonargraph.integration.access.model.IMetricValue)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createMeasure(SensorContext, InputComponent, Metric&lt;? extends Serializable&gt;, IMetricValue) : void"></programmingElement>
+				<programmingElement line="353" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:createSourceFileIssues(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.ISourceFile,org.sonar.api.batch.fs.InputPath,com.hello2morrow.sonargraph.integration.access.model.IIssue,org.sonar.api.batch.rule.ActiveRule)" source="_d5" id="_115" name="createSourceFileIssues(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor,com.hello2morrow.sonargraph.integration.access.model.ISourceFile,org.sonar.api.batch.fs.InputPath,com.hello2morrow.sonargraph.integration.access.model.IIssue,org.sonar.api.batch.rule.ActiveRule)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.createSourceFileIssues(SensorContext,IModuleInfoProcessor,ISourceFile,InputPath,IIssue,ActiveRule) : void"></programmingElement>
+				<programmingElement line="112" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:describe(org.sonar.api.batch.sensor.SensorDescriptor)" source="_d5" id="_116" name="describe(org.sonar.api.batch.sensor.SensorDescriptor)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.describe(SensorDescriptor) : void"></programmingElement>
+				<programmingElement line="118" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:execute(org.sonar.api.batch.sensor.SensorContext)" source="_d5" id="_117" name="execute(org.sonar.api.batch.sensor.SensorContext)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.execute(SensorContext) : void"></programmingElement>
+				<programmingElement line="153" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:getReportFile(org.sonar.api.config.Configuration)" source="_d5" id="_118" name="getReportFile(org.sonar.api.config.Configuration)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.getReportFile(Configuration) : File"></programmingElement>
+				<programmingElement line="184" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:getSystemBaseDirectory(org.sonar.api.config.Configuration)" source="_d5" id="_119" name="getSystemBaseDirectory(org.sonar.api.config.Configuration)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.getSystemBaseDirectory(Configuration) : File"></programmingElement>
+				<programmingElement line="202" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:process(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController)" source="_d5" id="_11a" name="process(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.process(SensorContext,ISonargraphSystemController) : void"></programmingElement>
+				<programmingElement line="264" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:processModule(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" source="_d5" id="_11b" name="processModule(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.controller.IModuleInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.processModule(SensorContext,IModuleInfoProcessor,SonargraphSensor$ActiveRulesAndMetrics) : void"></programmingElement>
+				<programmingElement line="226" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:processSystem(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" source="_d5" id="_11c" name="processSystem(org.sonar.api.batch.sensor.SensorContext,com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.processSystem(SensorContext,ISoftwareSystem,ISystemInfoProcessor,SonargraphSensor$ActiveRulesAndMetrics) : void"></programmingElement>
+				<programmingElement line="455" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/main/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor.java:SonargraphSensor:processSystemMetrics(org.sonar.api.batch.sensor.SensorContext,org.sonar.api.batch.fs.InputComponent,com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" source="_d5" id="_11d" name="processSystemMetrics(org.sonar.api.batch.sensor.SensorContext,org.sonar.api.batch.fs.InputComponent,com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem,com.hello2morrow.sonargraph.integration.access.controller.ISystemInfoProcessor,com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor$ActiveRulesAndMetrics)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor.processSystemMetrics(SensorContext,InputComponent,ISoftwareSystem,ISystemInfoProcessor,SonargraphSensor$ActiveRulesAndMetrics) : void"></programmingElement>
+			</rootDirectory>
+			<rootDirectory kind="_a6" fqName="Workspace:IntegrationSonarqube:./src/test/java" id="_a7" name="./src/test/java" presentationName="./src/test/java">
+				<physicalRecursiveElement relativeDirectoryPath="./com/hello2morrow/sonargraph/integration/sonarqube" kind="_b0" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube" id="_b1" name="sonarqube" presentationName="com.hello2morrow.sonargraph.integration.sonarqube"></physicalRecursiveElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java" id="_ba" name="SonargraphBaseTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBaseTest.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetricsTest.java" id="_c0" name="SonargraphMetricsTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphMetricsTest.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java" id="_c6" name="SonargraphPluginTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphPluginTest.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java" id="_cc" name="SonargraphProfileTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphProfileTest.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java" id="_d2" name="SonargraphRulesTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphRulesTest.java"></sourceElement>
+				<sourceElement kind="_b7" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java" id="_d8" name="SonargraphSensorTest.java" presentationName="./com/hello2morrow/sonargraph/integration/sonarqube/SonargraphSensorTest.java"></sourceElement>
+				<programmingElement line="47" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest" source="_ba" id="_b9" name="SonargraphBaseTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest"></programmingElement>
+				<programmingElement line="27" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetricsTest.java:SonargraphMetricsTest" source="_c0" id="_bf" name="SonargraphMetricsTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsTest"></programmingElement>
+				<programmingElement line="32" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest" source="_c6" id="_c5" name="SonargraphPluginTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest"></programmingElement>
+				<programmingElement line="30" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java:SonargraphProfileTest" source="_cc" id="_cb" name="SonargraphProfileTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest"></programmingElement>
+				<programmingElement line="25" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java:SonargraphRulesTest" source="_d2" id="_d1" name="SonargraphRulesTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest"></programmingElement>
+				<programmingElement line="54" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest" source="_d8" id="_d7" name="SonargraphSensorTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest"></programmingElement>
+				<programmingElement line="50" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testCreateKeysAndNames()" source="_ba" id="_11e" name="testCreateKeysAndNames()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testCreateKeysAndNames() : void"></programmingElement>
+				<programmingElement line="123" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testCustomMetrics()" source="_ba" id="_11f" name="testCustomMetrics()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testCustomMetrics() : void"></programmingElement>
+				<programmingElement line="179" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testGetNonEmptyString()" source="_ba" id="_120" name="testGetNonEmptyString()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testGetNonEmptyString() : void"></programmingElement>
+				<programmingElement line="68" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testReadBuiltInData()" source="_ba" id="_121" name="testReadBuiltInData()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testReadBuiltInData() : void"></programmingElement>
+				<programmingElement line="143" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testSimpleModuleMatch()" source="_ba" id="_122" name="testSimpleModuleMatch()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testSimpleModuleMatch() : void"></programmingElement>
+				<programmingElement line="160" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testToLowerCase()" source="_ba" id="_123" name="testToLowerCase()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testToLowerCase() : void"></programmingElement>
+				<programmingElement line="171" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest.java:SonargraphBaseTest:testTrimDescription()" source="_ba" id="_124" name="testTrimDescription()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest.testTrimDescription() : void"></programmingElement>
+				<programmingElement line="30" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetricsTest.java:SonargraphMetricsTest:testMetricsDefinition()" source="_c0" id="_125" name="testMetricsDefinition()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsTest.testMetricsDefinition() : void"></programmingElement>
+				<programmingElement line="34" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin" source="_c6" id="_126" name="TestPlugin" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin"></programmingElement>
+				<programmingElement line="36" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:createTestContext()" source="_c6" id="_127" name="createTestContext()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.createTestContext() : Plugin$Context"></programmingElement>
+				<programmingElement line="38" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:createTestContext():SonargraphPluginTest$TestPlugin$1" source="_c6" id="_128" name="SonargraphPluginTest$TestPlugin$1" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.new SonarRuntime() {...}"></programmingElement>
+				<programmingElement line="53" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:createTestContext():SonargraphPluginTest$TestPlugin$1:getApiVersion()" source="_c6" id="_129" name="getApiVersion()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.new SonarRuntime() {...}.getApiVersion() : Version"></programmingElement>
+				<programmingElement line="47" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:createTestContext():SonargraphPluginTest$TestPlugin$1:getProduct()" source="_c6" id="_12a" name="getProduct()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.new SonarRuntime() {...}.getProduct() : SonarProduct"></programmingElement>
+				<programmingElement line="41" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:createTestContext():SonargraphPluginTest$TestPlugin$1:getSonarQubeSide()" source="_c6" id="_12b" name="getSonarQubeSide()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.new SonarRuntime() {...}.getSonarQubeSide() : SonarQubeSide"></programmingElement>
+				<programmingElement line="61" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:TestPlugin:define(org.sonar.api.Plugin$Context)" source="_c6" id="_12c" name="define(org.sonar.api.Plugin$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest$TestPlugin.define(Plugin$Context) : void"></programmingElement>
+				<programmingElement line="68" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest.java:SonargraphPluginTest:testPluginDefinition()" source="_c6" id="_12d" name="testPluginDefinition()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest.testPluginDefinition() : void"></programmingElement>
+				<programmingElement line="32" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java:SonargraphProfileTest:TestProfile" source="_cc" id="_12e" name="TestProfile" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest$TestProfile"></programmingElement>
+				<programmingElement line="40" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java:SonargraphProfileTest:TestProfile:createTestContext()" source="_cc" id="_12f" name="createTestContext()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest$TestProfile.createTestContext() : BuiltInQualityProfilesDefinition$Context"></programmingElement>
+				<programmingElement line="35" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java:SonargraphProfileTest:TestProfile:define(org.sonar.api.server.profile.BuiltInQualityProfilesDefinition$Context)" source="_cc" id="_130" name="define(org.sonar.api.server.profile.BuiltInQualityProfilesDefinition$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest$TestProfile.define(BuiltInQualityProfilesDefinition$Context) : void"></programmingElement>
+				<programmingElement line="47" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest.java:SonargraphProfileTest:testProfileDefinition()" source="_cc" id="_131" name="testProfileDefinition()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest.testProfileDefinition() : void"></programmingElement>
+				<programmingElement line="27" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java:SonargraphRulesTest:TestRules" source="_d2" id="_132" name="TestRules" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest$TestRules"></programmingElement>
+				<programmingElement line="35" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java:SonargraphRulesTest:TestRules:createTestContext()" source="_d2" id="_133" name="createTestContext()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest$TestRules.createTestContext() : RulesDefinition$Context"></programmingElement>
+				<programmingElement line="30" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java:SonargraphRulesTest:TestRules:define(org.sonar.api.server.rule.RulesDefinition$Context)" source="_d2" id="_134" name="define(org.sonar.api.server.rule.RulesDefinition$Context)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest$TestRules.define(RulesDefinition$Context) : void"></programmingElement>
+				<programmingElement line="42" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest.java:SonargraphRulesTest:testRulesDefinition()" source="_d2" id="_135" name="testRulesDefinition()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest.testRulesDefinition() : void"></programmingElement>
+				<programmingElement line="198" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:after()" source="_d8" id="_136" name="after()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.after() : void"></programmingElement>
+				<programmingElement line="137" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:before()" source="_d8" id="_137" name="before()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.before() : void"></programmingElement>
+				<programmingElement line="166" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:before():SonargraphSensorTest$3" source="_d8" id="_138" name="SonargraphSensorTest$3" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new MetricFinder() {...}"></programmingElement>
+				<programmingElement line="190" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:before():SonargraphSensorTest$3:findAll()" source="_d8" id="_139" name="findAll()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new MetricFinder() {...}.findAll() : Collection&lt;Metric&lt;Serializable&gt;&gt;"></programmingElement>
+				<programmingElement line="175" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:before():SonargraphSensorTest$3:findAll(java.util.List&lt;java.lang.String&gt;)" source="_d8" id="_13a" name="findAll(java.util.List&lt;java.lang.String&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new MetricFinder() {...}.findAll(List&lt;String&gt;) : Collection&lt;Metric&lt;Serializable&gt;&gt;"></programmingElement>
+				<programmingElement line="169" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:before():SonargraphSensorTest$3:findByKey(java.lang.String)" source="_d8" id="_13b" name="findByKey(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new MetricFinder() {...}.findByKey(String) : Metric&lt;G&gt;"></programmingElement>
+				<programmingElement line="60" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:customMetricsPropertiesProvider:SonargraphSensorTest$1" source="_d8" id="_13c" name="SonargraphSensorTest$1" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new ICustomMetricsPropertiesProvider() {...}"></programmingElement>
+				<programmingElement line="63" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:customMetricsPropertiesProvider:SonargraphSensorTest$1:getDirectory()" source="_d8" id="_13d" name="getDirectory()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new ICustomMetricsPropertiesProvider() {...}.getDirectory() : String"></programmingElement>
+				<programmingElement line="69" kind="_b5" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2" source="_d8" id="_13e" name="SonargraphSensorTest$2" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}"></programmingElement>
+				<programmingElement line="126" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:createIssuesForRuleRepositories(java.lang.String[])" source="_d8" id="_13f" name="createIssuesForRuleRepositories(java.lang.String[])" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.createIssuesForRuleRepositories(String[]) : SensorDescriptor"></programmingElement>
+				<programmingElement line="120" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:createIssuesForRuleRepository(java.lang.String[])" source="_d8" id="_140" name="createIssuesForRuleRepository(java.lang.String[])" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.createIssuesForRuleRepository(String[]) : SensorDescriptor"></programmingElement>
+				<programmingElement line="114" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:global()" source="_d8" id="_141" name="global()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.global() : SensorDescriptor"></programmingElement>
+				<programmingElement line="108" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:name(java.lang.String)" source="_d8" id="_142" name="name(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.name(String) : SensorDescriptor"></programmingElement>
+				<programmingElement line="102" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:onlyOnFileType(org.sonar.api.batch.fs.InputFile$Type)" source="_d8" id="_143" name="onlyOnFileType(org.sonar.api.batch.fs.InputFile$Type)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.onlyOnFileType(InputFile$Type) : SensorDescriptor"></programmingElement>
+				<programmingElement line="96" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:onlyOnLanguage(java.lang.String)" source="_d8" id="_144" name="onlyOnLanguage(java.lang.String)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.onlyOnLanguage(String) : SensorDescriptor"></programmingElement>
+				<programmingElement line="90" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:onlyOnLanguages(java.lang.String[])" source="_d8" id="_145" name="onlyOnLanguages(java.lang.String[])" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.onlyOnLanguages(String[]) : SensorDescriptor"></programmingElement>
+				<programmingElement line="84" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:onlyWhenConfiguration(java.util.function.Predicate&lt;org.sonar.api.config.Configuration&gt;)" source="_d8" id="_146" name="onlyWhenConfiguration(java.util.function.Predicate&lt;org.sonar.api.config.Configuration&gt;)" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.onlyWhenConfiguration(Predicate&lt;Configuration&gt;) : SensorDescriptor"></programmingElement>
+				<programmingElement line="78" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:requireProperties(java.lang.String[])" source="_d8" id="_147" name="requireProperties(java.lang.String[])" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.requireProperties(String[]) : SensorDescriptor"></programmingElement>
+				<programmingElement line="72" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:sensorDescriptor:SonargraphSensorTest$2:requireProperty(java.lang.String[])" source="_d8" id="_148" name="requireProperty(java.lang.String[])" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.new SensorDescriptor() {...}.requireProperty(String[]) : SensorDescriptor"></programmingElement>
+				<programmingElement line="253" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnEmptyReportFile()" source="_d8" id="_149" name="testSonargraphSensorOnEmptyReportFile()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnEmptyReportFile() : void"></programmingElement>
+				<programmingElement line="315" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnEmptyTestProject()" source="_d8" id="_14a" name="testSonargraphSensorOnEmptyTestProject()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnEmptyTestProject() : void"></programmingElement>
+				<programmingElement line="233" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnInvalidReportFile()" source="_d8" id="_14b" name="testSonargraphSensorOnInvalidReportFile()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnInvalidReportFile() : void"></programmingElement>
+				<programmingElement line="204" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnReportFile()" source="_d8" id="_14c" name="testSonargraphSensorOnReportFile()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnReportFile() : void"></programmingElement>
+				<programmingElement line="273" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnTestProject()" source="_d8" id="_14d" name="testSonargraphSensorOnTestProject()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnTestProject() : void"></programmingElement>
+				<programmingElement line="291" kind="_db" fqName="Workspace:IntegrationSonarqube:./src/test/java:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest.java:SonargraphSensorTest:testSonargraphSensorOnTestProjectWithReportFromDifferentOrigin()" source="_d8" id="_14e" name="testSonargraphSensorOnTestProjectWithReportFromDifferentOrigin()" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest.testSonargraphSensorOnTestProjectWithReportFromDifferentOrigin() : void"></programmingElement>
+			</rootDirectory>
+			<rootDirectory kind="_a9" fqName="Workspace:IntegrationSonarqube:Class|./target/classes" id="_a8" name="Class|./target/classes" presentationName="./target/classes"></rootDirectory>
+			<rootDirectory kind="_a9" fqName="Workspace:IntegrationSonarqube:Class|./target/test-classes" id="_aa" name="Class|./target/test-classes" presentationName="./target/test-classes"></rootDirectory>
+		</module>
+		<external language="Java" description="Contains external Java elements" kind="_ac" fqName="Workspace:External [Java]" id="_ab" name="External [Java]" presentationName="External [Java]">
+			<programmingElement kind="_150" fqName="Workspace:External [Java]:[Unknown]:java:lang:System:System:out" id="_14f" name="out" presentationName="java.lang.System.out"></programmingElement>
+		</external>
+	</workspace>
+	<systemElements ref="_0">
+		<element kind="_152" fqName="IntegrationSonarqube" id="_151" name="IntegrationSonarqube" presentationName="IntegrationSonarqube"></element>
+		<logicalNamespace derivedFrom="_af _b1" kind="_154" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube" id="_153" name="sonarqube" presentationName="com.hello2morrow.sonargraph.integration.sonarqube"></logicalNamespace>
+		<logicalProgrammingElement derivedFrom="_b4" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase" id="_155" name="SonargraphBase" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_b9" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest" id="_157" name="SonargraphBaseTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_bc" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics" id="_158" name="SonargraphMetrics" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_bf" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetricsTest" id="_159" name="SonargraphMetricsTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c2" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin" id="_15a" name="SonargraphPlugin" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c5" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest" id="_15b" name="SonargraphPluginTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c8" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile" id="_15c" name="SonargraphProfile" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfile"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_cb" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest" id="_15d" name="SonargraphProfileTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_ce" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules" id="_15e" name="SonargraphRules" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d1" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest" id="_15f" name="SonargraphRulesTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d4" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor" id="_160" name="SonargraphSensor" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d7" kind="_156" fqName="Logical system namespaces:Internal [Java]:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest" id="_161" name="SonargraphSensorTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest"></logicalProgrammingElement>
+	</systemElements>
+	<moduleElements ref="_a3">
+		<logicalNamespace derivedFrom="_af _b1" kind="_ae" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube" id="_ad" name="sonarqube" presentationName="com.hello2morrow.sonargraph.integration.sonarqube"></logicalNamespace>
+		<logicalProgrammingElement derivedFrom="_b4" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBase" id="_b2" name="SonargraphBase" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_b9" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphBaseTest" id="_b8" name="SonargraphBaseTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBaseTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_bc" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetrics" id="_bb" name="SonargraphMetrics" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetrics"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_bf" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphMetricsTest" id="_be" name="SonargraphMetricsTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c2" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPlugin" id="_c1" name="SonargraphPlugin" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c5" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphPluginTest" id="_c4" name="SonargraphPluginTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPluginTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_c8" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfile" id="_c7" name="SonargraphProfile" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfile"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_cb" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphProfileTest" id="_ca" name="SonargraphProfileTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphProfileTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_ce" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRules" id="_cd" name="SonargraphRules" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRules"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d1" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphRulesTest" id="_d0" name="SonargraphRulesTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesTest"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d4" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensor" id="_d3" name="SonargraphSensor" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensor"></logicalProgrammingElement>
+		<logicalProgrammingElement derivedFrom="_d7" kind="_b3" fqName="Logical module namespaces:IntegrationSonarqube:com:hello2morrow:sonargraph:integration:sonarqube:SonargraphSensorTest" id="_d6" name="SonargraphSensorTest" presentationName="com.hello2morrow.sonargraph.integration.sonarqube.SonargraphSensorTest"></logicalProgrammingElement>
+	</moduleElements>
+	<externalSystemScopeElements ref="_ab"></externalSystemScopeElements>
+	<systemMetricValues elementRef="_0">
+		<levelValues levelRef="_2d">
+			<metric ref="_47">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_88">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_3d">
+				<int ref="_151">39</int>
+			</metric>
+			<metric ref="_89">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_67">
+				<float ref="_151">1.08</float>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_9d">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_41">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_9b">
+				<int ref="_151">870</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_96">
+				<float ref="_151">0.0</float>
+			</metric>
+			<metric ref="_8a">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_78">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_5e">
+				<int ref="_151">1637</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_151">12</int>
+			</metric>
+			<metric ref="_79">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_68">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_9c">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_40">
+				<int ref="_151">172</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_64">
+				<float ref="_151">96.6</float>
+			</metric>
+			<metric ref="_3b">
+				<int ref="_151">5071</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_151">1</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_151">700</int>
+			</metric>
+			<metric ref="_9e">
+				<int ref="_151">2132</int>
+			</metric>
+			<metric ref="_71">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_91">
+				<float ref="_151">27.08</float>
+			</metric>
+			<metric ref="_3e">
+				<int ref="_151">28</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_2a">
+				<float ref="_151">3.25</float>
+			</metric>
+			<metric ref="_72">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_95">
+				<float ref="_151">0.0</float>
+			</metric>
+			<metric ref="_73">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_70">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_151">1</int>
+			</metric>
+			<metric ref="_90">
+				<float ref="_151">27.08</float>
+			</metric>
+			<metric ref="_97">
+				<int ref="_151">13</int>
+			</metric>
+			<metric ref="_87">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_3a">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_38">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_57">
+				<float ref="_151">3.25</float>
+			</metric>
+			<metric ref="_42">
+				<int ref="_151">0</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_151">0</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_32">
+			<metric ref="_94">
+				<float ref="_153">17.17</float>
+			</metric>
+			<metric ref="_33">
+				<float ref="_153">0.05</float>
+			</metric>
+			<metric ref="_4f">
+				<float ref="_153">0.05</float>
+			</metric>
+			<metric ref="_59">
+				<float ref="_153">1.0</float>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_153">0</int>
+			</metric>
+			<metric ref="_82">
+				<int ref="_153">0</int>
+			</metric>
+			<metric ref="_86">
+				<int ref="_153">22</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_60">
+			<metric ref="_61">
+				<int ref="_157">1</int>
+				<int ref="_159">1</int>
+				<int ref="_15b">1</int>
+				<int ref="_15d">2</int>
+				<int ref="_15f">3</int>
+				<int ref="_160">3</int>
+				<int ref="_15c">3</int>
+				<int ref="_15e">4</int>
+				<int ref="_158">4</int>
+				<int ref="_161">5</int>
+				<int ref="_15a">6</int>
+				<int ref="_155">9</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_161">0</int>
+				<int ref="_15f">0</int>
+				<int ref="_157">0</int>
+				<int ref="_160">0</int>
+				<int ref="_159">0</int>
+				<int ref="_15b">0</int>
+				<int ref="_15e">0</int>
+				<int ref="_15c">0</int>
+				<int ref="_155">0</int>
+				<int ref="_158">0</int>
+				<int ref="_15a">0</int>
+				<int ref="_15d">0</int>
+			</metric>
+		</levelValues>
+	</systemMetricValues>
+	<moduleMetricValues elementRef="_a3">
+		<levelValues levelRef="_2e">
+			<metric ref="_6f">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_87">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_88">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_89">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_8a">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_37">
+				<float ref="_a3">91.67</float>
+			</metric>
+			<metric ref="_41">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_42">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_9c">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_9d">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_2a">
+				<float ref="_a3">3.25</float>
+			</metric>
+			<metric ref="_3d">
+				<int ref="_a3">39</int>
+			</metric>
+			<metric ref="_64">
+				<float ref="_a3">96.6</float>
+			</metric>
+			<metric ref="_67">
+				<float ref="_a3">1.08</float>
+			</metric>
+			<metric ref="_90">
+				<float ref="_a3">27.08</float>
+			</metric>
+			<metric ref="_91">
+				<float ref="_a3">27.08</float>
+			</metric>
+			<metric ref="_38">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_3a">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_47">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_70">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_71">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_72">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_73">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_78">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_79">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_95">
+				<float ref="_a3">0.0</float>
+			</metric>
+			<metric ref="_96">
+				<float ref="_a3">0.0</float>
+			</metric>
+			<metric ref="_3e">
+				<int ref="_a3">28</int>
+			</metric>
+			<metric ref="_40">
+				<int ref="_a3">172</int>
+			</metric>
+			<metric ref="_5e">
+				<int ref="_a3">1637</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_a3">12</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_a3">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_a3">1</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_a3">700</int>
+			</metric>
+			<metric ref="_9b">
+				<int ref="_a3">870</int>
+			</metric>
+			<metric ref="_9e">
+				<int ref="_a3">2132</int>
+			</metric>
+			<metric ref="_97">
+				<int ref="_a3">42</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_32">
+			<metric ref="_34">
+				<float ref="_ad">75.36</float>
+			</metric>
+			<metric ref="_5c">
+				<float ref="_ad">91.67</float>
+			</metric>
+			<metric ref="_92">
+				<float ref="_ad">17.17</float>
+			</metric>
+			<metric ref="_30">
+				<float ref="_ad">0.05</float>
+			</metric>
+			<metric ref="_4e">
+				<float ref="_ad">0.05</float>
+			</metric>
+			<metric ref="_58">
+				<float ref="_ad">1.0</float>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_ad">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_ad">0</int>
+			</metric>
+			<metric ref="_85">
+				<int ref="_ad">22</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_45">
+			<metric ref="_89">
+				<int ref="_d2">0</int>
+				<int ref="_bd">0</int>
+				<int ref="_cf">0</int>
+				<int ref="_c0">0</int>
+				<int ref="_d8">0</int>
+				<int ref="_d5">0</int>
+				<int ref="_c6">0</int>
+				<int ref="_b6">0</int>
+				<int ref="_cc">0</int>
+				<int ref="_ba">0</int>
+				<int ref="_c3">0</int>
+				<int ref="_c9">0</int>
+			</metric>
+			<metric ref="_8a">
+				<int ref="_d2">0</int>
+				<int ref="_bd">0</int>
+				<int ref="_cf">0</int>
+				<int ref="_c0">0</int>
+				<int ref="_d8">0</int>
+				<int ref="_d5">0</int>
+				<int ref="_c6">0</int>
+				<int ref="_b6">0</int>
+				<int ref="_cc">0</int>
+				<int ref="_ba">0</int>
+				<int ref="_c3">0</int>
+				<int ref="_c9">0</int>
+			</metric>
+			<metric ref="_44">
+				<float ref="_c0">3.96</float>
+				<float ref="_ba">3.96</float>
+				<float ref="_c6">3.96</float>
+				<float ref="_d8">3.96</float>
+				<float ref="_cc">3.96</float>
+				<float ref="_d2">4.64</float>
+				<float ref="_d5">5.88</float>
+				<float ref="_c9">6.9</float>
+				<float ref="_c3">7.33</float>
+				<float ref="_cf">7.86</float>
+				<float ref="_bd">9.26</float>
+				<float ref="_b6">38.32</float>
+			</metric>
+			<metric ref="_46">
+				<float ref="_c0">3.96</float>
+				<float ref="_ba">3.96</float>
+				<float ref="_c6">3.96</float>
+				<float ref="_d8">3.96</float>
+				<float ref="_cc">3.96</float>
+				<float ref="_d2">4.64</float>
+				<float ref="_d5">5.88</float>
+				<float ref="_c9">6.9</float>
+				<float ref="_c3">7.33</float>
+				<float ref="_cf">7.86</float>
+				<float ref="_bd">9.26</float>
+				<float ref="_b6">38.32</float>
+			</metric>
+			<metric ref="_4c">
+				<int ref="_c6">7</int>
+				<int ref="_c3">6</int>
+				<int ref="_d8">6</int>
+				<int ref="_c0">3</int>
+				<int ref="_cc">3</int>
+				<int ref="_d2">3</int>
+				<int ref="_d5">2</int>
+				<int ref="_c9">2</int>
+				<int ref="_bd">2</int>
+				<int ref="_cf">2</int>
+				<int ref="_ba">2</int>
+				<int ref="_b6">1</int>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_c6">7</int>
+				<int ref="_c3">6</int>
+				<int ref="_d8">6</int>
+				<int ref="_c0">3</int>
+				<int ref="_cc">3</int>
+				<int ref="_d2">3</int>
+				<int ref="_d5">2</int>
+				<int ref="_c9">2</int>
+				<int ref="_bd">2</int>
+				<int ref="_cf">2</int>
+				<int ref="_ba">2</int>
+				<int ref="_b6">1</int>
+			</metric>
+			<metric ref="_51">
+				<float ref="_d2">100.0</float>
+				<float ref="_b6">100.0</float>
+				<float ref="_bd">40.0</float>
+				<float ref="_cf">40.0</float>
+				<float ref="_d5">20.0</float>
+				<float ref="_c3">20.0</float>
+				<float ref="_c9">20.0</float>
+				<float ref="_d8">0.0</float>
+				<float ref="_cc">0.0</float>
+				<float ref="_c0">0.0</float>
+				<float ref="_c6">0.0</float>
+				<float ref="_ba">0.0</float>
+			</metric>
+			<metric ref="_52">
+				<float ref="_b6">100.0</float>
+				<float ref="_bd">41.67</float>
+				<float ref="_cf">41.67</float>
+				<float ref="_d5">33.33</float>
+				<float ref="_c9">33.33</float>
+				<float ref="_c3">16.67</float>
+				<float ref="_d2">16.67</float>
+				<float ref="_c0">8.33</float>
+				<float ref="_ba">8.33</float>
+				<float ref="_c6">8.33</float>
+				<float ref="_d8">8.33</float>
+				<float ref="_cc">8.33</float>
+			</metric>
+			<metric ref="_54">
+				<float ref="_b6">100.0</float>
+				<float ref="_bd">41.67</float>
+				<float ref="_cf">41.67</float>
+				<float ref="_d5">33.33</float>
+				<float ref="_c9">33.33</float>
+				<float ref="_c3">16.67</float>
+				<float ref="_d2">16.67</float>
+				<float ref="_c0">8.33</float>
+				<float ref="_ba">8.33</float>
+				<float ref="_c6">8.33</float>
+				<float ref="_d8">8.33</float>
+				<float ref="_cc">8.33</float>
+			</metric>
+			<metric ref="_55">
+				<float ref="_c6">58.33</float>
+				<float ref="_c3">50.0</float>
+				<float ref="_d8">50.0</float>
+				<float ref="_c0">25.0</float>
+				<float ref="_cc">25.0</float>
+				<float ref="_d2">25.0</float>
+				<float ref="_d5">16.67</float>
+				<float ref="_c9">16.67</float>
+				<float ref="_bd">16.67</float>
+				<float ref="_cf">16.67</float>
+				<float ref="_ba">16.67</float>
+				<float ref="_b6">8.33</float>
+			</metric>
+			<metric ref="_56">
+				<float ref="_c6">58.33</float>
+				<float ref="_c3">50.0</float>
+				<float ref="_d8">50.0</float>
+				<float ref="_c0">25.0</float>
+				<float ref="_cc">25.0</float>
+				<float ref="_d2">25.0</float>
+				<float ref="_d5">16.67</float>
+				<float ref="_c9">16.67</float>
+				<float ref="_bd">16.67</float>
+				<float ref="_cf">16.67</float>
+				<float ref="_ba">16.67</float>
+				<float ref="_b6">8.33</float>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_c0">0</int>
+				<int ref="_ba">0</int>
+				<int ref="_c6">0</int>
+				<int ref="_cc">0</int>
+				<int ref="_d8">1</int>
+				<int ref="_d2">1</int>
+				<int ref="_d5">2</int>
+				<int ref="_c9">2</int>
+				<int ref="_bd">2</int>
+				<int ref="_cf">2</int>
+				<int ref="_c3">5</int>
+				<int ref="_b6">5</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_b6">4</int>
+				<int ref="_d8">4</int>
+				<int ref="_bd">2</int>
+				<int ref="_cf">2</int>
+				<int ref="_cc">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_c3">1</int>
+				<int ref="_d5">1</int>
+				<int ref="_c9">1</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_c6">1</int>
+			</metric>
+			<metric ref="_9f">
+				<int ref="_b6">12</int>
+				<int ref="_bd">5</int>
+				<int ref="_cf">5</int>
+				<int ref="_d5">4</int>
+				<int ref="_c9">4</int>
+				<int ref="_c3">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_c6">1</int>
+				<int ref="_d8">1</int>
+				<int ref="_cc">1</int>
+			</metric>
+			<metric ref="_a0">
+				<int ref="_b6">12</int>
+				<int ref="_bd">5</int>
+				<int ref="_cf">5</int>
+				<int ref="_d5">4</int>
+				<int ref="_c9">4</int>
+				<int ref="_c3">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_c6">1</int>
+				<int ref="_d8">1</int>
+				<int ref="_cc">1</int>
+			</metric>
+			<metric ref="_58">
+				<float ref="_c0">1.0</float>
+				<float ref="_ba">1.0</float>
+				<float ref="_c6">1.0</float>
+				<float ref="_d8">1.0</float>
+				<float ref="_cc">1.0</float>
+				<float ref="_c3">0.83</float>
+				<float ref="_d2">0.67</float>
+				<float ref="_d5">0.33</float>
+				<float ref="_c9">0.33</float>
+				<float ref="_bd">0.25</float>
+				<float ref="_cf">0.25</float>
+				<float ref="_b6">0.0</float>
+			</metric>
+			<metric ref="_59">
+				<float ref="_c0">1.0</float>
+				<float ref="_ba">1.0</float>
+				<float ref="_c6">1.0</float>
+				<float ref="_d8">1.0</float>
+				<float ref="_cc">1.0</float>
+				<float ref="_c3">0.83</float>
+				<float ref="_d2">0.67</float>
+				<float ref="_d5">0.33</float>
+				<float ref="_c9">0.33</float>
+				<float ref="_bd">0.25</float>
+				<float ref="_cf">0.25</float>
+				<float ref="_b6">0.0</float>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_b6">9</int>
+				<int ref="_bd">3</int>
+				<int ref="_cf">3</int>
+				<int ref="_d5">2</int>
+				<int ref="_c9">2</int>
+				<int ref="_c3">1</int>
+				<int ref="_d2">1</int>
+				<int ref="_c0">0</int>
+				<int ref="_ba">0</int>
+				<int ref="_c6">0</int>
+				<int ref="_d8">0</int>
+				<int ref="_cc">0</int>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_b6">9</int>
+				<int ref="_bd">3</int>
+				<int ref="_cf">3</int>
+				<int ref="_d5">2</int>
+				<int ref="_c9">2</int>
+				<int ref="_c3">1</int>
+				<int ref="_d2">1</int>
+				<int ref="_c0">0</int>
+				<int ref="_ba">0</int>
+				<int ref="_c6">0</int>
+				<int ref="_d8">0</int>
+				<int ref="_cc">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_c3">5</int>
+				<int ref="_d8">5</int>
+				<int ref="_cc">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_d5">1</int>
+				<int ref="_c9">1</int>
+				<int ref="_bd">1</int>
+				<int ref="_cf">1</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_c6">1</int>
+				<int ref="_b6">0</int>
+			</metric>
+			<metric ref="_82">
+				<int ref="_c3">5</int>
+				<int ref="_d8">5</int>
+				<int ref="_cc">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_d5">1</int>
+				<int ref="_c9">1</int>
+				<int ref="_bd">1</int>
+				<int ref="_cf">1</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_c6">1</int>
+				<int ref="_b6">0</int>
+			</metric>
+			<metric ref="_85">
+				<int ref="_c3">1</int>
+				<int ref="_c9">1</int>
+				<int ref="_bd">1</int>
+				<int ref="_cf">1</int>
+				<int ref="_c0">1</int>
+				<int ref="_ba">1</int>
+				<int ref="_d5">2</int>
+				<int ref="_cc">2</int>
+				<int ref="_d2">2</int>
+				<int ref="_b6">3</int>
+				<int ref="_c6">3</int>
+				<int ref="_d8">4</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_3f">
+			<metric ref="_3e">
+				<int ref="_c3">0</int>
+				<int ref="_c9">0</int>
+				<int ref="_bd">0</int>
+				<int ref="_c0">0</int>
+				<int ref="_c6">1</int>
+				<int ref="_d2">1</int>
+				<int ref="_cf">2</int>
+				<int ref="_cc">2</int>
+				<int ref="_d5">3</int>
+				<int ref="_ba">5</int>
+				<int ref="_b6">7</int>
+				<int ref="_d8">7</int>
+			</metric>
+			<metric ref="_40">
+				<int ref="_c3">12</int>
+				<int ref="_c9">12</int>
+				<int ref="_bd">12</int>
+				<int ref="_c0">12</int>
+				<int ref="_c6">13</int>
+				<int ref="_d2">13</int>
+				<int ref="_cf">14</int>
+				<int ref="_cc">14</int>
+				<int ref="_d5">15</int>
+				<int ref="_ba">17</int>
+				<int ref="_b6">19</int>
+				<int ref="_d8">19</int>
+			</metric>
+			<metric ref="_5e">
+				<int ref="_c0">17</int>
+				<int ref="_c3">23</int>
+				<int ref="_d2">26</int>
+				<int ref="_cc">35</int>
+				<int ref="_c9">41</int>
+				<int ref="_c6">51</int>
+				<int ref="_bd">52</int>
+				<int ref="_cf">83</int>
+				<int ref="_ba">162</int>
+				<int ref="_d8">250</int>
+				<int ref="_b6">421</int>
+				<int ref="_d5">476</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_c3">2</int>
+				<int ref="_c0">4</int>
+				<int ref="_d2">5</int>
+				<int ref="_c6">9</int>
+				<int ref="_cc">10</int>
+				<int ref="_c9">15</int>
+				<int ref="_bd">18</int>
+				<int ref="_cf">36</int>
+				<int ref="_ba">81</int>
+				<int ref="_d8">98</int>
+				<int ref="_b6">181</int>
+				<int ref="_d5">241</int>
+			</metric>
+			<metric ref="_9b">
+				<int ref="_c3">5</int>
+				<int ref="_c0">6</int>
+				<int ref="_d2">10</int>
+				<int ref="_cc">15</int>
+				<int ref="_c6">18</int>
+				<int ref="_c9">20</int>
+				<int ref="_bd">24</int>
+				<int ref="_cf">43</int>
+				<int ref="_ba">89</int>
+				<int ref="_d8">129</int>
+				<int ref="_b6">240</int>
+				<int ref="_d5">271</int>
+			</metric>
+			<metric ref="_9e">
+				<int ref="_c0">38</int>
+				<int ref="_c3">43</int>
+				<int ref="_d2">49</int>
+				<int ref="_cc">61</int>
+				<int ref="_c9">66</int>
+				<int ref="_bd">78</int>
+				<int ref="_c6">78</int>
+				<int ref="_cf">117</int>
+				<int ref="_ba">211</int>
+				<int ref="_d8">324</int>
+				<int ref="_b6">511</int>
+				<int ref="_d5">556</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_60">
+			<metric ref="_5f">
+				<int ref="_b8">1</int>
+				<int ref="_be">1</int>
+				<int ref="_c4">1</int>
+				<int ref="_ca">2</int>
+				<int ref="_d0">3</int>
+				<int ref="_d3">3</int>
+				<int ref="_c7">3</int>
+				<int ref="_cd">4</int>
+				<int ref="_bb">4</int>
+				<int ref="_d6">5</int>
+				<int ref="_c1">6</int>
+				<int ref="_b2">9</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_d6">0</int>
+				<int ref="_d0">0</int>
+				<int ref="_b8">0</int>
+				<int ref="_d3">0</int>
+				<int ref="_be">0</int>
+				<int ref="_c4">0</int>
+				<int ref="_cd">0</int>
+				<int ref="_c7">0</int>
+				<int ref="_b2">0</int>
+				<int ref="_bb">0</int>
+				<int ref="_c1">0</int>
+				<int ref="_ca">0</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_5b">
+			<metric ref="_5a">
+				<float ref="_c2">100.0</float>
+				<float ref="_bf">100.0</float>
+				<float ref="_b9">100.0</float>
+				<float ref="_c5">100.0</float>
+				<float ref="_cb">100.0</float>
+				<float ref="_d1">100.0</float>
+				<float ref="_b4">77.78</float>
+				<float ref="_c8">75.0</float>
+				<float ref="_d7">61.54</float>
+				<float ref="_bc">40.0</float>
+				<float ref="_ce">33.33</float>
+				<float ref="_d4">16.67</float>
+			</metric>
+			<metric ref="_5d">
+				<int ref="_b4">16</int>
+				<int ref="_b9">7</int>
+				<int ref="_bc">3</int>
+				<int ref="_108">2</int>
+				<int ref="_c8">2</int>
+				<int ref="_ce">2</int>
+				<int ref="_c2">1</int>
+				<int ref="_d4">1</int>
+				<int ref="_e8">1</int>
+				<int ref="_bf">1</int>
+				<int ref="_c5">1</int>
+				<int ref="_126">1</int>
+				<int ref="_128">1</int>
+				<int ref="_d7">1</int>
+				<int ref="_13c">1</int>
+				<int ref="_13e">1</int>
+				<int ref="_138">1</int>
+				<int ref="_cb">1</int>
+				<int ref="_12e">1</int>
+				<int ref="_d1">1</int>
+				<int ref="_132">1</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_e8">0</int>
+				<int ref="_bf">1</int>
+				<int ref="_c5">1</int>
+				<int ref="_13c">1</int>
+				<int ref="_cb">1</int>
+				<int ref="_d1">1</int>
+				<int ref="_c2">2</int>
+				<int ref="_c8">2</int>
+				<int ref="_126">2</int>
+				<int ref="_12e">2</int>
+				<int ref="_132">2</int>
+				<int ref="_108">3</int>
+				<int ref="_d9">3</int>
+				<int ref="_bc">3</int>
+				<int ref="_128">3</int>
+				<int ref="_138">3</int>
+				<int ref="_ce">5</int>
+				<int ref="_b9">7</int>
+				<int ref="_d7">8</int>
+				<int ref="_13e">10</int>
+				<int ref="_d4">18</int>
+				<int ref="_b4">28</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_e8">0</int>
+				<int ref="_13c">1</int>
+				<int ref="_12e">1</int>
+				<int ref="_132">1</int>
+				<int ref="_c2">2</int>
+				<int ref="_d9">3</int>
+				<int ref="_128">3</int>
+				<int ref="_108">4</int>
+				<int ref="_bf">4</int>
+				<int ref="_126">4</int>
+				<int ref="_d1">5</int>
+				<int ref="_c5">9</int>
+				<int ref="_13e">10</int>
+				<int ref="_138">10</int>
+				<int ref="_cb">10</int>
+				<int ref="_c8">15</int>
+				<int ref="_bc">18</int>
+				<int ref="_ce">36</int>
+				<int ref="_b9">81</int>
+				<int ref="_d7">98</int>
+				<int ref="_b4">181</int>
+				<int ref="_d4">241</int>
+			</metric>
+			<metric ref="_9b">
+				<int ref="_e8">1</int>
+				<int ref="_13c">3</int>
+				<int ref="_12e">4</int>
+				<int ref="_132">4</int>
+				<int ref="_c2">5</int>
+				<int ref="_bf">6</int>
+				<int ref="_d9">7</int>
+				<int ref="_128">7</int>
+				<int ref="_108">10</int>
+				<int ref="_d1">10</int>
+				<int ref="_126">11</int>
+				<int ref="_138">14</int>
+				<int ref="_cb">15</int>
+				<int ref="_c5">18</int>
+				<int ref="_c8">20</int>
+				<int ref="_13e">21</int>
+				<int ref="_bc">24</int>
+				<int ref="_ce">43</int>
+				<int ref="_b9">89</int>
+				<int ref="_d7">129</int>
+				<int ref="_b4">240</int>
+				<int ref="_d4">271</int>
+			</metric>
+			<metric ref="_97">
+				<int ref="_b4">100</int>
+			</metric>
+		</levelValues>
+		<levelValues levelRef="_4b">
+			<metric ref="_83">
+				<int ref="_ff">0</int>
+				<int ref="_10a">0</int>
+				<int ref="_10b">0</int>
+				<int ref="_101">0</int>
+				<int ref="_de">0</int>
+				<int ref="_f2">0</int>
+				<int ref="_e9">0</int>
+				<int ref="_f4">0</int>
+				<int ref="_da">0</int>
+				<int ref="_dc">0</int>
+				<int ref="_dd">0</int>
+				<int ref="_fc">0</int>
+				<int ref="_fd">0</int>
+				<int ref="_103">0</int>
+				<int ref="_125">0</int>
+				<int ref="_11e">0</int>
+				<int ref="_121">0</int>
+				<int ref="_11f">0</int>
+				<int ref="_122">0</int>
+				<int ref="_123">0</int>
+				<int ref="_124">0</int>
+				<int ref="_120">0</int>
+				<int ref="_12d">0</int>
+				<int ref="_127">0</int>
+				<int ref="_12b">0</int>
+				<int ref="_12a">0</int>
+				<int ref="_129">0</int>
+				<int ref="_13d">0</int>
+				<int ref="_141">0</int>
+				<int ref="_137">0</int>
+				<int ref="_139">0</int>
+				<int ref="_136">0</int>
+				<int ref="_14c">0</int>
+				<int ref="_14b">0</int>
+				<int ref="_149">0</int>
+				<int ref="_14d">0</int>
+				<int ref="_14e">0</int>
+				<int ref="_14a">0</int>
+				<int ref="_131">0</int>
+				<int ref="_12f">0</int>
+				<int ref="_135">0</int>
+				<int ref="_133">0</int>
+				<int ref="_100">1</int>
+				<int ref="_116">1</int>
+				<int ref="_117">1</int>
+				<int ref="_118">1</int>
+				<int ref="_119">1</int>
+				<int ref="_10f">1</int>
+				<int ref="_102">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_fb">1</int>
+				<int ref="_e2">1</int>
+				<int ref="_f5">1</int>
+				<int ref="_ec">1</int>
+				<int ref="_ea">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e6">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_ee">1</int>
+				<int ref="_ef">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_eb">1</int>
+				<int ref="_107">1</int>
+				<int ref="_12c">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_13a">1</int>
+				<int ref="_130">1</int>
+				<int ref="_134">1</int>
+				<int ref="_10c">2</int>
+				<int ref="_11a">2</int>
+				<int ref="_111">2</int>
+				<int ref="_109">2</int>
+				<int ref="_e1">2</int>
+				<int ref="_fa">2</int>
+				<int ref="_f9">2</int>
+				<int ref="_f6">2</int>
+				<int ref="_ed">2</int>
+				<int ref="_105">2</int>
+				<int ref="_104">2</int>
+				<int ref="_11b">3</int>
+				<int ref="_112">3</int>
+				<int ref="_f8">3</int>
+				<int ref="_e0">3</int>
+				<int ref="_fe">3</int>
+				<int ref="_11c">4</int>
+				<int ref="_113">4</int>
+				<int ref="_114">4</int>
+				<int ref="_f3">4</int>
+				<int ref="_11d">5</int>
+				<int ref="_110">5</int>
+				<int ref="_115">6</int>
+				<int ref="_10e">6</int>
+				<int ref="_10d">6</int>
+				<int ref="_106">6</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_12c">0</int>
+				<int ref="_130">0</int>
+				<int ref="_134">0</int>
+				<int ref="_ff">1</int>
+				<int ref="_100">1</int>
+				<int ref="_116">1</int>
+				<int ref="_111">1</int>
+				<int ref="_10a">1</int>
+				<int ref="_10b">1</int>
+				<int ref="_101">1</int>
+				<int ref="_de">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_e0">1</int>
+				<int ref="_e9">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_ef">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_da">1</int>
+				<int ref="_dc">1</int>
+				<int ref="_dd">1</int>
+				<int ref="_fc">1</int>
+				<int ref="_103">1</int>
+				<int ref="_104">1</int>
+				<int ref="_127">1</int>
+				<int ref="_12b">1</int>
+				<int ref="_12a">1</int>
+				<int ref="_129">1</int>
+				<int ref="_13d">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_141">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_139">1</int>
+				<int ref="_136">1</int>
+				<int ref="_12f">1</int>
+				<int ref="_133">1</int>
+				<int ref="_10c">2</int>
+				<int ref="_109">2</int>
+				<int ref="_e1">3</int>
+				<int ref="_f9">3</int>
+				<int ref="_f6">3</int>
+				<int ref="_eb">3</int>
+				<int ref="_124">3</int>
+				<int ref="_ec">4</int>
+				<int ref="_125">4</int>
+				<int ref="_135">4</int>
+				<int ref="_fb">5</int>
+				<int ref="_e2">5</int>
+				<int ref="_fe">5</int>
+				<int ref="_106">5</int>
+				<int ref="_12d">5</int>
+				<int ref="_10f">6</int>
+				<int ref="_f5">6</int>
+				<int ref="_123">6</int>
+				<int ref="_14a">6</int>
+				<int ref="_f2">7</int>
+				<int ref="_e6">7</int>
+				<int ref="_ee">7</int>
+				<int ref="_122">7</int>
+				<int ref="_113">8</int>
+				<int ref="_f8">8</int>
+				<int ref="_11e">8</int>
+				<int ref="_13a">8</int>
+				<int ref="_11b">9</int>
+				<int ref="_120">9</int>
+				<int ref="_14d">9</int>
+				<int ref="_131">9</int>
+				<int ref="_119">10</int>
+				<int ref="_110">10</int>
+				<int ref="_14b">10</int>
+				<int ref="_149">10</int>
+				<int ref="_fa">11</int>
+				<int ref="_11f">11</int>
+				<int ref="_fd">12</int>
+				<int ref="_11a">13</int>
+				<int ref="_114">13</int>
+				<int ref="_f3">13</int>
+				<int ref="_107">13</int>
+				<int ref="_14c">13</int>
+				<int ref="_14e">13</int>
+				<int ref="_10d">14</int>
+				<int ref="_102">14</int>
+				<int ref="_f4">15</int>
+				<int ref="_137">15</int>
+				<int ref="_10e">16</int>
+				<int ref="_105">16</int>
+				<int ref="_118">19</int>
+				<int ref="_117">20</int>
+				<int ref="_115">20</int>
+				<int ref="_11c">22</int>
+				<int ref="_112">24</int>
+				<int ref="_ed">27</int>
+				<int ref="_11d">29</int>
+				<int ref="_121">37</int>
+				<int ref="_ea">40</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_11d">7</int>
+				<int ref="_ea">7</int>
+				<int ref="_ed">7</int>
+				<int ref="_121">7</int>
+				<int ref="_11c">6</int>
+				<int ref="_112">6</int>
+				<int ref="_118">5</int>
+				<int ref="_10e">5</int>
+				<int ref="_10d">5</int>
+				<int ref="_117">4</int>
+				<int ref="_115">4</int>
+				<int ref="_102">4</int>
+				<int ref="_fa">4</int>
+				<int ref="_f4">4</int>
+				<int ref="_105">4</int>
+				<int ref="_120">4</int>
+				<int ref="_119">3</int>
+				<int ref="_11a">3</int>
+				<int ref="_11b">3</int>
+				<int ref="_f8">3</int>
+				<int ref="_f2">3</int>
+				<int ref="_e6">3</int>
+				<int ref="_ee">3</int>
+				<int ref="_f3">3</int>
+				<int ref="_fe">3</int>
+				<int ref="_107">3</int>
+				<int ref="_137">3</int>
+				<int ref="_13a">3</int>
+				<int ref="_113">2</int>
+				<int ref="_114">2</int>
+				<int ref="_110">2</int>
+				<int ref="_fb">2</int>
+				<int ref="_f9">2</int>
+				<int ref="_f6">2</int>
+				<int ref="_f5">2</int>
+				<int ref="_ec">2</int>
+				<int ref="_eb">2</int>
+				<int ref="_fd">2</int>
+				<int ref="_11f">2</int>
+				<int ref="_ff">1</int>
+				<int ref="_100">1</int>
+				<int ref="_10c">1</int>
+				<int ref="_116">1</int>
+				<int ref="_111">1</int>
+				<int ref="_10f">1</int>
+				<int ref="_109">1</int>
+				<int ref="_10a">1</int>
+				<int ref="_10b">1</int>
+				<int ref="_101">1</int>
+				<int ref="_de">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_e1">1</int>
+				<int ref="_e2">1</int>
+				<int ref="_e0">1</int>
+				<int ref="_e9">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_ef">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_da">1</int>
+				<int ref="_dc">1</int>
+				<int ref="_dd">1</int>
+				<int ref="_fc">1</int>
+				<int ref="_103">1</int>
+				<int ref="_106">1</int>
+				<int ref="_104">1</int>
+				<int ref="_125">1</int>
+				<int ref="_11e">1</int>
+				<int ref="_122">1</int>
+				<int ref="_123">1</int>
+				<int ref="_124">1</int>
+				<int ref="_12d">1</int>
+				<int ref="_127">1</int>
+				<int ref="_12b">1</int>
+				<int ref="_12a">1</int>
+				<int ref="_129">1</int>
+				<int ref="_12c">1</int>
+				<int ref="_13d">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_141">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_139">1</int>
+				<int ref="_136">1</int>
+				<int ref="_14c">1</int>
+				<int ref="_14b">1</int>
+				<int ref="_149">1</int>
+				<int ref="_14d">1</int>
+				<int ref="_14e">1</int>
+				<int ref="_14a">1</int>
+				<int ref="_131">1</int>
+				<int ref="_130">1</int>
+				<int ref="_12f">1</int>
+				<int ref="_135">1</int>
+				<int ref="_134">1</int>
+				<int ref="_133">1</int>
+			</metric>
+			<metric ref="_50">
+				<int ref="_ea">8</int>
+				<int ref="_11c">7</int>
+				<int ref="_11d">7</int>
+				<int ref="_ed">7</int>
+				<int ref="_121">7</int>
+				<int ref="_112">6</int>
+				<int ref="_115">6</int>
+				<int ref="_118">5</int>
+				<int ref="_11b">5</int>
+				<int ref="_10e">5</int>
+				<int ref="_10d">5</int>
+				<int ref="_117">4</int>
+				<int ref="_102">4</int>
+				<int ref="_fa">4</int>
+				<int ref="_f4">4</int>
+				<int ref="_105">4</int>
+				<int ref="_120">4</int>
+				<int ref="_119">3</int>
+				<int ref="_11a">3</int>
+				<int ref="_fb">3</int>
+				<int ref="_f8">3</int>
+				<int ref="_f9">3</int>
+				<int ref="_f6">3</int>
+				<int ref="_f2">3</int>
+				<int ref="_ec">3</int>
+				<int ref="_e6">3</int>
+				<int ref="_ee">3</int>
+				<int ref="_ef">3</int>
+				<int ref="_f3">3</int>
+				<int ref="_fe">3</int>
+				<int ref="_107">3</int>
+				<int ref="_137">3</int>
+				<int ref="_13a">3</int>
+				<int ref="_113">2</int>
+				<int ref="_114">2</int>
+				<int ref="_110">2</int>
+				<int ref="_f5">2</int>
+				<int ref="_eb">2</int>
+				<int ref="_fd">2</int>
+				<int ref="_11f">2</int>
+				<int ref="_ff">1</int>
+				<int ref="_100">1</int>
+				<int ref="_10c">1</int>
+				<int ref="_116">1</int>
+				<int ref="_111">1</int>
+				<int ref="_10f">1</int>
+				<int ref="_109">1</int>
+				<int ref="_10a">1</int>
+				<int ref="_10b">1</int>
+				<int ref="_101">1</int>
+				<int ref="_de">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_e1">1</int>
+				<int ref="_e2">1</int>
+				<int ref="_e0">1</int>
+				<int ref="_e9">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_da">1</int>
+				<int ref="_dc">1</int>
+				<int ref="_dd">1</int>
+				<int ref="_fc">1</int>
+				<int ref="_103">1</int>
+				<int ref="_106">1</int>
+				<int ref="_104">1</int>
+				<int ref="_125">1</int>
+				<int ref="_11e">1</int>
+				<int ref="_122">1</int>
+				<int ref="_123">1</int>
+				<int ref="_124">1</int>
+				<int ref="_12d">1</int>
+				<int ref="_127">1</int>
+				<int ref="_12b">1</int>
+				<int ref="_12a">1</int>
+				<int ref="_129">1</int>
+				<int ref="_12c">1</int>
+				<int ref="_13d">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_141">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_139">1</int>
+				<int ref="_136">1</int>
+				<int ref="_14c">1</int>
+				<int ref="_14b">1</int>
+				<int ref="_149">1</int>
+				<int ref="_14d">1</int>
+				<int ref="_14e">1</int>
+				<int ref="_14a">1</int>
+				<int ref="_131">1</int>
+				<int ref="_130">1</int>
+				<int ref="_12f">1</int>
+				<int ref="_135">1</int>
+				<int ref="_134">1</int>
+				<int ref="_133">1</int>
+			</metric>
+			<metric ref="_65">
+				<int ref="_11d">7</int>
+				<int ref="_ed">7</int>
+				<int ref="_121">7</int>
+				<int ref="_11c">6</int>
+				<int ref="_ea">6</int>
+				<int ref="_118">5</int>
+				<int ref="_117">4</int>
+				<int ref="_112">4</int>
+				<int ref="_115">4</int>
+				<int ref="_10e">4</int>
+				<int ref="_10d">4</int>
+				<int ref="_102">4</int>
+				<int ref="_fa">4</int>
+				<int ref="_119">3</int>
+				<int ref="_11a">3</int>
+				<int ref="_11b">3</int>
+				<int ref="_f8">3</int>
+				<int ref="_f4">3</int>
+				<int ref="_e6">3</int>
+				<int ref="_ee">3</int>
+				<int ref="_f3">3</int>
+				<int ref="_fe">3</int>
+				<int ref="_107">3</int>
+				<int ref="_137">3</int>
+				<int ref="_13a">3</int>
+				<int ref="_113">2</int>
+				<int ref="_114">2</int>
+				<int ref="_110">2</int>
+				<int ref="_fb">2</int>
+				<int ref="_f9">2</int>
+				<int ref="_f6">2</int>
+				<int ref="_ec">2</int>
+				<int ref="_fd">2</int>
+				<int ref="_105">2</int>
+				<int ref="_11f">2</int>
+				<int ref="_ff">1</int>
+				<int ref="_100">1</int>
+				<int ref="_10c">1</int>
+				<int ref="_116">1</int>
+				<int ref="_111">1</int>
+				<int ref="_10f">1</int>
+				<int ref="_109">1</int>
+				<int ref="_10a">1</int>
+				<int ref="_10b">1</int>
+				<int ref="_101">1</int>
+				<int ref="_de">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_e1">1</int>
+				<int ref="_e2">1</int>
+				<int ref="_f2">1</int>
+				<int ref="_e0">1</int>
+				<int ref="_f5">1</int>
+				<int ref="_e9">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_ef">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_eb">1</int>
+				<int ref="_da">1</int>
+				<int ref="_dc">1</int>
+				<int ref="_dd">1</int>
+				<int ref="_fc">1</int>
+				<int ref="_103">1</int>
+				<int ref="_106">1</int>
+				<int ref="_104">1</int>
+				<int ref="_125">1</int>
+				<int ref="_11e">1</int>
+				<int ref="_122">1</int>
+				<int ref="_123">1</int>
+				<int ref="_124">1</int>
+				<int ref="_120">1</int>
+				<int ref="_12d">1</int>
+				<int ref="_127">1</int>
+				<int ref="_12b">1</int>
+				<int ref="_12a">1</int>
+				<int ref="_129">1</int>
+				<int ref="_12c">1</int>
+				<int ref="_13d">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_141">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_139">1</int>
+				<int ref="_136">1</int>
+				<int ref="_14c">1</int>
+				<int ref="_14b">1</int>
+				<int ref="_149">1</int>
+				<int ref="_14d">1</int>
+				<int ref="_14e">1</int>
+				<int ref="_14a">1</int>
+				<int ref="_131">1</int>
+				<int ref="_130">1</int>
+				<int ref="_12f">1</int>
+				<int ref="_135">1</int>
+				<int ref="_134">1</int>
+				<int ref="_133">1</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_11c">7</int>
+				<int ref="_11d">7</int>
+				<int ref="_ea">7</int>
+				<int ref="_ed">7</int>
+				<int ref="_121">7</int>
+				<int ref="_115">6</int>
+				<int ref="_118">5</int>
+				<int ref="_11b">5</int>
+				<int ref="_117">4</int>
+				<int ref="_112">4</int>
+				<int ref="_10e">4</int>
+				<int ref="_10d">4</int>
+				<int ref="_102">4</int>
+				<int ref="_fa">4</int>
+				<int ref="_119">3</int>
+				<int ref="_11a">3</int>
+				<int ref="_fb">3</int>
+				<int ref="_f8">3</int>
+				<int ref="_f9">3</int>
+				<int ref="_f6">3</int>
+				<int ref="_ec">3</int>
+				<int ref="_f4">3</int>
+				<int ref="_e6">3</int>
+				<int ref="_ee">3</int>
+				<int ref="_ef">3</int>
+				<int ref="_f3">3</int>
+				<int ref="_fe">3</int>
+				<int ref="_107">3</int>
+				<int ref="_137">3</int>
+				<int ref="_13a">3</int>
+				<int ref="_113">2</int>
+				<int ref="_114">2</int>
+				<int ref="_110">2</int>
+				<int ref="_fd">2</int>
+				<int ref="_105">2</int>
+				<int ref="_11f">2</int>
+				<int ref="_ff">1</int>
+				<int ref="_100">1</int>
+				<int ref="_10c">1</int>
+				<int ref="_116">1</int>
+				<int ref="_111">1</int>
+				<int ref="_10f">1</int>
+				<int ref="_109">1</int>
+				<int ref="_10a">1</int>
+				<int ref="_10b">1</int>
+				<int ref="_101">1</int>
+				<int ref="_de">1</int>
+				<int ref="_f7">1</int>
+				<int ref="_e3">1</int>
+				<int ref="_e1">1</int>
+				<int ref="_e2">1</int>
+				<int ref="_f2">1</int>
+				<int ref="_e0">1</int>
+				<int ref="_f5">1</int>
+				<int ref="_e9">1</int>
+				<int ref="_e5">1</int>
+				<int ref="_e7">1</int>
+				<int ref="_e4">1</int>
+				<int ref="_f1">1</int>
+				<int ref="_f0">1</int>
+				<int ref="_eb">1</int>
+				<int ref="_da">1</int>
+				<int ref="_dc">1</int>
+				<int ref="_dd">1</int>
+				<int ref="_fc">1</int>
+				<int ref="_103">1</int>
+				<int ref="_106">1</int>
+				<int ref="_104">1</int>
+				<int ref="_125">1</int>
+				<int ref="_11e">1</int>
+				<int ref="_122">1</int>
+				<int ref="_123">1</int>
+				<int ref="_124">1</int>
+				<int ref="_120">1</int>
+				<int ref="_12d">1</int>
+				<int ref="_127">1</int>
+				<int ref="_12b">1</int>
+				<int ref="_12a">1</int>
+				<int ref="_129">1</int>
+				<int ref="_12c">1</int>
+				<int ref="_13d">1</int>
+				<int ref="_148">1</int>
+				<int ref="_147">1</int>
+				<int ref="_146">1</int>
+				<int ref="_145">1</int>
+				<int ref="_144">1</int>
+				<int ref="_143">1</int>
+				<int ref="_142">1</int>
+				<int ref="_141">1</int>
+				<int ref="_140">1</int>
+				<int ref="_13f">1</int>
+				<int ref="_13b">1</int>
+				<int ref="_139">1</int>
+				<int ref="_136">1</int>
+				<int ref="_14c">1</int>
+				<int ref="_14b">1</int>
+				<int ref="_149">1</int>
+				<int ref="_14d">1</int>
+				<int ref="_14e">1</int>
+				<int ref="_14a">1</int>
+				<int ref="_131">1</int>
+				<int ref="_130">1</int>
+				<int ref="_12f">1</int>
+				<int ref="_135">1</int>
+				<int ref="_134">1</int>
+				<int ref="_133">1</int>
+			</metric>
+		</levelValues>
+	</moduleMetricValues>
+	<issues modelName="./Modifiable.vm" numberOfIssues="3" numberOfUnresolvedIssues="3">
+		<elementIssues>
+			<issue affectedElement="_a3" id="_162" type="_28" provider="_26" description="This is a module issue"></issue>
+			<issue affectedElement="_b4" id="_163" type="_29" provider="_26" description="This is a type issue" line="52"></issue>
+		</elementIssues>
+		<depencencyIssues>
+			<issue from="_11d" to="_14f" id="_164" type="_27" provider="_25" description="Use LOGGER instead" line="469"></issue>
+		</depencencyIssues>
+	</issues>
+</ns2:report>

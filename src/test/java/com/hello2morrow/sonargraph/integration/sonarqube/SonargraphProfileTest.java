@@ -17,8 +17,14 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
+import java.util.Map;
+
 import org.junit.Test;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.BuiltInQualityProfile;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition.Context;
 
 public final class SonargraphProfileTest
@@ -45,5 +51,11 @@ public final class SonargraphProfileTest
         sonargraphProfile.define(context);
         //Call a second time to see if this causes a problem
         sonargraphProfile.define(context);
+
+        final Map<String, BuiltInQualityProfile> javaProfiles = context.profilesByLanguageAndName().get(SonargraphBase.JAVA);
+        assertNotNull("Missing Java profiles", javaProfiles);
+        final BuiltInQualityProfile sonargraphProfile2 = javaProfiles.get(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+        assertNotNull("Missing Sonargraph profile", sonargraphProfile2);
+        assertEquals("Wrong number of rules", SonargraphProfile.ACTIVATE_RULES_WITH_KEY.size(), sonargraphProfile2.rules().size());
     }
 }

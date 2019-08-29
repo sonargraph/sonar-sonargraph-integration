@@ -17,7 +17,7 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -44,6 +44,6 @@ public final class SonargraphRulesTest
         final RulesDefinition.Context context = TestRules.createTestContext();
         final SonargraphRules sonargraphRules = new SonargraphRules();
         sonargraphRules.define(context);
-        assertTrue(context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size() > 0);
+        assertEquals("Wrong number of rules", 19, context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
     }
 }
