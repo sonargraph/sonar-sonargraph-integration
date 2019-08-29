@@ -53,19 +53,16 @@ final class SonargraphBase
 {
     static class CustomMetricsPropertiesProvider
     {
+        public static final String METRICS_PROPERTIES_FILENAME = "metrics.properties";
+
         public String getDirectory()
         {
             return System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
         }
 
-        public String getFileName()
-        {
-            return "metrics.properties";
-        }
-
         public String getFilePath()
         {
-            return getDirectory() + "/" + getFileName();
+            return getDirectory() + "/" + METRICS_PROPERTIES_FILENAME;
         }
     }
 
@@ -179,7 +176,7 @@ final class SonargraphBase
         }
     }
 
-    static Metric<Serializable> createMetric(final IMetricId metricId, final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
+    static Metric<Serializable> createMetric(final IMetricId metricId)
     {
         final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
                 metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
@@ -225,12 +222,11 @@ final class SonargraphBase
 
     static void save(final Properties customMetrics, final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
-        try
+        final File directory = new File(customMetricsPropertiesProvider.getDirectory());
+        directory.mkdirs();
+        try (FileWriter writer = new FileWriter(new File(directory, CustomMetricsPropertiesProvider.METRICS_PROPERTIES_FILENAME)))
         {
-            final File directory = new File(customMetricsPropertiesProvider.getDirectory());
-            directory.mkdirs();
-            customMetrics.store(new FileWriter(new File(directory, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
-
+            customMetrics.store(writer, "Custom Metrics");
             LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath()
                     + "' updated, the SonarQube server needs to be restarted");
         }

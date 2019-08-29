@@ -70,7 +70,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
 
 public final class SonargraphSensor implements Sensor
 {
@@ -102,11 +101,13 @@ public final class SonargraphSensor implements Sensor
     private final FileSystem fileSystem;
     private final MetricFinder metricFinder;
     private Properties customMetrics;
+    private final SonargraphMetrics sonargraphMetrics;
 
-    public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder)
+    public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
     {
         this.fileSystem = fileSystem;
         this.metricFinder = metricFinder;
+        this.sonargraphMetrics = sonargraphMetrics;
     }
 
     @Override
@@ -219,7 +220,7 @@ public final class SonargraphSensor implements Sensor
         if (customMetrics != null)
         {
             //New custom metrics have been introduced.
-            SonargraphBase.save(customMetrics, new CustomMetricsPropertiesProvider());
+            SonargraphBase.save(customMetrics, sonargraphMetrics.getCustomMetricsProvider());
             customMetrics = null;
         }
     }
@@ -478,7 +479,7 @@ public final class SonargraphSensor implements Sensor
             {
                 if (customMetrics == null)
                 {
-                    customMetrics = SonargraphBase.loadCustomMetrics(new CustomMetricsPropertiesProvider());
+                    customMetrics = SonargraphBase.loadCustomMetrics(sonargraphMetrics.getCustomMetricsProvider());
                 }
 
                 SonargraphBase.addCustomMetric(softwareSystem, nextMetricId, customMetrics);

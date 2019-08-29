@@ -45,7 +45,8 @@ public final class SonargraphMetrics implements Metrics
         this(new CustomMetricsPropertiesProvider());
     }
 
-    public SonargraphMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
+    /** Test support */
+    SonargraphMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
         this.customMetricsPropertiesProvider = customMetricsPropertiesProvider;
     }
@@ -61,6 +62,11 @@ public final class SonargraphMetrics implements Metrics
         }
     }
 
+    CustomMetricsPropertiesProvider getCustomMetricsProvider()
+    {
+        return customMetricsPropertiesProvider;
+    }
+
     @SuppressWarnings("rawtypes")
     @Override
     public List<Metric> getMetrics()
@@ -73,7 +79,7 @@ public final class SonargraphMetrics implements Metrics
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
             final List<Metric<Serializable>> customMetrics = SonargraphBase.getCustomMetrics(customMetricsPropertiesProvider);
             metrics = new ArrayList<>(predefinedMetrics.size() + customMetrics.size());
-            predefinedMetrics.values().forEach(metricId -> metrics.add(SonargraphBase.createMetric(metricId, customMetricsPropertiesProvider)));
+            predefinedMetrics.values().forEach(metricId -> metrics.add(SonargraphBase.createMetric(metricId)));
             customMetrics.forEach(c -> metrics.add(c));
 
             LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + predefinedMetrics.size() + " predefined and "

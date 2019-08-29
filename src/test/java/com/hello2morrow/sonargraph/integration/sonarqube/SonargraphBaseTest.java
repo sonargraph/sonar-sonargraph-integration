@@ -125,7 +125,7 @@ public final class SonargraphBaseTest
         final List<Metric<Serializable>> metrics = new ArrayList<>();
         for (final IMetricId nextMetricId : exportMetaData.getMetricIds().values())
         {
-            metrics.add(SonargraphBase.createMetric(nextMetricId, customPropertiesProvider));
+            metrics.add(SonargraphBase.createMetric(nextMetricId));
         }
 
         assertEquals("Wrong number of metrics", 94, metrics.size());

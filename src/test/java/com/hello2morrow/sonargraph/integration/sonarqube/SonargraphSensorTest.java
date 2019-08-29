@@ -129,6 +129,8 @@ public final class SonargraphSensorTest
     private MetricFinder metricFinder;
     private ActiveRulesBuilder rulesBuilder;
 
+    private SonargraphMetrics sonargraphMetrics;
+
     @SuppressWarnings({ "unchecked" })
     @Before
     public void before() throws IOException
@@ -152,7 +154,7 @@ public final class SonargraphSensorTest
         }
 
         final CustomMetricsPropertiesProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
+        sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
         {
@@ -211,7 +213,7 @@ public final class SonargraphSensorTest
         context.setSettings(settings);
         context.setActiveRules(rulesBuilder.build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(context);
 
@@ -244,7 +246,7 @@ public final class SonargraphSensorTest
         context.setSettings(settings);
         context.setActiveRules(rulesBuilder.build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(context);
 
@@ -260,7 +262,7 @@ public final class SonargraphSensorTest
         final SensorContextTester context = SensorContextTester.create(new File("./src/test/test-project"));
         final DefaultFileSystem fileSystem = context.fileSystem();
         context.setActiveRules(rulesBuilder.build());
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(context);
 
@@ -308,7 +310,7 @@ public final class SonargraphSensorTest
         fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
                 .setLanguage(SonargraphBase.JAVA).setContents(JAVA_FILE_CONTENT).build());
 
-        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder);
+        final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics);
         sonargraphSensor.describe(sensorDescriptor);
         sonargraphSensor.execute(context);
         return context;
