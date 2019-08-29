@@ -24,7 +24,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,8 +31,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
@@ -49,15 +46,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IModule;
 
 public final class SonargraphBaseTest
 {
-    private TestSupportMetricPropertiesProvider customPropertiesProvider;
-
-    @Before
-    @After
-    public void cleanUpCustomProperties() throws IOException
-    {
-        customPropertiesProvider = new TestSupportMetricPropertiesProvider();
-    }
-
     @Test
     public void testCreateKeysAndNames()
     {
