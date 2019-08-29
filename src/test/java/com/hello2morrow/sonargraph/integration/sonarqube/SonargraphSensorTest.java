@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -50,27 +51,17 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.config.Configuration;
 import org.sonar.api.config.internal.MapSettings;
-import org.sonar.api.internal.google.common.io.Files;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.ICustomMetricsPropertiesProvider;
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
 
 public final class SonargraphSensorTest
 {
     private static final String JAVA_FILE_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
             + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
             + "\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\n";
-
-    private final ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
-    {
-        @Override
-        public String getDirectory()
-        {
-            return "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
-        }
-    };
 
     private final SensorDescriptor sensorDescriptor = new SensorDescriptor()
     {
@@ -140,10 +131,8 @@ public final class SonargraphSensorTest
 
     @SuppressWarnings({ "unchecked" })
     @Before
-    public void before()
+    public void before() throws IOException
     {
-        SonargraphBase.setCustomMetricsPropertiesProvider(customMetricsPropertiesProvider);
-
         final SonargraphRules sonargraphRules = new SonargraphRules();
         final Context rulesContext = SonargraphRulesTest.TestRules.createTestContext();
         sonargraphRules.define(rulesContext);
@@ -162,7 +151,8 @@ public final class SonargraphSensorTest
                     .setLanguage(SonargraphBase.JAVA).activate();
         }
 
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
+        final CustomMetricsPropertiesProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
         {
@@ -203,6 +193,7 @@ public final class SonargraphSensorTest
     @After
     public void after()
     {
+
         metricFinder = null;
     }
 
@@ -229,11 +220,6 @@ public final class SonargraphSensorTest
                 SonargraphBase.createMetricKeyFromStandardName("CoreComponents"));
         assertNotNull("Missing measure", coreTypesMeasure);
         assertEquals("Wrong value", 12, coreTypesMeasure.value().intValue());
-
-        //Check for system script/custom metric
-        final Measure<Integer> systemScriptMeasure = context.measure(context.module().key(), "sg_i.IntegrationSonarqube.S_Q__TEST__METRIC");
-        assertNotNull("Missing measure", systemScriptMeasure);
-        assertEquals("Wrong value", 13, systemScriptMeasure.value().intValue());
 
         //There is no support for source file metric values in the SonarQube plugin! We check for metric threshold violation instead.
 
@@ -374,7 +360,7 @@ public final class SonargraphSensorTest
     {
         final File absoluteSourceFile = new File(moduleBaseDir,
                 "src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java");
-        final String content = Files.readLines(absoluteSourceFile, StandardCharsets.UTF_8).stream().collect(Collectors.joining("\n"));
+        final String content = Files.lines(absoluteSourceFile.toPath(), StandardCharsets.UTF_8).collect(Collectors.joining("\n"));
         fileSystem.add(TestInputFileBuilder.create("projectKey", moduleBaseDir, absoluteSourceFile).setContents(content)
                 .setLanguage(SonargraphBase.JAVA).build());
     }

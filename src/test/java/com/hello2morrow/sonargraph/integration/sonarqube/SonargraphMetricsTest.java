@@ -18,8 +18,8 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.junit.Test;
@@ -28,15 +28,15 @@ import org.sonar.api.measures.Metric;
 public final class SonargraphMetricsTest
 {
     @Test
-    public void testMetricsDefinition()
+    public void testMetricsDefinition() throws IOException
     {
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics();
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new TestSupportMetricPropertiesProvider());
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
 
         //Different value dependending on the number of custom metrics loaded, which in turn depends on the
         //order of test execution...
-        assertTrue("Wrong number of metrics (init triggered)", metrics.size() > 58);
+        assertEquals("Wrong number of metrics (init triggered)", 53, metrics.size());
         assertEquals("Wrong number of metrics (no init necessary)", metrics, sonargraphMetrics.getMetrics());
     }
 }

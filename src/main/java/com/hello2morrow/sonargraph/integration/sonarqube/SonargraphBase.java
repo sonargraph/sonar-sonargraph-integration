@@ -51,6 +51,24 @@ import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
 final class SonargraphBase
 {
+    static class CustomMetricsPropertiesProvider
+    {
+        public String getDirectory()
+        {
+            return System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+        }
+
+        public String getFileName()
+        {
+            return "metrics.properties";
+        }
+
+        public String getFilePath()
+        {
+            return getDirectory() + "/" + getFileName();
+        }
+    }
+
     static final String SONARGRAPH_PLUGIN_KEY = "sonargraphintegration";
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
@@ -73,24 +91,6 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_NAME = "PluginIssue";
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
-    interface ICustomMetricsPropertiesProvider
-    {
-        public default String getDirectory()
-        {
-            return System.getProperty("user.home") + "/." + SONARGRAPH_PLUGIN_KEY;
-        }
-
-        public default String getFileName()
-        {
-            return "metrics.properties";
-        }
-
-        default String getFilePath()
-        {
-            return getDirectory() + "/" + getFileName();
-        }
-    }
-
     private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
     private static final char CUSTOM_METRIC_SEPARATOR = '|';
     private static final String CUSTOM_METRIC_INT = "INT";
@@ -101,19 +101,9 @@ final class SonargraphBase
             Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
                     "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition"));
 
-    private static ICustomMetricsPropertiesProvider customMetricsPropertiesProvider = new ICustomMetricsPropertiesProvider()
-    {
-        //Default
-    };
-
     private SonargraphBase()
     {
         super();
-    }
-
-    static void setCustomMetricsPropertiesProvider(final ICustomMetricsPropertiesProvider provider)
-    {
-        customMetricsPropertiesProvider = provider;
     }
 
     static String createMetricKeyFromStandardName(final String metricIdName)
@@ -189,7 +179,7 @@ final class SonargraphBase
         }
     }
 
-    static Metric<Serializable> createMetric(final IMetricId metricId)
+    static Metric<Serializable> createMetric(final IMetricId metricId, final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
         final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
                 metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
@@ -202,7 +192,7 @@ final class SonargraphBase
         return builder.create();
     }
 
-    static Properties loadCustomMetrics()
+    static Properties loadCustomMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
         final Properties customMetrics = new Properties();
 
@@ -233,13 +223,13 @@ final class SonargraphBase
                         + CUSTOM_METRIC_SEPARATOR + trimDescription(metricId.getDescription()));
     }
 
-    static void save(final Properties customMetrics)
+    static void save(final Properties customMetrics, final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
         try
         {
-            final File file = new File(customMetricsPropertiesProvider.getDirectory());
-            file.mkdirs();
-            customMetrics.store(new FileWriter(new File(file, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
+            final File directory = new File(customMetricsPropertiesProvider.getDirectory());
+            directory.mkdirs();
+            customMetrics.store(new FileWriter(new File(directory, customMetricsPropertiesProvider.getFileName())), "Custom Metrics");
 
             LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + customMetricsPropertiesProvider.getFilePath()
                     + "' updated, the SonarQube server needs to be restarted");
@@ -327,9 +317,9 @@ final class SonargraphBase
         return metrics;
     }
 
-    static List<Metric<Serializable>> getCustomMetrics()
+    static List<Metric<Serializable>> getCustomMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
     {
-        return getCustomMetrics(loadCustomMetrics());
+        return getCustomMetrics(loadCustomMetrics(customMetricsPropertiesProvider));
     }
 
     static IExportMetaData readBuiltInMetaData()
