@@ -113,6 +113,7 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void describe(final SensorDescriptor descriptor)
     {
+        //Deprecation warning can be avoided by implementing ProjectSensor instead of Sensor (>= API 7.9)
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME).global();
     }
 

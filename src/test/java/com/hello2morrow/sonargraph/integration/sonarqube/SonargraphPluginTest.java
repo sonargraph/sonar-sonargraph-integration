@@ -52,8 +52,14 @@ public final class SonargraphPluginTest
                 @Override
                 public Version getApiVersion()
                 {
-                    return Version.create(6, 7);
+                    return Version.create(6, 7, 6);
                 }
+
+                //                @Override
+                //                public SonarEdition getEdition()
+                //                {
+                //                    return SonarEdition.COMMUNITY;
+                //                }
             });
         }
 
