@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -221,7 +222,14 @@ public final class SonargraphSensor implements Sensor
         if (customMetrics != null)
         {
             //New custom metrics have been introduced.
-            sonargraphMetrics.getCustomMetricsProvider().save(customMetrics);
+            try
+            {
+                sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics);
+            }
+            catch (final IOException e)
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save metrics file.", e);
+            }
             customMetrics = null;
         }
     }
@@ -304,6 +312,8 @@ public final class SonargraphSensor implements Sensor
                 builder.append("[").append(issue.getPresentationName()).append("]");
                 break;
             case IGNORE:
+                //$FALL-THROUGH$
+            case NONE:
                 //$FALL-THROUGH$
             default:
                 assert false : "Unhandled resolution type: " + type;
@@ -466,7 +476,7 @@ public final class SonargraphSensor implements Sensor
         }
 
         final IMetricLevel systemLevel = systemLevelOptional.get();
-        final CustomMetricsProvider customMetricsProvider = sonargraphMetrics.getCustomMetricsProvider();
+        final SonargraphMetricsProvider customMetricsProvider = sonargraphMetrics.getMetricsProvider();
         for (final IMetricId nextMetricId : systemInfoProcessor.getMetricIdsForLevel(systemLevel))
         {
             String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
@@ -474,7 +484,7 @@ public final class SonargraphSensor implements Sensor
             if (metric == null)
             {
                 //Try custom metrics
-                nextMetricKey = customMetricsProvider.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
+                nextMetricKey = SonargraphMetricsProvider.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
                 metric = rulesAndMetrics.getMetrics().get(nextMetricKey);
             }
             if (metric == null)

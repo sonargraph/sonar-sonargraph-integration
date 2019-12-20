@@ -151,7 +151,7 @@ public final class SonargraphSensorTest
                     .setLanguage(SonargraphBase.JAVA).activate();
         }
 
-        final CustomMetricsProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
+        final SonargraphMetricsProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
         sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())

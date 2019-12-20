@@ -22,7 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-final class TestSupportMetricPropertiesProvider extends CustomMetricsProvider
+final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvider
 {
     private static final String CUSTOM_METRICS_DIRECTORY = "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
 

@@ -19,23 +19,20 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.controller.ControllerFactory;
-import com.hello2morrow.sonargraph.integration.access.controller.IMetaDataController;
-import com.hello2morrow.sonargraph.integration.access.foundation.ResultWithOutcome;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
-import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
@@ -67,12 +64,12 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_NAME = "PluginIssue";
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
-    private static final Logger LOGGER = Loggers.get(SonargraphBase.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphBase.class);
 
-    private static final String BUILT_IN_META_DATA_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/ExportMetaData.xml";
-    static final List<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableList(
-            Arrays.asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
-                    "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition"));
+    static final Set<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableSet(Arrays
+            .asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
+                    "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition")
+            .stream().collect(Collectors.toSet()));
 
     private SonargraphBase()
     {
@@ -157,37 +154,6 @@ final class SonargraphBase
         return builder.create();
     }
 
-    static IExportMetaData readBuiltInMetaData()
-    {
-        final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
-        try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
-        {
-            if (inputStream != null)
-            {
-                final IMetaDataController controller = ControllerFactory.createMetaDataController();
-                final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
-                if (result.isFailure())
-                {
-                    LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg + " - " + result.toString());
-                }
-                else
-                {
-                    return result.getOutcome();
-                }
-            }
-            else
-            {
-                LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg);
-            }
-        }
-        catch (final IOException ex)
-        {
-            LOGGER.error(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + errorMsg, ex);
-        }
-
-        return null;
-    }
-
     static String createRuleKey(final String issueTypeName)
     {
         return Utility.convertMixedCaseStringToConstantName(issueTypeName).replace(" ", "_");
@@ -216,24 +182,20 @@ final class SonargraphBase
         return categoryPresentationName.replace(' ', '-').toLowerCase();
     }
 
+    static boolean ignoreIssueType(final String categoryName)
+    {
+        return IGNORE_ISSUE_TYPE_CATEGORIES.contains(categoryName);
+    }
+
     static boolean ignoreIssueType(final IIssueType issueType)
     {
-        final String categoryName = issueType.getCategory().getName();
-
-        for (final String next : IGNORE_ISSUE_TYPE_CATEGORIES)
-        {
-            if (next.equals(categoryName))
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return ignoreIssueType(issueType.getCategory().getName());
     }
 
     static boolean isIgnoredErrorOrWarningIssue(final IIssueType issueType)
     {
-        return ignoreIssueType(issueType) && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
+        return ignoreIssueType(issueType.getCategory().getName())
+                && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
     }
 
     static boolean isScriptIssue(final IIssueType issueType)
@@ -332,5 +294,14 @@ final class SonargraphBase
         }
 
         return Collections.emptyList();
+    }
+
+    static String getNonEmptyString(final Object input)
+    {
+        if (input instanceof String && !((String) input).isEmpty())
+        {
+            return (String) input;
+        }
+        throw new IllegalArgumentException("Empty input");
     }
 }

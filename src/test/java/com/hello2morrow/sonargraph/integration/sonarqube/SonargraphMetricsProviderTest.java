@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Properties;
@@ -19,18 +20,18 @@ import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSyst
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
-public class CustomMetricsProviderTest
+public class SonargraphMetricsProviderTest
 {
     @Rule
     public TemporaryFolder targetDirectory = new TemporaryFolder();
 
     @Test
-    public void testCustomMetrics()
+    public void testCustomMetrics() throws IOException
     {
         final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue("Failed to load report", result.isSuccess());
-        final CustomMetricsProvider metricsProvider = new CustomMetricsProvider();
+        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
         final Properties customMetrics = new Properties();
         final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
         for (final IMetricId nextMetricId : metricIds)
@@ -42,7 +43,15 @@ public class CustomMetricsProviderTest
 
         final List<Metric<Serializable>> metrics = metricsProvider.getCustomMetrics(customMetrics);
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
-        metricsProvider.save(customMetrics, targetDirectory.getRoot());
+        metricsProvider.save(customMetrics, targetDirectory.getRoot(), "Sonargraph Test Metrics");
+    }
+
+    @Test
+    public void testStandardMetrics()
+    {
+        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
+        final List<Metric<Serializable>> standardMetrics = metricsProvider.loadStandardMetrics();
+        assertTrue("Missing standard metrics, size = " + standardMetrics.size(), standardMetrics.size() > 50);
     }
 
     @Test
@@ -50,7 +59,7 @@ public class CustomMetricsProviderTest
     {
         try
         {
-            CustomMetricsProvider.getNonEmptyString(null);
+            SonargraphBase.getNonEmptyString(null);
             fail("This line should not be reached");
         }
         catch (final IllegalArgumentException e)
@@ -60,7 +69,7 @@ public class CustomMetricsProviderTest
 
         try
         {
-            CustomMetricsProvider.getNonEmptyString("");
+            SonargraphBase.getNonEmptyString("");
             fail("This line should not be reached");
         }
         catch (final IllegalArgumentException e)
@@ -70,7 +79,7 @@ public class CustomMetricsProviderTest
 
         try
         {
-            CustomMetricsProvider.getNonEmptyString(Integer.valueOf(42));
+            SonargraphBase.getNonEmptyString(Integer.valueOf(42));
             fail("This line should not be reached");
         }
         catch (final IllegalArgumentException e)

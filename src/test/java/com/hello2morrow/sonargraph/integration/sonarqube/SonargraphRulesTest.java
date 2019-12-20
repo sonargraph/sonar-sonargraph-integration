@@ -44,6 +44,10 @@ public final class SonargraphRulesTest
         final RulesDefinition.Context context = TestRules.createTestContext();
         final SonargraphRules sonargraphRules = new SonargraphRules();
         sonargraphRules.define(context);
-        assertEquals("Wrong number of rules", 19, context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
+        final int numberOfBuiltinRules = 17;
+        final int scriptRule = 1;
+        final int pluginRule = 1;
+        assertEquals("Wrong number of rules", numberOfBuiltinRules + scriptRule + pluginRule,
+                context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
     }
 }

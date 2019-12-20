@@ -1,6 +1,16 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+4.1.0
+=====
+- Plugin is now compatible with new security policy that has been introduced with SonarQube 8.  
+
+
+4.0.0
+=====
+- Plugin is only executed once per analysis and no longer for each module plus the system.
+
+
 3.1.1
 =====
 - Allow processing of a Sonargraph report that has been generated on a different machine.
