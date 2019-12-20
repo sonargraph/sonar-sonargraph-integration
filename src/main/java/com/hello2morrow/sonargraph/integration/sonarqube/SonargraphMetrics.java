@@ -20,51 +20,33 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
-import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
-import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
-
 public final class SonargraphMetrics implements Metrics
 {
     private static final Logger LOGGER = Loggers.get(SonargraphMetrics.class);
     private List<Metric<Serializable>> metrics;
-    private final CustomMetricsPropertiesProvider customMetricsPropertiesProvider;
+    private final SonargraphMetricsProvider metricPropertiesProvider;
 
     public SonargraphMetrics()
     {
-        this(new CustomMetricsPropertiesProvider());
+        this(new SonargraphMetricsProvider());
     }
 
     /** Test support */
-    SonargraphMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
+    SonargraphMetrics(final SonargraphMetricsProvider metricsPropertiesProvider)
     {
-        this.customMetricsPropertiesProvider = customMetricsPropertiesProvider;
+        this.metricPropertiesProvider = metricsPropertiesProvider;
     }
 
-    private void getMetricsForLevel(final IExportMetaData builtInMetaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
+    SonargraphMetricsProvider getMetricsProvider()
     {
-        for (final IMetricId next : builtInMetaData.getMetricIdsForLevel(level))
-        {
-            if (!metricMap.containsKey(next.getName()))
-            {
-                metricMap.put(next.getName(), next);
-            }
-        }
-    }
-
-    CustomMetricsPropertiesProvider getCustomMetricsProvider()
-    {
-        return customMetricsPropertiesProvider;
+        return metricPropertiesProvider;
     }
 
     @SuppressWarnings("rawtypes")
@@ -73,16 +55,14 @@ public final class SonargraphMetrics implements Metrics
     {
         if (metrics == null)
         {
-            final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
-            final Map<String, IMetricId> predefinedMetrics = new HashMap<>();
-            getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), predefinedMetrics);
-            getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
-            final List<Metric<Serializable>> customMetrics = SonargraphBase.getCustomMetrics(customMetricsPropertiesProvider);
-            metrics = new ArrayList<>(predefinedMetrics.size() + customMetrics.size());
-            predefinedMetrics.values().forEach(metricId -> metrics.add(SonargraphBase.createMetric(metricId)));
-            customMetrics.forEach(c -> metrics.add(c));
+            final List<Metric<Serializable>> standardMetrics = metricPropertiesProvider.loadStandardMetrics();
+            final List<Metric<Serializable>> customMetrics = metricPropertiesProvider.getCustomMetrics();
 
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + predefinedMetrics.size() + " predefined and "
+            metrics = new ArrayList<>(standardMetrics.size() + customMetrics.size());
+            metrics.addAll(standardMetrics);
+            metrics.addAll(customMetrics);
+
+            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + standardMetrics.size() + " predefined and "
                     + customMetrics.size() + " custom metric(s)");
         }
 

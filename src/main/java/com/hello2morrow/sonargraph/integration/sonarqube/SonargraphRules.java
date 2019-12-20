@@ -17,14 +17,14 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
+import java.util.List;
+
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
-import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
-import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphRulesProvider.RuleDto;
 
 public final class SonargraphRules implements RulesDefinition
 {
@@ -35,59 +35,21 @@ public final class SonargraphRules implements RulesDefinition
         super();
     }
 
-    private void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
-            final NewRepository repository)
-    {
-        final NewRule rule = repository.createRule(key);
-        rule.setName(name);
-        rule.addTags(SonargraphBase.SONARGRAPH_RULE_TAG, categoryTag);
-        rule.setSeverity(severity);
-        rule.setHtmlDescription(description);
-    }
-
-    private void createRule(final IIssueType issueType, final NewRepository repository)
-    {
-        final String key = SonargraphBase.createRuleKey(issueType.getName());
-        final String name = SonargraphBase.createRuleName(issueType.getPresentationName());
-        final IIssueCategory category = issueType.getCategory();
-        final String categoryPresentationName = category.getPresentationName();
-        final String categoryTag = SonargraphBase.createRuleCategoryTag(categoryPresentationName);
-        final String issuePresentationName = issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName();
-        final String description = createDescription(issuePresentationName, categoryPresentationName);
-
-        final String severity;
-        switch (issueType.getSeverity())
-        {
-        case ERROR:
-            severity = Severity.MAJOR;
-            break;
-        case WARNING:
-            severity = Severity.MINOR;
-            break;
-        case INFO:
-            //$FALL-THROUGH$
-        case NONE:
-            //$FALL-THROUGH$
-        default:
-            severity = Severity.INFO;
-            break;
-        }
-
-        createRule(key, name, categoryTag, severity, description, repository);
-    }
-
     @Override
     public void define(final Context context)
     {
-        final IExportMetaData builtInMetaData = SonargraphBase.readBuiltInMetaData();
+        final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider();
+        final List<RuleDto> ruleDtos = rulesProvider.loadRules();
         final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
-        for (final IIssueType nextIssueType : builtInMetaData.getIssueTypes().values())
+        for (final RuleDto ruleDto : ruleDtos)
         {
-            if (!SonargraphBase.ignoreIssueType(nextIssueType))
+            if (!SonargraphBase.ignoreIssueType(ruleDto.getCategoryName()))
             {
-                createRule(nextIssueType, repository);
+                final String key = ruleDto.getKey();
+                final String name = ruleDto.getName();
+                createRule(key, name, ruleDto.getCategoryTag(), ruleDto.getSeverity(), ruleDto.getDescription(), repository);
             }
         }
 
@@ -108,6 +70,16 @@ public final class SonargraphRules implements RulesDefinition
         repository.done();
 
         LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
+    }
+
+    private void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,
+            final NewRepository repository)
+    {
+        final NewRule rule = repository.createRule(key);
+        rule.setName(name);
+        rule.addTags(SonargraphBase.SONARGRAPH_RULE_TAG, categoryTag);
+        rule.setSeverity(severity);
+        rule.setHtmlDescription(description);
     }
 
     private String createDescription(final String issuePresentationName, final String issueCategoryPresentationName)

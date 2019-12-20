@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+4.1.0
+=====
+- Plugin is now compatible with new security policy that has been introduced with SonarQube 8.  
+
+
 4.0.0
 =====
 - The plugin is now only executed once for the root project. This should speed up the processing significantly for larger projects.

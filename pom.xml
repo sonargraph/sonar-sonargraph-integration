@@ -5,7 +5,7 @@
 
   <groupId>com.hello2morrow</groupId>
   <artifactId>sonar-sonargraph-integration</artifactId>
-  <version>4.0.0</version>
+  <version>4.1.0</version>
   <packaging>sonar-plugin</packaging>
 
   <name>SonarQube Sonargraph 9 Integration Plugin</name>
@@ -40,6 +40,7 @@
   <properties>
     <sonar.plugin.class>com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin</sonar.plugin.class>
     <sonar.apiVersion>6.7.6</sonar.apiVersion>
+    <sonar.organization>default</sonar.organization>
     <license.name>AL2</license.name>
     <license.owner>hello2morrow GmbH</license.owner>
     <license.mailto>mailto: support AT hello2morrow DOT com</license.mailto>
@@ -51,8 +52,20 @@
     <dependency>
       <groupId>com.hello2morrow</groupId>
       <artifactId>sonargraph-integration-access</artifactId>
-      <version>3.3.0</version>
+      <version>3.3.1</version>
     </dependency>
+    <dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-api</artifactId>
+	  <version>1.7.28</version>
+	  <scope>compile</scope>
+	</dependency>
+	<dependency>
+		<groupId>ch.qos.logback</groupId>
+		<artifactId>logback-classic</artifactId>
+		<version>1.1.3</version>
+		<scope>compile</scope>
+	</dependency>
     <dependency>
       <groupId>org.sonarsource.sonarqube</groupId>
       <artifactId>sonar-plugin-api</artifactId>
@@ -176,6 +189,27 @@
         <artifactId>sonar-maven-plugin</artifactId>
         <version>3.4.0.905</version>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>Create property files for metrics and rules</id>
+            <phase>process-classes</phase>
+            <goals>
+                <goal>exec</goal>
+            </goals>
+            <configuration>
+                <executable>java</executable>
+                <arguments>
+                    <argument>-classpath</argument>
+                    <classpath />
+                    <argument>com.hello2morrow.sonargraph.integration.sonarqube.ExportMetaDataXmlToPropertiesConverter</argument>
+                </arguments>
+            </configuration>
+          </execution>
+	    </executions>
+	  </plugin>
     </plugins>
     <pluginManagement>
       <plugins>
@@ -215,6 +249,19 @@
                   <action>
                     <?m2e ignore?>
                   </action>
+                </pluginExecution>
+                <pluginExecution>
+                	<pluginExecutionFilter>
+                		<groupId>org.codehaus.mojo</groupId>
+                		<artifactId>exec-maven-plugin</artifactId>
+                		<versionRange>[1.6.0,)</versionRange>
+                		<goals>
+                			<goal>exec</goal>
+                		</goals>
+                	</pluginExecutionFilter>
+                	<action>
+                		<ignore></ignore>
+                	</action>
                 </pluginExecution>
               </pluginExecutions>
             </lifecycleMappingMetadata>

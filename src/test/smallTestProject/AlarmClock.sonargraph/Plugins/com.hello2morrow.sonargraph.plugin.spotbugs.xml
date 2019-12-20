@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<pluginConfiguration version="9.12.3.100" pluginId="com.hello2morrow.sonargraph.plugin.spotbugs">
+	<booleanEntry value="false" name="enabled"></booleanEntry>
+	<booleanEntry value="false" name="badPractice"></booleanEntry>
+</pluginConfiguration>

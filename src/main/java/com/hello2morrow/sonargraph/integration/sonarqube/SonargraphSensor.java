@@ -18,6 +18,7 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -113,6 +114,7 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void describe(final SensorDescriptor descriptor)
     {
+        //Deprecation warning can be avoided by implementing ProjectSensor instead of Sensor (>= API 7.9)
         descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME).global();
     }
 
@@ -220,7 +222,14 @@ public final class SonargraphSensor implements Sensor
         if (customMetrics != null)
         {
             //New custom metrics have been introduced.
-            SonargraphBase.save(customMetrics, sonargraphMetrics.getCustomMetricsProvider());
+            try
+            {
+                sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics);
+            }
+            catch (final IOException e)
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save metrics file.", e);
+            }
             customMetrics = null;
         }
     }
@@ -303,6 +312,8 @@ public final class SonargraphSensor implements Sensor
                 builder.append("[").append(issue.getPresentationName()).append("]");
                 break;
             case IGNORE:
+                //$FALL-THROUGH$
+            case NONE:
                 //$FALL-THROUGH$
             default:
                 assert false : "Unhandled resolution type: " + type;
@@ -465,6 +476,7 @@ public final class SonargraphSensor implements Sensor
         }
 
         final IMetricLevel systemLevel = systemLevelOptional.get();
+        final SonargraphMetricsProvider customMetricsProvider = sonargraphMetrics.getMetricsProvider();
         for (final IMetricId nextMetricId : systemInfoProcessor.getMetricIdsForLevel(systemLevel))
         {
             String nextMetricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
@@ -472,17 +484,17 @@ public final class SonargraphSensor implements Sensor
             if (metric == null)
             {
                 //Try custom metrics
-                nextMetricKey = SonargraphBase.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
+                nextMetricKey = SonargraphMetricsProvider.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
                 metric = rulesAndMetrics.getMetrics().get(nextMetricKey);
             }
             if (metric == null)
             {
                 if (customMetrics == null)
                 {
-                    customMetrics = SonargraphBase.loadCustomMetrics(sonargraphMetrics.getCustomMetricsProvider());
+                    customMetrics = customMetricsProvider.loadCustomMetrics();
                 }
 
-                SonargraphBase.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
+                customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
                 LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metric added '" + softwareSystem.getName() + "/"
                         + nextMetricId.getName() + "'.");
                 continue;

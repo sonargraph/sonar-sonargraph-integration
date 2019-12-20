@@ -1,4 +1,4 @@
-relaxed hidden artifact Model
+artifact test
 {
-    include "**/file/**"
+    test
 }

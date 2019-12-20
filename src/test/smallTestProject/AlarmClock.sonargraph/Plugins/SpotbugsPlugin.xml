@@ -1,4 +1,0 @@
-<?xml version="1.0" ?>
-<pluginConfiguration version="9.9.0.100" pluginId="SpotbugsPlugin">
-    <stringEntry value="max" name="analysisEffort"></stringEntry>
-</pluginConfiguration>

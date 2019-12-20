@@ -55,8 +55,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
-
 public final class SonargraphSensorTest
 {
     private static final String DUMMY_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
@@ -153,7 +151,7 @@ public final class SonargraphSensorTest
                     .setLanguage(SonargraphBase.JAVA).activate();
         }
 
-        final CustomMetricsPropertiesProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
+        final SonargraphMetricsProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
         sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
@@ -330,14 +328,16 @@ public final class SonargraphSensorTest
         final int thresholdViolationWarningCount = 2;
         final int duplicatesCount = 2;
         final int todoCount = 1;
+        final int refactoringCount = 0; //From 7.9 onwards, the directory issue is correctly attached. = 1;
         final Collection<Issue> issues = context.allIssues();
-        assertEquals("Wrong number of issues", thresholdViolationErrorCount + thresholdViolationWarningCount + duplicatesCount + todoCount,
-                issues.size());
+        assertEquals("Wrong number of issues",
+                thresholdViolationErrorCount + thresholdViolationWarningCount + duplicatesCount + todoCount + refactoringCount, issues.size());
 
         checkIssueCount("Wrong number of threshold errors", "ThresholdViolationError", thresholdViolationErrorCount, issues);
         checkIssueCount("Wrong number of threshold warnings", "ThresholdViolation", thresholdViolationWarningCount, issues);
         checkIssueCount("Wrong number of duplicates", "DuplicateCodeBlock", duplicatesCount, issues);
         checkIssueCount("Wrong number of todos", "Todo", todoCount, issues);
+        checkIssueCount("Wrong number of refactorings", "RenameRefactoring", refactoringCount, issues);
 
         //Check for resolutions
         final String todoRuleKey = SonargraphBase.createRuleKey("Todo");
@@ -356,8 +356,8 @@ public final class SonargraphSensorTest
     private static void checkIssueCount(final String message, final String sonargraphIssueKey, final int expectedCount,
             final Collection<Issue> issues)
     {
-        final String thresholdErrorKey = SonargraphBase.createRuleKey(sonargraphIssueKey);
-        assertEquals(message, expectedCount, issues.stream().filter(issue -> issue.ruleKey().rule().equals(thresholdErrorKey)).count());
+        final String issueKey = SonargraphBase.createRuleKey(sonargraphIssueKey);
+        assertEquals(message, expectedCount, issues.stream().filter(issue -> issue.ruleKey().rule().equals(issueKey)).count());
     }
 
     private static void createTestFile(final File moduleBaseDir, final DefaultFileSystem fileSystem) throws IOException

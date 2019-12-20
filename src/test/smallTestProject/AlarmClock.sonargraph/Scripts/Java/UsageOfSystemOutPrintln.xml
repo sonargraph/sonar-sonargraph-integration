@@ -1,14 +1,31 @@
 <?xml version="1.0" ?>
-<script version="9.11.2.100">
+<script version="9.12.0.578">
 	<description></description>
 	<source><![CDATA[//Use the Properties view to determine the fully qualified element name.
 ElementAccess systemElement = javaAccess.findElementByFqn("Workspace:External [Java]:[Unknown]:java:lang:System:System")
+
+private def getSubTypes(TypeAccess type)
+{
+    List<TypeAccess> subTypes = new ArrayList<>()
+    
+    println type.getName()
+    type.getReferencingElements(Aggregator.TYPE, false, DependencyKind.EXTENDS, DependencyKind.IMPLEMENTS).each()
+    {
+        TypeAccess subType ->
+        
+        println "  " + subType.getName()
+        subTypes.add(subType)
+        subTypes.addAll(getSubTypes(subType))
+    }
+    return subTypes
+}
+
 
 if (systemElement != null)
 {
     //to ensure good performance, it is always a good idea to narrow down the search by providing a search root.
     SearchResult<FieldAccess> fields = javaAccess.findFields(systemElement, { f-> f.name.equals("java.lang.System.out") || f.name.equals("java.lang.System.err")}, 2)
-
+    
     for (FieldAccess field : fields.getAllMatches())
     {
         List<AggregatedDependencyAccess> agg = field.getIncomingDependencies(Aggregator.METHOD, true, DependencyKind.READ);

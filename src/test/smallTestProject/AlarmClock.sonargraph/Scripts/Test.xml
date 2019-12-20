@@ -1,15 +1,20 @@
 <?xml version="1.0" ?>
-<script version="8.5.0.333">
-    <description></description>
-    <source>println "parameterString: " + parameterString
+<script version="9.12.0.578">
+	<description></description>
+	<source>println "parameterString: " + parameterString
 println "parameterInteger: " + parameterInteger
 println "parameterBoolean: " + parameterBoolean
+
+def function()
+{
+}
 </source>
-    <timeout>10</timeout>
-    <parameterDefinitions>
-        <parameterDefinition name="String" type="STRING" description="" defaultValue="" candidates=""></parameterDefinition>
-        <parameterDefinition name="Integer" type="INTEGER" description="" defaultValue="" candidates=""></parameterDefinition>
-        <parameterDefinition name="Boolean" type="BOOLEAN" description="" defaultValue="" candidates=""></parameterDefinition>
-    </parameterDefinitions>
-    <languages></languages>
+	<parameterDefinitions>
+		<parameterDefinition name="timeout" type="Integer" description="When scripts are scheduled for automated execution they time out after the specified number of seconds. The timeout must be greater than '0'." defaultValue="10" candidates=""></parameterDefinition>
+		<parameterDefinition name="output" type="String" description="When a path is specified the output of the script is written into this file. The use of an absolute path (i.e. starting with '/' or 'C:/') is not recommended. It might not be cross-platform compatible." defaultValue="" candidates=""></parameterDefinition>
+		<parameterDefinition name="String" type="String" description="" defaultValue="" candidates=""></parameterDefinition>
+		<parameterDefinition name="Integer" type="Integer" description="" defaultValue="0" candidates=""></parameterDefinition>
+		<parameterDefinition name="Boolean" type="Boolean" description="" defaultValue="false" candidates="true false"></parameterDefinition>
+	</parameterDefinitions>
+	<languages></languages>
 </script>
