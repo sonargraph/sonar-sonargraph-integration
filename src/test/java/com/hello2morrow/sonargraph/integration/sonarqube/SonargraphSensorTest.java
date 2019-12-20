@@ -55,8 +55,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinition.Context;
 
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
-
 public final class SonargraphSensorTest
 {
     private static final String DUMMY_CONTENT = "bla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla\nbla"
@@ -153,7 +151,7 @@ public final class SonargraphSensorTest
                     .setLanguage(SonargraphBase.JAVA).activate();
         }
 
-        final CustomMetricsPropertiesProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
+        final CustomMetricsProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
         sonargraphMetrics = new SonargraphMetrics(customMetricsPropertiesProvider);
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())

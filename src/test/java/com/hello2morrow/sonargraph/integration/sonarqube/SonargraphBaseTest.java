@@ -21,14 +21,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Test;
@@ -60,7 +58,7 @@ public final class SonargraphBaseTest
 
         //Metrics
         assertEquals("sg_i.Sonargraph.NUMBER_OF_STATEMENTS",
-                SonargraphBase.createCustomMetricKeyFromStandardName("Sonargraph", "NumberOfStatements"));
+                CustomMetricsProvider.createCustomMetricKeyFromStandardName("Sonargraph", "NumberOfStatements"));
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
     }
 
@@ -120,26 +118,6 @@ public final class SonargraphBaseTest
     }
 
     @Test
-    public void testCustomMetrics()
-    {
-        final ISonargraphSystemController controller = ControllerFactory.createController();
-        final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
-        assertTrue("Failed to load report", result.isSuccess());
-
-        final Properties customMetrics = new Properties();
-        final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
-        for (final IMetricId nextMetricId : metricIds)
-        {
-            SonargraphBase.addCustomMetric(controller.getSoftwareSystem(), nextMetricId, customMetrics);
-        }
-
-        assertEquals("Wrong number of custom metrics", customMetrics.size(), metricIds.size());
-
-        final List<Metric<Serializable>> metrics = SonargraphBase.getCustomMetrics(customMetrics);
-        assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
-    }
-
-    @Test
     public void testSimpleModuleMatch()
     {
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
@@ -175,37 +153,4 @@ public final class SonargraphBaseTest
         assertEquals("Test", SonargraphBase.trimDescription("Test"));
     }
 
-    @Test
-    public void testGetNonEmptyString()
-    {
-        try
-        {
-            SonargraphBase.getNonEmptyString(null);
-            fail("This line should not be reached");
-        }
-        catch (final IllegalArgumentException e)
-        {
-            //Expected
-        }
-
-        try
-        {
-            SonargraphBase.getNonEmptyString("");
-            fail("This line should not be reached");
-        }
-        catch (final IllegalArgumentException e)
-        {
-            //Expected
-        }
-
-        try
-        {
-            SonargraphBase.getNonEmptyString(Integer.valueOf(42));
-            fail("This line should not be reached");
-        }
-        catch (final IllegalArgumentException e)
-        {
-            //Expected
-        }
-    }
 }

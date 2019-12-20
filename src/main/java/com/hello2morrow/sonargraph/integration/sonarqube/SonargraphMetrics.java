@@ -32,21 +32,20 @@ import org.sonar.api.utils.log.Loggers;
 import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase.CustomMetricsPropertiesProvider;
 
 public final class SonargraphMetrics implements Metrics
 {
     private static final Logger LOGGER = Loggers.get(SonargraphMetrics.class);
     private List<Metric<Serializable>> metrics;
-    private final CustomMetricsPropertiesProvider customMetricsPropertiesProvider;
+    private final CustomMetricsProvider customMetricsPropertiesProvider;
 
     public SonargraphMetrics()
     {
-        this(new CustomMetricsPropertiesProvider());
+        this(new CustomMetricsProvider());
     }
 
     /** Test support */
-    SonargraphMetrics(final CustomMetricsPropertiesProvider customMetricsPropertiesProvider)
+    SonargraphMetrics(final CustomMetricsProvider customMetricsPropertiesProvider)
     {
         this.customMetricsPropertiesProvider = customMetricsPropertiesProvider;
     }
@@ -62,7 +61,7 @@ public final class SonargraphMetrics implements Metrics
         }
     }
 
-    CustomMetricsPropertiesProvider getCustomMetricsProvider()
+    CustomMetricsProvider getCustomMetricsProvider()
     {
         return customMetricsPropertiesProvider;
     }
@@ -77,7 +76,7 @@ public final class SonargraphMetrics implements Metrics
             final Map<String, IMetricId> predefinedMetrics = new HashMap<>();
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.SYSTEM), predefinedMetrics);
             getMetricsForLevel(builtInMetaData, builtInMetaData.getMetricLevels().get(IMetricLevel.MODULE), predefinedMetrics);
-            final List<Metric<Serializable>> customMetrics = SonargraphBase.getCustomMetrics(customMetricsPropertiesProvider);
+            final List<Metric<Serializable>> customMetrics = customMetricsPropertiesProvider.getCustomMetrics();
             metrics = new ArrayList<>(predefinedMetrics.size() + customMetrics.size());
             predefinedMetrics.values().forEach(metricId -> metrics.add(SonargraphBase.createMetric(metricId)));
             customMetrics.forEach(c -> metrics.add(c));
