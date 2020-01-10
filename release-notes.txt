@@ -1,6 +1,12 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+4.1.1
+=====
+- Reduce size of plugin by excluding external dependencies that are only needed 
+  at build time or for tests.
+
+
 4.1.0
 =====
 - Plugin is now compatible with new security policy that has been introduced with SonarQube 8.  
