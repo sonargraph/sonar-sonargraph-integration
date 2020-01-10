@@ -62,8 +62,8 @@ public final class SonargraphMetrics implements Metrics
             metrics.addAll(standardMetrics);
             metrics.addAll(customMetrics);
 
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + standardMetrics.size() + " predefined and "
-                    + customMetrics.size() + " custom metric(s)");
+            LOGGER.info("{}: Created {} predefined and {} custom metric(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    standardMetrics.size(), customMetrics.size());
         }
 
         return Collections.unmodifiableList(metrics);

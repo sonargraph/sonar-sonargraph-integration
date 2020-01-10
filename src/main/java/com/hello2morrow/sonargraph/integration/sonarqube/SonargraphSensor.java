@@ -122,7 +122,7 @@ public final class SonargraphSensor implements Sensor
     public void execute(final SensorContext context)
     {
         final String projectKey = context.config().get("sonar.projectKey").orElse("<unknown>");
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Processing SonarQube project '" + projectKey + "'");
+        LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
 
         final File reportFile = getReportFile(context.config());
         if (reportFile != null)
@@ -137,8 +137,7 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                LOGGER.info(
-                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Adjusting baseDirectory of Sonargraph system to '" + baseDir + "'");
+                LOGGER.info("{}: Adjusting baseDirectory of Sonargraph system to '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, baseDir);
                 result = controller.loadSystemReport(reportFile, baseDir);
             }
             if (result.isSuccess())
@@ -147,11 +146,11 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + result.toString());
+                LOGGER.error("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, result.toString());
             }
         }
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Finished processing SonarQube project '" + projectKey + "'");
+        LOGGER.info("{}: Finished processing SonarQube project '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
     }
 
     private File getReportFile(final Configuration configuration)
@@ -170,18 +169,18 @@ public final class SonargraphSensor implements Sensor
         if (relativeReportPath == null)
         {
             relativeReportPath = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file path not configured - using default '"
-                    + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'");
+            LOGGER.warn("{}: XML report file path not configured - using default '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT);
         }
 
         final File reportFile = fileSystem.resolvePath(relativeReportPath);
         if (reportFile.exists())
         {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Using XML report file '" + reportFile.getAbsolutePath() + "'");
+            LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
             return reportFile;
         }
 
-        LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": XML report file '" + reportFile.getAbsolutePath() + "' not found");
+        LOGGER.warn("{}: XML report file '{}' not found", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
         return null;
     }
 
@@ -257,15 +256,15 @@ public final class SonargraphSensor implements Sensor
                 .getIssues(issue -> SonargraphBase.isIgnoredErrorOrWarningIssue(issue.getIssueType()));
         if (!ignoredErrorOrWarningIssues.isEmpty())
         {
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Found " + ignoredErrorOrWarningIssues.size()
-                    + " system setup related error/warning issue(s)");
+            LOGGER.warn("{}: Found {} system setup related error/warning issue(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    ignoredErrorOrWarningIssues.size());
             int i = 1;
             for (final IIssue nextIssue : ignoredErrorOrWarningIssues)
             {
-                LOGGER.warn("[" + i + "] " + nextIssue.getPresentationName());
+                LOGGER.warn("[{}] {}", i, nextIssue.getPresentationName());
                 for (final INamedElement nextAffected : nextIssue.getAffectedNamedElements())
                 {
-                    LOGGER.warn(" - " + nextAffected.getName() + " [" + nextAffected.getPresentationKind() + "]");
+                    LOGGER.warn(" - {} [{}]", nextAffected.getName(), nextAffected.getPresentationKind());
                 }
                 i++;
             }
@@ -429,8 +428,8 @@ public final class SonargraphSensor implements Sensor
         }
         else
         {
-            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to locate '" + sourceFile.getFqName() + "' at '"
-                    + sourceFileLocation + "'");
+            LOGGER.error("{}: Failed to locate '{}' at '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, sourceFile.getFqName(),
+                    sourceFileLocation);
         }
     }
 
@@ -460,8 +459,8 @@ public final class SonargraphSensor implements Sensor
         }
         else
         {
-            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to locate directory resource: '" + directoryLocation
-                    + "'\nBaseDir: " + baseDir + "\nrelDirectory:'" + relDirectory);
+            LOGGER.error("{}: Failed to locate directory resource: '{}'\nBaseDir: {}\nrelDirectory:'{}'",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, directoryLocation, baseDir, relDirectory);
         }
     }
 
@@ -471,7 +470,7 @@ public final class SonargraphSensor implements Sensor
         final Optional<IMetricLevel> systemLevelOptional = systemInfoProcessor.getMetricLevel(IMetricLevel.SYSTEM);
         if (!systemLevelOptional.isPresent())
         {
-            LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Sonargraph report is missing system-level metrics!");
+            LOGGER.error("{}: Sonargraph report is missing system-level metrics!", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
             return;
         }
 
@@ -495,8 +494,8 @@ public final class SonargraphSensor implements Sensor
                 }
 
                 customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metric added '" + softwareSystem.getName() + "/"
-                        + nextMetricId.getName() + "'.");
+                LOGGER.warn("{}: Custom metric added '{}/{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(),
+                        nextMetricId.getName());
                 continue;
             }
 
@@ -508,7 +507,7 @@ public final class SonargraphSensor implements Sensor
             }
             else
             {
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No value found for metric '" + nextMetricKey + "'");
+                LOGGER.warn("{}: No value found for metric '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, nextMetricKey);
             }
         }
     }
@@ -558,11 +557,11 @@ public final class SonargraphSensor implements Sensor
     {
         final Map<String, ActiveRule> activeRules = new HashMap<>();
         context.activeRules().findByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).forEach(a -> activeRules.put(a.ruleKey().rule(), a));
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + activeRules.size() + " rule(s) activated");
+        LOGGER.info("{}: {} rule(s) activated", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, activeRules.size());
 
         final Map<String, Metric<Serializable>> metrics = metricFinder.findAll().stream()
                 .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX)).collect(Collectors.toMap(Metric::key, m -> m));
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + metrics.size() + " metric(s) defined");
+        LOGGER.info("{}: {} metric(s) defined", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, metrics.size());
 
         return new ActiveRulesAndMetrics(activeRules, metrics);
     }

@@ -69,7 +69,7 @@ public final class SonargraphRules implements RulesDefinition
 
         repository.done();
 
-        LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Created " + repository.rules().size() + " predefined rule(s)");
+        LOGGER.info("{}: Created {} predefined rule(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, repository.rules().size());
     }
 
     private void createRule(final String key, final String name, final String categoryTag, final String severity, final String description,

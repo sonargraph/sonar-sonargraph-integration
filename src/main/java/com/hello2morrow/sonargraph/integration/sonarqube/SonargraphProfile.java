@@ -60,7 +60,7 @@ public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
             }
 
             newProfile.done();
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Profile created");
+            LOGGER.info("{}: Profile created", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
         }
     }
 }

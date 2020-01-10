@@ -38,7 +38,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 
-public class ExportMetaDataXmlToPropertiesConverter
+class ExportMetaDataXmlToPropertiesConverter
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportMetaDataXmlToPropertiesConverter.class);
 

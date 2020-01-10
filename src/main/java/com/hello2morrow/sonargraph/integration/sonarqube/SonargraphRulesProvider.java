@@ -35,7 +35,7 @@ import org.sonar.api.rule.Severity;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 
-public class SonargraphRulesProvider
+class SonargraphRulesProvider
 {
     public static class RuleDto
     {
@@ -191,7 +191,7 @@ public class SonargraphRulesProvider
             }
             else
             {
-                LOGGER.warn("Unable to create rule from '" + key + "=" + value);
+                LOGGER.warn("Unable to create rule from '{}={}'", key, value);
             }
 
         }
@@ -205,7 +205,7 @@ public class SonargraphRulesProvider
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded standard rules file '" + BUILT_IN_RULES_RESOURCE_PATH + "'");
+            LOGGER.info("{}: Loaded standard rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_RULES_RESOURCE_PATH);
         }
 
         return standardMetrics;
