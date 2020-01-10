@@ -1,7 +1,0 @@
-<?xml version="1.0" ?>
-<runConfiguration version="9.0.0.100" description="Test to read a run configuration with a parameter value for every parameter type">
-    <parameterValue name="String">test</parameterValue>
-    <parameterValue name="Integer">42</parameterValue>
-    <parameterValue name="Boolean">true</parameterValue>
-    <parameterValue name="output"></parameterValue>
-</runConfiguration>
