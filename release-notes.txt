@@ -14,7 +14,8 @@ SonarQube Sonargraph 8 Integration Plugin
 
 4.0.0
 =====
-- Plugin is only executed once per analysis and no longer for each module plus the system.
+- The plugin is now only executed once for the root project. This should speed up the processing significantly for larger projects.
+- It supports Sonargraph 9.12 and higher.
 
 
 3.1.1
