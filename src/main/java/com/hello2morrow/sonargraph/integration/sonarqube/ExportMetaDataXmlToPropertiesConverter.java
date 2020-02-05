@@ -57,7 +57,7 @@ class ExportMetaDataXmlToPropertiesConverter
         convertMetrics(metaData);
     }
 
-    public int convertMetrics(final IExportMetaData metaData) throws IOException
+    int convertMetrics(final IExportMetaData metaData) throws IOException
     {
         final Map<String, IMetricId> standardMetrics = new HashMap<>();
         getMetricsForLevel(metaData, metaData.getMetricLevels().get(IMetricLevel.SYSTEM), standardMetrics);
@@ -74,7 +74,7 @@ class ExportMetaDataXmlToPropertiesConverter
         return sonargraphMetrics.size();
     }
 
-    public int convertRules(final IExportMetaData metaData) throws IOException
+    int convertRules(final IExportMetaData metaData) throws IOException
     {
         final List<IIssueType> issueTypes = new ArrayList<>(metaData.getIssueTypes().values());
         final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider();

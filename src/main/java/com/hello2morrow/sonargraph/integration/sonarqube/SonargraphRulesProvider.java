@@ -99,7 +99,7 @@ class SonargraphRulesProvider
         super();
     }
 
-    public void addRule(final IIssueType issueType, final Properties properties)
+    void addRule(final IIssueType issueType, final Properties properties)
     {
         if (SonargraphBase.ignoreIssueType(issueType.getCategory().getName()))
         {
@@ -157,7 +157,7 @@ class SonargraphRulesProvider
         }
     }
 
-    public List<RuleDto> loadRules()
+    List<RuleDto> loadRules()
     {
         final List<RuleDto> result = new ArrayList<>();
         final Properties ruleProperties;

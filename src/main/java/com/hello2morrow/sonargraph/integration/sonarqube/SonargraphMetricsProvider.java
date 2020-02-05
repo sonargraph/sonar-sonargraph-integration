@@ -53,17 +53,17 @@ class SonargraphMetricsProvider
     private static final int NUBMER_OF_VALUE_PARTS = 5;
     private static final int NUMBER_OF_KEY_PARTS = 2;
 
-    public SonargraphMetricsProvider()
+    SonargraphMetricsProvider()
     {
         super();
     }
 
-    public String getDirectory()
+    String getDirectory()
     {
         return System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
     }
 
-    public String getFilePath()
+    String getFilePath()
     {
         return getDirectory() + "/" + PROPERTIES_FILENAME;
     }

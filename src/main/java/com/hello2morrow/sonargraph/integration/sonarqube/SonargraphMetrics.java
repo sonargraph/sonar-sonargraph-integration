@@ -39,7 +39,7 @@ public final class SonargraphMetrics implements Metrics
     }
 
     /** Test support */
-    SonargraphMetrics(final SonargraphMetricsProvider metricsPropertiesProvider)
+    public SonargraphMetrics(final SonargraphMetricsProvider metricsPropertiesProvider)
     {
         this.metricPropertiesProvider = metricsPropertiesProvider;
     }
