@@ -45,6 +45,7 @@ import org.sonar.api.batch.fs.internal.TestInputFileBuilder;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
+import org.sonar.api.batch.rule.internal.NewActiveRule;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -141,14 +142,10 @@ public final class SonargraphSensorTest
         rulesBuilder = new ActiveRulesBuilder();
         for (final RulesDefinition.Rule nextRule : rules)
         {
-            //When migrating to SonarQbue Plugin API > 7.9, this must be used.
-            //            final NewActiveRule.Builder builder = new NewActiveRule.Builder();
-            //            final NewActiveRule rule = builder.setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
-            //                    .setLanguage(SonargraphBase.JAVA).build();
-            //            rulesBuilder.addRule(rule);
-
-            rulesBuilder.create(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
-                    .setLanguage(SonargraphBase.JAVA).activate();
+            final NewActiveRule.Builder builder = new NewActiveRule.Builder();
+            final NewActiveRule rule = builder.setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
+                    .setLanguage(SonargraphBase.JAVA).build();
+            rulesBuilder.addRule(rule);
         }
 
         final SonargraphMetricsProvider customMetricsPropertiesProvider = new TestSupportMetricPropertiesProvider();
@@ -328,7 +325,7 @@ public final class SonargraphSensorTest
         final int thresholdViolationWarningCount = 2;
         final int duplicatesCount = 2;
         final int todoCount = 1;
-        final int refactoringCount = 0; //From 7.9 onwards, the directory issue is correctly attached. = 1;
+        final int refactoringCount = 1;
         final Collection<Issue> issues = context.allIssues();
         assertEquals("Wrong number of issues",
                 thresholdViolationErrorCount + thresholdViolationWarningCount + duplicatesCount + todoCount + refactoringCount, issues.size());
@@ -342,15 +339,16 @@ public final class SonargraphSensorTest
         //Check for resolutions
         final String todoRuleKey = SonargraphBase.createRuleKey("Todo");
         final Issue todo = issues.stream().filter(issue -> issue.ruleKey().rule().equals(todoRuleKey)).findFirst().get();
-        final String expectedTodoMessage = "[Todo] assignee='Dietmar' priority='Medium' description='Review.' created='2018-05-15T15:27:56.031-05:00' Review. [Core]";
-        assertEquals("Wrong message", expectedTodoMessage, todo.primaryLocation().message());
+        final String expectedTodoMessage = "[Todo] assignee='Dietmar' priority='Medium' description='Review.'";
+        assertTrue("Wrong message: " + todo.primaryLocation().message(), todo.primaryLocation().message().startsWith(expectedTodoMessage));
 
         final String thresholdRuleKey = SonargraphBase.createRuleKey("ThresholdViolation");
         final Issue thresholdWarning = issues.stream().filter(
                 issue -> issue.ruleKey().rule().equals(thresholdRuleKey) && issue.primaryLocation().inputComponent().key().contains("C1.java"))
                 .findFirst().get();
-        final String expectedFixMessage = "[Fix: Threshold Violation] assignee='Dietmar' priority='Medium' description='Do it.' created='2018-05-18T17:42:08.056-05:00' Comment Lines = 0 (allowed range: 10 to 100) [Core]";
-        assertEquals("Wrong message", expectedFixMessage, thresholdWarning.primaryLocation().message());
+        final String expectedFixMessage = "[Fix: Threshold Violation] assignee='Dietmar' priority='Medium' description='Do it.'";
+        assertTrue("Wrong message: " + thresholdWarning.primaryLocation().message(),
+                thresholdWarning.primaryLocation().message().startsWith(expectedFixMessage));
     }
 
     private static void checkIssueCount(final String message, final String sonargraphIssueKey, final int expectedCount,

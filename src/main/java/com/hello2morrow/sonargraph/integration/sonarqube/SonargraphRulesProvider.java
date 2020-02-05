@@ -35,7 +35,7 @@ import org.sonar.api.rule.Severity;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueCategory;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 
-public class SonargraphRulesProvider
+class SonargraphRulesProvider
 {
     public static class RuleDto
     {
@@ -99,7 +99,7 @@ public class SonargraphRulesProvider
         super();
     }
 
-    public void addRule(final IIssueType issueType, final Properties properties)
+    void addRule(final IIssueType issueType, final Properties properties)
     {
         if (SonargraphBase.ignoreIssueType(issueType.getCategory().getName()))
         {
@@ -157,7 +157,7 @@ public class SonargraphRulesProvider
         }
     }
 
-    public List<RuleDto> loadRules()
+    List<RuleDto> loadRules()
     {
         final List<RuleDto> result = new ArrayList<>();
         final Properties ruleProperties;
@@ -184,14 +184,14 @@ public class SonargraphRulesProvider
                 final String categoryName = splitValues[index++];
                 final String categoryTag = splitValues[index++];
                 final String severity = splitValues[index++];
-                final String description = splitValues[index++];
+                final String description = splitValues[index];
 
                 final RuleDto rule = new RuleDto(key, name, categoryName, categoryTag, severity, description);
                 result.add(rule);
             }
             else
             {
-                LOGGER.warn("Unable to create rule from '" + key + "=" + value);
+                LOGGER.warn("Unable to create rule from '{}={}'", key, value);
             }
 
         }
@@ -205,7 +205,7 @@ public class SonargraphRulesProvider
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded standard rules file '" + BUILT_IN_RULES_RESOURCE_PATH + "'");
+            LOGGER.info("{}: Loaded standard rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_RULES_RESOURCE_PATH);
         }
 
         return standardMetrics;

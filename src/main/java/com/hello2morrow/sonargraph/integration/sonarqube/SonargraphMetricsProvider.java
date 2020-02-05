@@ -19,7 +19,6 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,17 +53,17 @@ class SonargraphMetricsProvider
     private static final int NUBMER_OF_VALUE_PARTS = 5;
     private static final int NUMBER_OF_KEY_PARTS = 2;
 
-    public SonargraphMetricsProvider()
+    SonargraphMetricsProvider()
     {
         super();
     }
 
-    public String getDirectory()
+    String getDirectory()
     {
         return System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
     }
 
-    public String getFilePath()
+    String getFilePath()
     {
         return getDirectory() + "/" + PROPERTIES_FILENAME;
     }
@@ -87,8 +86,8 @@ class SonargraphMetricsProvider
         final StringJoiner joiner = new StringJoiner(SEPARATOR + "");
         joiner.add(metricId.getPresentationName());
         joiner.add((metricId.isFloat() ? FLOAT : INT));
-        joiner.add(metricId.getBestValue().toString());
-        joiner.add(metricId.getWorstValue().toString());
+        joiner.add(Double.toString(metricId.getBest()));
+        joiner.add(Double.toString(metricId.getWorst()));
         joiner.add(SonargraphBase.trimDescription(metricId.getDescription()));
         return joiner.toString();
     }
@@ -169,7 +168,7 @@ class SonargraphMetricsProvider
 
             if (notCreatedInfo != null)
             {
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + notCreatedInfo);
+                LOGGER.warn("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, notCreatedInfo);
             }
         }
 
@@ -233,7 +232,7 @@ class SonargraphMetricsProvider
 
             if (notCreatedInfo != null)
             {
-                LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + notCreatedInfo);
+                LOGGER.warn("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, notCreatedInfo);
             }
         }
 
@@ -243,15 +242,13 @@ class SonargraphMetricsProvider
     List<Metric<Serializable>> loadStandardMetrics()
     {
         final Properties standardMetrics = loadStandardMetricProperties();
-        final List<Metric<Serializable>> metrics = getStandardMetrics(standardMetrics);
-        return metrics;
+        return getStandardMetrics(standardMetrics);
     }
 
     List<Metric<Serializable>> getCustomMetrics()
     {
         final Properties customMetrics = loadCustomMetrics();
-        final List<Metric<Serializable>> metrics = getCustomMetrics(customMetrics);
-        return metrics;
+        return getCustomMetrics(customMetrics);
     }
 
     private Properties loadStandardMetricProperties()
@@ -260,13 +257,7 @@ class SonargraphMetricsProvider
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
-            LOGGER.info(
-                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded standard metrics file '" + BUILT_IN_METRICS_RESOURCE_PATH + "'");
-        }
-        catch (final FileNotFoundException e)
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Standard metrics file '" + BUILT_IN_METRICS_RESOURCE_PATH
-                    + "' not found");
+            LOGGER.info("{}: Loaded standard metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_METRICS_RESOURCE_PATH);
         }
         catch (final IOException e)
         {
@@ -284,11 +275,7 @@ class SonargraphMetricsProvider
         try (FileInputStream fis = new FileInputStream(new File(propertiesFilePath)))
         {
             customMetrics.load(fis);
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Loaded custom metrics file '" + propertiesFilePath + "'");
-        }
-        catch (final FileNotFoundException e)
-        {
-            LOGGER.info(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Custom metrics file '" + propertiesFilePath + "' not found");
+            LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
         }
         catch (final IOException e)
         {
@@ -311,8 +298,8 @@ class SonargraphMetricsProvider
         try (FileWriter writer = new FileWriter(propertiesFile))
         {
             metrics.store(writer, comment);
-            LOGGER.warn(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": " + comment + "'" + propertiesFile.getAbsolutePath()
-                    + "' updated, the SonarQube server needs to be restarted");
+            LOGGER.warn("{}: {} '{}' updated, the SonarQube server needs to be restarted", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    comment, propertiesFile.getAbsolutePath());
         }
     }
 }

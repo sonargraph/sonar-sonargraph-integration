@@ -24,6 +24,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.api.Plugin;
 import org.sonar.api.Plugin.Context;
+import org.sonar.api.SonarEdition;
 import org.sonar.api.SonarProduct;
 import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarRuntime;
@@ -53,6 +54,12 @@ public final class SonargraphPluginTest
                 public Version getApiVersion()
                 {
                     return Version.create(6, 7, 6);
+                }
+
+                @Override
+                public SonarEdition getEdition()
+                {
+                    return SonarEdition.COMMUNITY;
                 }
 
                 //                @Override
