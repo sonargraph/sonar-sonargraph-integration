@@ -86,8 +86,8 @@ class SonargraphMetricsProvider
         final StringJoiner joiner = new StringJoiner(SEPARATOR + "");
         joiner.add(metricId.getPresentationName());
         joiner.add((metricId.isFloat() ? FLOAT : INT));
-        joiner.add(metricId.getBestValue().toString());
-        joiner.add(metricId.getWorstValue().toString());
+        joiner.add(Double.toString(metricId.getBest()));
+        joiner.add(Double.toString(metricId.getWorst()));
         joiner.add(SonargraphBase.trimDescription(metricId.getDescription()));
         return joiner.toString();
     }
@@ -242,15 +242,13 @@ class SonargraphMetricsProvider
     List<Metric<Serializable>> loadStandardMetrics()
     {
         final Properties standardMetrics = loadStandardMetricProperties();
-        final List<Metric<Serializable>> metrics = getStandardMetrics(standardMetrics);
-        return metrics;
+        return getStandardMetrics(standardMetrics);
     }
 
     List<Metric<Serializable>> getCustomMetrics()
     {
         final Properties customMetrics = loadCustomMetrics();
-        final List<Metric<Serializable>> metrics = getCustomMetrics(customMetrics);
-        return metrics;
+        return getCustomMetrics(customMetrics);
     }
 
     private Properties loadStandardMetricProperties()

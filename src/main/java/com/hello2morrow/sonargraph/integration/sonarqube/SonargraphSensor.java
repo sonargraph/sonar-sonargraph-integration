@@ -41,13 +41,13 @@ import org.sonar.api.batch.fs.internal.DefaultTextRange;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRule;
-import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.config.Configuration;
+import org.sonar.api.scanner.sensor.ProjectSensor;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
@@ -72,7 +72,7 @@ import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
 
-public final class SonargraphSensor implements Sensor
+public final class SonargraphSensor implements ProjectSensor
 {
     private static final Logger LOGGER = Loggers.get(SonargraphSensor.class);
     private static final int ZERO_LINE_OFFSET = 0;
@@ -114,8 +114,7 @@ public final class SonargraphSensor implements Sensor
     @Override
     public void describe(final SensorDescriptor descriptor)
     {
-        //Deprecation warning can be avoided by implementing ProjectSensor instead of Sensor (>= API 7.9)
-        descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME).global();
+        descriptor.name(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
     }
 
     @Override
@@ -236,7 +235,7 @@ public final class SonargraphSensor implements Sensor
     private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
             final ActiveRulesAndMetrics rulesAndMetrics)
     {
-        processSystemMetrics(context, context.module(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
+        processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
                 && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem));
@@ -248,7 +247,7 @@ public final class SonargraphSensor implements Sensor
             final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
             if (nextRule != null)
             {
-                createIssue(context, context.module(), nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
+                createIssue(context, context.project(), nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
         }
 
@@ -307,6 +306,7 @@ public final class SonargraphSensor implements Sensor
                         .append("]");
                 break;
             case REFACTORING:
+                //$FALL-THROUGH$
             case TODO:
                 builder.append("[").append(issue.getPresentationName()).append("]");
                 break;

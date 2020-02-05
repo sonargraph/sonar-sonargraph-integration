@@ -184,7 +184,7 @@ class SonargraphRulesProvider
                 final String categoryName = splitValues[index++];
                 final String categoryTag = splitValues[index++];
                 final String severity = splitValues[index++];
-                final String description = splitValues[index++];
+                final String description = splitValues[index];
 
                 final RuleDto rule = new RuleDto(key, name, categoryName, categoryTag, severity, description);
                 result.add(rule);

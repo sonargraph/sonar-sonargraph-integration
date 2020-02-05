@@ -147,9 +147,9 @@ final class SonargraphBase
                 metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
                         .setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
-        setBestValue(metricId.getBestValue(), builder);
-        setWorstValue(metricId.getWorstValue(), builder);
-        setMetricDirection(metricId.getBestValue(), metricId.getWorstValue(), builder);
+        setBestValue(metricId.getBest(), builder);
+        setWorstValue(metricId.getWorst(), builder);
+        setMetricDirection(metricId.getBest(), metricId.getWorst(), builder);
 
         return builder.create();
     }
@@ -228,17 +228,17 @@ final class SonargraphBase
         final List<IModule> moduleCandidates = getSonargraphModuleCandidates(softwareSystem, baseDirectory);
         if (moduleCandidates.isEmpty())
         {
-            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": No Sonargraph module match found for " + sqMsgPart);
+            LOGGER.warn("{}: No Sonargraph module match found for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME, sqMsgPart);
         }
         else if (moduleCandidates.size() == 1)
         {
             matched = moduleCandidates.get(0);
-            LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph module '" + matched.getName() + "' for " + sqMsgPart);
+            LOGGER.info("{}: Matched Sonargraph module '{}' for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME, matched.getName(), sqMsgPart);
         }
         else
         {
-            LOGGER.warn(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Skip Sonargraph module processing as " + moduleCandidates.size()
-                    + " modules are detected as potential matches for " + sqMsgPart);
+            LOGGER.warn("{}: Skip Sonargraph module processing as {} modules are detected as potential matches for {}",
+                    SONARGRAPH_PLUGIN_PRESENTATION_NAME, moduleCandidates.size(), sqMsgPart);
         }
 
         return matched;
@@ -256,7 +256,7 @@ final class SonargraphBase
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
 
-        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Trying to match module using system base directory '" + systemBaseDirectory + "'");
+        LOGGER.info("{}: Trying to match module using system base directory '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME, systemBaseDirectory);
 
         final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
         for (final IModule nextModule : softwareSystem.getModules().values())
@@ -272,8 +272,8 @@ final class SonargraphBase
                     final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
                     if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
                     {
-                        LOGGER.info(SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Matched Sonargraph root directory '" + nextIdentifyingPath
-                                + "' underneath '" + identifyingBaseDirectoryPath + "'");
+                        LOGGER.info("{}: Matched Sonargraph root directory '{}' underneath '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                                nextIdentifyingPath, identifyingBaseDirectoryPath);
                         matchedRootDirs++;
                     }
                 }
