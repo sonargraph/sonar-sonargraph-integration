@@ -34,9 +34,7 @@ public final class SonargraphMetricsTest
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
 
-        //Different value dependending on the number of custom metrics loaded, which in turn depends on the
-        //order of test execution...
-        assertEquals("Wrong number of metrics (init triggered)", 53, metrics.size());
+        assertEquals("Wrong number of metrics (init triggered)", 54, metrics.size());
         assertEquals("Wrong number of metrics (no init necessary)", metrics, sonargraphMetrics.getMetrics());
     }
 }
