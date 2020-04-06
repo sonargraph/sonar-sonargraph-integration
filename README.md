@@ -38,5 +38,5 @@ A detailed description of the capabilities and configuration can be found here: 
    Example Maven command-line to create a report (check the <a href="http://eclipse.hello2morrow.com/doc/build/content/integrating_with_maven.html">online documentation</a> for configuration details):
            <code>mvn clean package sonargraph:create-report</code>   
 7. Execute the build and check in the console log that the Sonargraph Integration plugin has been executed.
-8. If you have difficulties setting up the integration, check first the online documentation (it's searchable!). If that does not provide any answer, feel free to send an email to the <a href="https://groups.google.com/forum/#!forum/sonarqube">SonarQube Google group</a>
+8. If you have difficulties setting up the integration, check first the online documentation (it's searchable!). If that does not provide any answer, feel free to ask a question at the <a href="https://community.sonarsource.com/">SonarQube Communit forum</a>
   or directly to support at hello2morrow.com. It certainly helps us to help you, if you include the console log in the email.
