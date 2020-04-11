@@ -272,7 +272,14 @@ class SonargraphMetricsProvider
     {
         final Properties customMetrics = new Properties();
         final String propertiesFilePath = getFilePath();
-        try (FileInputStream fis = new FileInputStream(new File(propertiesFilePath)))
+        final File file = new File(propertiesFilePath);
+        if (!file.exists())
+        {
+            LOGGER.info("{}: Custom metrics file '{}' does not exist.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
+            return customMetrics;
+        }
+
+        try (FileInputStream fis = new FileInputStream(file))
         {
             customMetrics.load(fis);
             LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
