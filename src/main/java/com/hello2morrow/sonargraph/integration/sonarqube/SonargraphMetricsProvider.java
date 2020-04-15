@@ -76,6 +76,7 @@ class SonargraphMetricsProvider
 
     void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetrics)
     {
+        //FIXME: This should probably better be the system's id?
         final String metricKey = softwareSystem.getName() + SEPARATOR + metricId.getName();
         final String definition = createMetricDefinition(metricId);
         customMetrics.put(metricKey, definition);
