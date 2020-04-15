@@ -232,8 +232,8 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processSystem(final SensorContext sensorContext, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
-            final ActiveRulesAndMetrics rulesAndMetrics)
+    private void processSystem(final SensorContext sensorContext, final ISoftwareSystem softwareSystem,
+            final ISystemInfoProcessor systemInfoProcessor, final ActiveRulesAndMetrics rulesAndMetrics)
     {
         processSystemMetrics(sensorContext, sensorContext.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
 
@@ -362,8 +362,8 @@ public final class SonargraphSensor implements ProjectSensor
         return createIssueDescription(infoProcessor, forIssue, "");
     }
 
-    private void createSourceFileIssues(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile,
-            final InputPath inputPath, final IIssue issue, final ActiveRule rule)
+    private void createSourceFileIssues(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
+            final ISourceFile sourceFile, final InputPath inputPath, final IIssue issue, final ActiveRule rule)
     {
         if (issue instanceof IDuplicateCodeBlockIssue)
         {
@@ -496,6 +496,8 @@ public final class SonargraphSensor implements ProjectSensor
                 customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
                 LOGGER.warn("{}: Custom metric added '{}/{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(),
                         nextMetricId.getName());
+                //Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup, before measures can be saved.
+                //There is nothing left that can be done here and now.
                 continue;
             }
 
