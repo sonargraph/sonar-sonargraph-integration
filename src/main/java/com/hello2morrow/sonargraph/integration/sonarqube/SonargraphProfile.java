@@ -26,32 +26,38 @@ import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
+public class SonargraphProfile implements BuiltInQualityProfilesDefinition
 {
     private static final Logger LOGGER = Loggers.get(SonargraphProfile.class);
-    static final List<String> ACTIVATE_RULES_WITH_KEY = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP",
-            "CRITICAL_NAMESPACE_CYCLE_GROUP", "CRITICAL_COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING",
-            "MOVE_REFACTORING", "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "SCRIPT_ISSUE", "DUPLICATE_CODE_BLOCK");
+    static final List<String> RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP", "CRITICAL_NAMESPACE_CYCLE_GROUP",
+            "CRITICAL_COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING", "MOVE_REFACTORING",
+            "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "SCRIPT_ISSUE", "DUPLICATE_CODE_BLOCK");
+
+    private final String profileName;
 
     public SonargraphProfile()
     {
-        super();
+        this(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+    }
+
+    protected SonargraphProfile(final String profileName)
+    {
+        this.profileName = profileName;
     }
 
     @Override
     public void define(final Context context)
     {
-        final BuiltInQualityProfile profile = context.profile(SonargraphBase.JAVA, SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+        final BuiltInQualityProfile profile = context.profile(SonargraphBase.JAVA, profileName);
         if (profile == null)
         {
-            final NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    SonargraphBase.JAVA);
+            final NewBuiltInQualityProfile newProfile = context.createBuiltInQualityProfile(profileName, SonargraphBase.JAVA);
             newProfile.setDefault(false);
 
             final Set<String> activeRuleKeys = new HashSet<>();
             newProfile.activeRules().forEach(ar -> activeRuleKeys.add(ar.ruleKey()));
 
-            for (final String nextRuleKey : ACTIVATE_RULES_WITH_KEY)
+            for (final String nextRuleKey : getRuleKeys())
             {
                 if (!activeRuleKeys.contains(nextRuleKey))
                 {
@@ -60,7 +66,12 @@ public final class SonargraphProfile implements BuiltInQualityProfilesDefinition
             }
 
             newProfile.done();
-            LOGGER.info("{}: Profile created", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+            LOGGER.info("{}: Profile created", profileName);
         }
+    }
+
+    protected List<String> getRuleKeys()
+    {
+        return RULE_KEYS;
     }
 }
