@@ -38,6 +38,7 @@ public final class SonargraphPlugin implements Plugin
     @Override
     public void define(final Context context)
     {
-        context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, SonargraphProfile.class, SonargraphSensor.class);
+        context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, SonargraphProfile.class, SonargraphStrictProfile.class,
+                SonargraphSensor.class);
     }
 }
