@@ -17,24 +17,26 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
-import org.sonar.api.measures.Metric;
-
-public final class SonargraphMetricsTest
+public final class SonargraphStrictProfile extends SonargraphProfile
 {
-    @Test
-    public void testMetricsDefinition() throws IOException
-    {
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new TestSupportMetricPropertiesProvider());
-        @SuppressWarnings("rawtypes")
-        final List<Metric> metrics = sonargraphMetrics.getMetrics();
-        assertEquals("Wrong number of metrics (init triggered)", 54, metrics.size());
+    static final List<String> RULE_KEYS = Arrays.asList("MODULE_CYCLE_GROUP", "NAMESPACE_CYCLE_GROUP", "COMPONENT_CYCLE_GROUP",
+            "THRESHOLD_VIOLATION");
+    static final String NAME = SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + " (Strict)";
 
-        assertEquals("Wrong number of metrics (no init necessary)", metrics, sonargraphMetrics.getMetrics());
+    public SonargraphStrictProfile()
+    {
+        super(NAME);
+    }
+
+    @Override
+    protected List<String> getRuleKeys()
+    {
+        final List<String> ruleKeys = new ArrayList<>(super.getRuleKeys());
+        ruleKeys.addAll(RULE_KEYS);
+        return ruleKeys;
     }
 }

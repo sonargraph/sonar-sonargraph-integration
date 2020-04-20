@@ -17,33 +17,50 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvider
 {
-    private static final String CUSTOM_METRICS_DIRECTORY = "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+    static final String DEFAULT_CUSTOM_METRICS_DIRECTORY = "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+    private final String directoryPath;
 
-    public TestSupportMetricPropertiesProvider() throws IOException
+    /**
+     * Deletes the content of the {@link #DEFAULT_CUSTOM_METRICS_DIRECTORY}.
+     */
+    public TestSupportMetricPropertiesProvider()
     {
-        super();
+        this(DEFAULT_CUSTOM_METRICS_DIRECTORY);
         reset();
+    }
+
+    /**
+     * Does *NOT* delete the content of the given directory path
+     *
+     * @param directoryPath
+     */
+    public TestSupportMetricPropertiesProvider(final String directoryPath)
+    {
+        this.directoryPath = directoryPath;
     }
 
     @Override
     public String getDirectory()
     {
-        return CUSTOM_METRICS_DIRECTORY;
+        return directoryPath;
     }
 
-    private void reset() throws IOException
+    private void reset()
     {
-        final Path metricProps = Paths.get(getFilePath());
-        if (metricProps.toFile().exists())
+        final File dir = new File(getDirectory());
+        final File[] files = dir.listFiles();
+        if (files != null)
         {
-            Files.delete(metricProps);
+            for (final File next : files)
+            {
+                next.delete();
+            }
         }
+
+        dir.delete();
     }
 }
