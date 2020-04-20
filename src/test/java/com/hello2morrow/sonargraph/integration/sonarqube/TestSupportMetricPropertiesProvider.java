@@ -17,10 +17,7 @@
  */
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.File;
 
 final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvider
 {
@@ -30,7 +27,7 @@ final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvide
     /**
      * Deletes the content of the {@link #DEFAULT_CUSTOM_METRICS_DIRECTORY}.
      */
-    public TestSupportMetricPropertiesProvider() throws IOException
+    public TestSupportMetricPropertiesProvider()
     {
         this(DEFAULT_CUSTOM_METRICS_DIRECTORY);
         reset();
@@ -52,12 +49,18 @@ final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvide
         return directoryPath;
     }
 
-    private void reset() throws IOException
+    private void reset()
     {
-        final Path metricProps = Paths.get(getFilePath());
-        if (metricProps.toFile().exists())
+        final File dir = new File(getDirectory());
+        final File[] files = dir.listFiles();
+        if (files != null)
         {
-            Files.delete(metricProps);
+            for (final File next : files)
+            {
+                next.delete();
+            }
         }
+
+        dir.delete();
     }
 }
