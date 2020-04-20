@@ -3,9 +3,11 @@ SonarQube Sonargraph 8 Integration Plugin
 
 5.1.0
 =====
+- Added second built-in profile "Sonargraph Integration (Strict)" that includes also rules for 
+  Sonargraph issues with warning level, e.g. threshold violations, cycle group warnings.  
 - Custom metrics are now stored per system in individual properties files that need to be copied 
   to the SonarQube server.
-- Fix false error message for not existing optional custom metrics properties file. 
+- Fixed false error message for not existing optional custom metrics properties file. 
 
 
 5.0.0

@@ -214,7 +214,8 @@ class SonargraphMetricsProvider
         final File file = new File(propertiesFilePath);
         if (!file.exists())
         {
-            LOGGER.info("{}: Custom metrics file '{}' does not exist.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
+            LOGGER.debug("{}: Deprecated custom metrics file '{}' does not exist.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    propertiesFilePath);
         }
         else
         {
