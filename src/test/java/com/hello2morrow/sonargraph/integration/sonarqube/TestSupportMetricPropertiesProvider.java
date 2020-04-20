@@ -24,18 +24,32 @@ import java.nio.file.Paths;
 
 final class TestSupportMetricPropertiesProvider extends SonargraphMetricsProvider
 {
-    private static final String CUSTOM_METRICS_DIRECTORY = "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+    static final String DEFAULT_CUSTOM_METRICS_DIRECTORY = "./src/test/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+    private final String directoryPath;
 
+    /**
+     * Deletes the content of the {@link #DEFAULT_CUSTOM_METRICS_DIRECTORY}.
+     */
     public TestSupportMetricPropertiesProvider() throws IOException
     {
-        super();
+        this(DEFAULT_CUSTOM_METRICS_DIRECTORY);
         reset();
+    }
+
+    /**
+     * Does *NOT* delete the content of the given directory path
+     *
+     * @param directoryPath
+     */
+    public TestSupportMetricPropertiesProvider(final String directoryPath)
+    {
+        this.directoryPath = directoryPath;
     }
 
     @Override
     public String getDirectory()
     {
-        return CUSTOM_METRICS_DIRECTORY;
+        return directoryPath;
     }
 
     private void reset() throws IOException

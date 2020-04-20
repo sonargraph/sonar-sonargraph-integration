@@ -222,7 +222,13 @@ public final class SonargraphSensor implements ProjectSensor
             //New custom metrics have been introduced.
             try
             {
-                sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics);
+
+                final File customMetricsFile = sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics, softwareSystem.getSystemId(),
+                        softwareSystem.getName());
+                LOGGER.warn(
+                        "{}: Custom properties for system '{}' updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server and the server needs to be restarted!",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath(),
+                        SonargraphBase.SONARGRAPH_PLUGIN_KEY);
             }
             catch (final IOException e)
             {

@@ -50,7 +50,6 @@ final class SonargraphBase
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
     static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
-    static final String PROJECT_ONLY = CONFIG_PREFIX + ":" + "project.only";
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
     static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
 
