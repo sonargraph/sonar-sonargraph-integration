@@ -226,7 +226,8 @@ public final class SonargraphSensor implements ProjectSensor
                 final File customMetricsFile = sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics, softwareSystem.getSystemId(),
                         softwareSystem.getName());
                 LOGGER.warn(
-                        "{}: Custom properties for system '{}' updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server and the server needs to be restarted!",
+                        "{}: Custom properties for system '{}' updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube scan.",
                         SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath(),
                         SonargraphBase.SONARGRAPH_PLUGIN_KEY);
             }

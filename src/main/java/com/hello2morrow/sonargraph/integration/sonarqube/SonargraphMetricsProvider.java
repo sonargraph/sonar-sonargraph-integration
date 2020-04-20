@@ -348,7 +348,7 @@ class SonargraphMetricsProvider
     {
         final File targetDirectory = new File(getDirectory());
         targetDirectory.mkdirs();
-        return saveMetricProperties(customMetrics, targetDirectory, systemId, "Custom metrics file for system " + systemName);
+        return saveMetricProperties(customMetrics, targetDirectory, systemId + ".properties", "Custom metrics file for system " + systemName);
     }
 
     File saveMetricProperties(final Properties metrics, final File targetDirectory, final String fileName, final String comment) throws IOException
