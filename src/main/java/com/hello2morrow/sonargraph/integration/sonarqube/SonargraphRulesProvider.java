@@ -163,7 +163,7 @@ class SonargraphRulesProvider
         final Properties ruleProperties;
         try
         {
-            ruleProperties = load();
+            ruleProperties = loadBuiltInRulesProperties();
         }
         catch (final IOException e)
         {
@@ -193,13 +193,12 @@ class SonargraphRulesProvider
             {
                 LOGGER.warn("Unable to create rule from '{}={}'", key, value);
             }
-
         }
 
         return result;
     }
 
-    private Properties load() throws IOException
+    private Properties loadBuiltInRulesProperties() throws IOException
     {
         final Properties standardMetrics = new Properties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
