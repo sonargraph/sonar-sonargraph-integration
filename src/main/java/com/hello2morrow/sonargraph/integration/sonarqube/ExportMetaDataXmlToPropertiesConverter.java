@@ -99,7 +99,7 @@ class ExportMetaDataXmlToPropertiesConverter
                 final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {
-                    LOGGER.error("{} - {}", errorMsg, result.toString());
+                    LOGGER.error("{} - {}", errorMsg, result);
                 }
                 else
                 {
