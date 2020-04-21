@@ -267,7 +267,6 @@ class SonargraphMetricsProvider
         }
         else
         {
-
             try (FileInputStream fis = new FileInputStream(file))
             {
                 customMetrics.load(fis);
