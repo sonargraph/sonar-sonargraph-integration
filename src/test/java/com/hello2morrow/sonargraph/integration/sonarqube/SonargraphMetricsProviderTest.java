@@ -61,7 +61,7 @@ public class SonargraphMetricsProviderTest
 
         assertEquals("Wrong number of custom metrics", customMetrics.size(), metricIds.size());
 
-        final List<Metric<Serializable>> metrics = metricsProvider.getCustomMetrics(customMetrics);
+        final List<Metric<Serializable>> metrics = metricsProvider.convertCustomMetricProperties(customMetrics);
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
         final String systemIdFromReport = "ae8982aeeb97a896d5c5f4668d46a1ee";
         final String customPropertiesFileName = systemIdFromReport + ".properties";
@@ -70,7 +70,7 @@ public class SonargraphMetricsProviderTest
         final File customMetricsFile = new File(targetDirectory.getRoot(), customPropertiesFileName);
         assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
 
-        final Properties customMetricsProperties = metricsProvider.loadCustomMetrics(MetricLogLevel.DEBUG, systemIdFromReport);
+        final Properties customMetricsProperties = metricsProvider.loadSonargraphCustomMetrics(MetricLogLevel.DEBUG, systemIdFromReport);
         assertNotNull(customMetricsProperties);
         assertEquals("Wrong number of custom metrics", metrics.size(), customMetricsProperties.size());
     }
@@ -128,7 +128,7 @@ public class SonargraphMetricsProviderTest
         assertTrue("Failed to load report", result.isSuccess());
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider("./src/test/customMetricsUserHome");
 
-        final Properties customMetrics = metricsProvider.loadCustomMetrics(MetricLogLevel.INFO);
+        final Properties customMetrics = metricsProvider.loadSonargraphCustomMetrics(MetricLogLevel.INFO);
         assertEquals("Wrong number of custom metrics", 4, customMetrics.size());
 
         final List<String> expectedMetricKeys = Arrays.asList("IntegrationSonarqube|CoreIgnoredThresholdViolations",
