@@ -66,7 +66,7 @@ class ExportMetaDataXmlToPropertiesConverter
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
         final Properties metricProperties = new Properties();
         final Collection<IMetricId> sonargraphMetrics = standardMetrics.values();
-        sonargraphMetrics.forEach(m -> metricsProvider.addMetric(m, metricProperties));
+        sonargraphMetrics.forEach(m -> metricsProvider.addMetricToProperties(m, metricProperties));
         LOGGER.info("Created {} standard metrics", standardMetrics.size());
         final File targetDirectory = new File(RESOURCES_PATH);
         metricsProvider.saveMetricProperties(metricProperties, targetDirectory, SonargraphMetricsProvider.PROPERTIES_FILENAME,

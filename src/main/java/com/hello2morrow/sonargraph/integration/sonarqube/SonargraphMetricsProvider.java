@@ -82,17 +82,17 @@ class SonargraphMetricsProvider
         return getDirectory() + "/" + PROPERTIES_FILENAME;
     }
 
-    void addMetric(final IMetricId metricId, final Properties metrics)
+    void addMetricToProperties(final IMetricId metricId, final Properties metricProperties)
     {
         final String definition = createMetricDefinition(metricId);
-        metrics.put(metricId.getName(), definition);
+        metricProperties.put(metricId.getName(), definition);
     }
 
-    void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetrics)
+    void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetricProperties)
     {
         final String metricKey = createPropertiesMetricKey(softwareSystem.getName(), metricId.getName());
         final String definition = createMetricDefinition(metricId);
-        customMetrics.put(metricKey, definition);
+        customMetricProperties.put(metricKey, definition);
     }
 
     static String createPropertiesMetricKey(final String softwareSystemName, final String metricName)
@@ -102,16 +102,16 @@ class SonargraphMetricsProvider
 
     private String createMetricDefinition(final IMetricId metricId)
     {
-        final StringJoiner joiner = new StringJoiner(SEPARATOR + "");
-        joiner.add(metricId.getPresentationName());
-        joiner.add((metricId.isFloat() ? FLOAT : INT));
-        joiner.add(Double.toString(metricId.getBest()));
-        joiner.add(Double.toString(metricId.getWorst()));
-        joiner.add(SonargraphBase.trimDescription(metricId.getDescription()));
-        return joiner.toString();
+        final StringJoiner result = new StringJoiner(SEPARATOR + "");
+        result.add(metricId.getPresentationName());
+        result.add((metricId.isFloat() ? FLOAT : INT));
+        result.add(Double.toString(metricId.getBest()));
+        result.add(Double.toString(metricId.getWorst()));
+        result.add(SonargraphBase.trimDescription(metricId.getDescription()));
+        return result.toString();
     }
 
-    static String createCustomMetricKeyFromStandardName(final String softwareSystemIdentifier, final String metricIdName)
+    static String createSqCustomMetricKeyFromStandardName(final String softwareSystemIdentifier, final String metricIdName)
     {
         String customMetricKey = SonargraphBase.METRIC_ID_PREFIX + softwareSystemIdentifier + "."
                 + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
@@ -119,7 +119,7 @@ class SonargraphMetricsProvider
         return customMetricKey;
     }
 
-    static String createMetricKeyFromStandardName(final String metricIdName)
+    static String createSqMetricKeyFromStandardName(final String metricIdName)
     {
         String metricKey = SonargraphBase.METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
         metricKey = metricKey.replace(SEPARATOR, ' ');
@@ -129,7 +129,7 @@ class SonargraphMetricsProvider
     List<Metric<Serializable>> loadStandardMetrics()
     {
         final Properties standardMetrics = loadStandardMetricProperties();
-        return getStandardMetrics(standardMetrics);
+        return convertStandardMetricProperties(standardMetrics);
     }
 
     private Properties loadStandardMetricProperties()
@@ -149,7 +149,7 @@ class SonargraphMetricsProvider
         return standardMetrics;
     }
 
-    List<Metric<Serializable>> getStandardMetrics(final Properties metricProperties)
+    List<Metric<Serializable>> convertStandardMetricProperties(final Properties metricProperties)
     {
         if (metricProperties.isEmpty())
         {
@@ -169,7 +169,7 @@ class SonargraphMetricsProvider
                 if (nextSplitValue.length == NUBMER_OF_VALUE_PARTS)
                 {
                     final String nextMetricIdName = nextKey;
-                    final String nextMetricKey = createMetricKeyFromStandardName(nextMetricIdName);
+                    final String nextMetricKey = createSqMetricKeyFromStandardName(nextMetricIdName);
                     final String nextMetricPresentationName = nextSplitValue[0];
                     ValueType nextValueType = null;
                     final String nextTypeInfo = nextSplitValue[1];
@@ -215,8 +215,8 @@ class SonargraphMetricsProvider
 
     List<Metric<Serializable>> getCustomMetrics(final MetricLogLevel logLevel)
     {
-        final Properties customMetrics = loadCustomMetrics(logLevel);
-        return getCustomMetrics(customMetrics);
+        final Properties customMetrics = loadSonargraphCustomMetrics(logLevel);
+        return convertCustomMetricProperties(customMetrics);
     }
 
     /**
@@ -226,7 +226,7 @@ class SonargraphMetricsProvider
      * @param systemId
      * @return Properties containing the custom metric definitions.
      */
-    Properties loadCustomMetrics(final MetricLogLevel logLevel, final String systemId)
+    Properties loadSonargraphCustomMetrics(final MetricLogLevel logLevel, final String systemId)
     {
         final Properties customMetrics = new Properties();
         loadDeprecatedCustomMetricProperties(customMetrics, logLevel);
@@ -283,7 +283,7 @@ class SonargraphMetricsProvider
      * @param systemId
      * @return Properties containing the custom metric definitions.
      */
-    Properties loadCustomMetrics(final MetricLogLevel logLevel)
+    Properties loadSonargraphCustomMetrics(final MetricLogLevel logLevel)
     {
         final Properties customMetrics = new Properties();
         final String propertiesFilePath = loadDeprecatedCustomMetricProperties(customMetrics, logLevel);
@@ -383,7 +383,7 @@ class SonargraphMetricsProvider
         return propertiesFilePath;
     }
 
-    List<Metric<Serializable>> getCustomMetrics(final Properties customMetrics)
+    List<Metric<Serializable>> convertCustomMetricProperties(final Properties customMetrics)
     {
         if (customMetrics.isEmpty())
         {
@@ -407,7 +407,7 @@ class SonargraphMetricsProvider
                     final String nextSoftwareSystemName = nextSplitKey[0];
                     final String nextMetricIdName = nextSplitKey[1];
 
-                    final String nextMetricKey = createCustomMetricKeyFromStandardName(nextSoftwareSystemName, nextMetricIdName);
+                    final String nextMetricKey = createSqCustomMetricKeyFromStandardName(nextSoftwareSystemName, nextMetricIdName);
                     final String nextMetricPresentationName = nextSplitValue[0];
                     ValueType nextValueType = null;
                     final String nextTypeInfo = nextSplitValue[1];

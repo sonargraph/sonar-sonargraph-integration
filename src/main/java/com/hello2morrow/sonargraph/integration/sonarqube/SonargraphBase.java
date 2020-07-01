@@ -224,7 +224,7 @@ final class SonargraphBase
         IModule matched = null;
 
         final String sqMsgPart = "SonarQube " + (isProject ? "project" : "module") + " '" + inputModuleKey + "'.";
-        final List<IModule> moduleCandidates = getSonargraphModuleCandidates(softwareSystem, baseDirectory);
+        final List<IModule> moduleCandidates = getSgModuleCandidates(softwareSystem, baseDirectory);
         if (moduleCandidates.isEmpty())
         {
             LOGGER.warn("{}: No Sonargraph module match found for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME, sqMsgPart);
@@ -250,7 +250,7 @@ final class SonargraphBase
      * @param baseDirectory
      * @return A list of matching Sonargraph modules. Problems are indicated by list size of 0 (no match) or > 1 (several modules found).
      */
-    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    private static List<IModule> getSgModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
@@ -264,15 +264,15 @@ final class SonargraphBase
 
             for (final IRootDirectory nextRootDirectory : nextModule.getRootDirectories())
             {
-                final String nextRelPath = nextRootDirectory.getRelativePath();
-                final File nextAbsoluteRootDirectory = new File(systemBaseDirectory, nextRelPath);
-                if (nextAbsoluteRootDirectory.exists())
+                final String relPath = nextRootDirectory.getRelativePath();
+                final File absoluteRootDirectory = new File(systemBaseDirectory, relPath);
+                if (absoluteRootDirectory.exists())
                 {
-                    final String nextIdentifyingPath = getIdentifyingPath(nextAbsoluteRootDirectory);
-                    if (nextIdentifyingPath.startsWith(identifyingBaseDirectoryPath))
+                    final String identifyingPath = getIdentifyingPath(absoluteRootDirectory);
+                    if (identifyingPath.startsWith(identifyingBaseDirectoryPath))
                     {
                         LOGGER.info("{}: Matched Sonargraph root directory '{}' underneath '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                                nextIdentifyingPath, identifyingBaseDirectoryPath);
+                                identifyingPath, identifyingBaseDirectoryPath);
                         matchedRootDirs++;
                     }
                 }
@@ -281,9 +281,9 @@ final class SonargraphBase
             if (matchedRootDirs > 0)
             {
                 final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                final List<IModule> nextMatched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
+                final List<IModule> matched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
                         k -> new ArrayList<>(2));
-                nextMatched.add(nextModule);
+                matched.add(nextModule);
             }
         }
 
