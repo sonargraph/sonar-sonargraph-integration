@@ -1,6 +1,13 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+
+5.1.1
+=====
+- Log level for processing of custom metrics has been changed from 'info' to 'debug' to 
+  reduce the noise.
+
+
 5.1.0
 =====
 - Added second built-in profile "Sonargraph Integration (Strict)" that includes also rules for 

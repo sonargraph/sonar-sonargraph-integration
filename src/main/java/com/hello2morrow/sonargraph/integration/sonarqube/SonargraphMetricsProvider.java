@@ -20,6 +20,7 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -41,6 +42,12 @@ import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 
 class SonargraphMetricsProvider
 {
+    enum MetricLogLevel
+    {
+        DEBUG,
+        INFO;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphMetricsProvider.class);
 
     static final String PROPERTIES_FILENAME = "SonargraphMetrics.properties";
@@ -53,7 +60,7 @@ class SonargraphMetricsProvider
     private static final int NUBMER_OF_VALUE_PARTS = 5;
     private static final int NUMBER_OF_KEY_PARTS = 2;
 
-    private final String m_customMetricsDirectoryPath;
+    private final String customMetricsDirectoryPath;
 
     SonargraphMetricsProvider()
     {
@@ -62,12 +69,12 @@ class SonargraphMetricsProvider
 
     SonargraphMetricsProvider(final String customMetricsDirectoryPath)
     {
-        m_customMetricsDirectoryPath = customMetricsDirectoryPath;
+        this.customMetricsDirectoryPath = customMetricsDirectoryPath;
     }
 
     String getDirectory()
     {
-        return m_customMetricsDirectoryPath;
+        return customMetricsDirectoryPath;
     }
 
     String getFilePath()
@@ -75,31 +82,36 @@ class SonargraphMetricsProvider
         return getDirectory() + "/" + PROPERTIES_FILENAME;
     }
 
-    void addMetric(final IMetricId metricId, final Properties metrics)
+    void addMetricToProperties(final IMetricId metricId, final Properties metricProperties)
     {
         final String definition = createMetricDefinition(metricId);
-        metrics.put(metricId.getName(), definition);
+        metricProperties.put(metricId.getName(), definition);
     }
 
-    void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetrics)
+    void addCustomMetric(final ISoftwareSystem softwareSystem, final IMetricId metricId, final Properties customMetricProperties)
     {
-        final String metricKey = softwareSystem.getName() + SEPARATOR + metricId.getName();
+        final String metricKey = createPropertiesMetricKey(softwareSystem.getName(), metricId.getName());
         final String definition = createMetricDefinition(metricId);
-        customMetrics.put(metricKey, definition);
+        customMetricProperties.put(metricKey, definition);
+    }
+
+    static String createPropertiesMetricKey(final String softwareSystemName, final String metricName)
+    {
+        return softwareSystemName + SEPARATOR + metricName;
     }
 
     private String createMetricDefinition(final IMetricId metricId)
     {
-        final StringJoiner joiner = new StringJoiner(SEPARATOR + "");
-        joiner.add(metricId.getPresentationName());
-        joiner.add((metricId.isFloat() ? FLOAT : INT));
-        joiner.add(Double.toString(metricId.getBest()));
-        joiner.add(Double.toString(metricId.getWorst()));
-        joiner.add(SonargraphBase.trimDescription(metricId.getDescription()));
-        return joiner.toString();
+        final StringJoiner result = new StringJoiner(SEPARATOR + "");
+        result.add(metricId.getPresentationName());
+        result.add((metricId.isFloat() ? FLOAT : INT));
+        result.add(Double.toString(metricId.getBest()));
+        result.add(Double.toString(metricId.getWorst()));
+        result.add(SonargraphBase.trimDescription(metricId.getDescription()));
+        return result.toString();
     }
 
-    static String createCustomMetricKeyFromStandardName(final String softwareSystemIdentifier, final String metricIdName)
+    static String createSqCustomMetricKeyFromStandardName(final String softwareSystemIdentifier, final String metricIdName)
     {
         String customMetricKey = SonargraphBase.METRIC_ID_PREFIX + softwareSystemIdentifier + "."
                 + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
@@ -107,7 +119,7 @@ class SonargraphMetricsProvider
         return customMetricKey;
     }
 
-    static String createMetricKeyFromStandardName(final String metricIdName)
+    static String createSqMetricKeyFromStandardName(final String metricIdName)
     {
         String metricKey = SonargraphBase.METRIC_ID_PREFIX + Utility.convertMixedCaseStringToConstantName(metricIdName).replace(" ", "");
         metricKey = metricKey.replace(SEPARATOR, ' ');
@@ -117,7 +129,7 @@ class SonargraphMetricsProvider
     List<Metric<Serializable>> loadStandardMetrics()
     {
         final Properties standardMetrics = loadStandardMetricProperties();
-        return getStandardMetrics(standardMetrics);
+        return convertStandardMetricProperties(standardMetrics);
     }
 
     private Properties loadStandardMetricProperties()
@@ -126,7 +138,7 @@ class SonargraphMetricsProvider
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
-            LOGGER.info("{}: Loaded standard metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_METRICS_RESOURCE_PATH);
+            LOGGER.debug("{}: Loaded standard metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_METRICS_RESOURCE_PATH);
         }
         catch (final IOException e)
         {
@@ -137,7 +149,7 @@ class SonargraphMetricsProvider
         return standardMetrics;
     }
 
-    List<Metric<Serializable>> getStandardMetrics(final Properties metricProperties)
+    List<Metric<Serializable>> convertStandardMetricProperties(final Properties metricProperties)
     {
         if (metricProperties.isEmpty())
         {
@@ -157,7 +169,7 @@ class SonargraphMetricsProvider
                 if (nextSplitValue.length == NUBMER_OF_VALUE_PARTS)
                 {
                     final String nextMetricIdName = nextKey;
-                    final String nextMetricKey = createMetricKeyFromStandardName(nextMetricIdName);
+                    final String nextMetricKey = createSqMetricKeyFromStandardName(nextMetricIdName);
                     final String nextMetricPresentationName = nextSplitValue[0];
                     ValueType nextValueType = null;
                     final String nextTypeInfo = nextSplitValue[1];
@@ -201,36 +213,23 @@ class SonargraphMetricsProvider
         return metrics;
     }
 
-    List<Metric<Serializable>> getCustomMetrics()
+    List<Metric<Serializable>> getCustomMetrics(final MetricLogLevel logLevel)
     {
-        final Properties customMetrics = loadCustomMetrics();
-        return getCustomMetrics(customMetrics);
+        final Properties customMetrics = loadSonargraphCustomMetrics(logLevel);
+        return convertCustomMetricProperties(customMetrics);
     }
 
-    Properties loadCustomMetrics()
+    /**
+     * Load a single properties file from the user-home.
+     *
+     * @param logLevel
+     * @param systemId
+     * @return Properties containing the custom metric definitions.
+     */
+    Properties loadSonargraphCustomMetrics(final MetricLogLevel logLevel, final String systemId)
     {
         final Properties customMetrics = new Properties();
-        final String propertiesFilePath = getFilePath();
-        final File file = new File(propertiesFilePath);
-        if (!file.exists())
-        {
-            LOGGER.debug("{}: Deprecated custom metrics file '{}' does not exist.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    propertiesFilePath);
-        }
-        else
-        {
-
-            try (FileInputStream fis = new FileInputStream(file))
-            {
-                customMetrics.load(fis);
-                LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
-            }
-            catch (final IOException e)
-            {
-                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '" + propertiesFilePath + "'",
-                        e);
-            }
-        }
+        loadDeprecatedCustomMetricProperties(customMetrics, logLevel);
 
         final File propertiesDirectory = new File(getDirectory());
         if (!propertiesDirectory.exists())
@@ -238,9 +237,65 @@ class SonargraphMetricsProvider
             return customMetrics;
         }
 
-        final File[] filesList = propertiesDirectory.listFiles();
+        final File[] filesList = propertiesDirectory.listFiles(new FilenameFilter()
+        {
+            @Override
+            public boolean accept(final File dir, final String name)
+            {
+                if (dir != propertiesDirectory)
+                {
+                    return false;
+                }
+                return name.equals(systemId + ".properties");
+            }
+        });
+
+        if (filesList != null)
+        {
+            if (filesList.length == 0)
+            {
+                LOGGER.info("No custom metric properties file found in directory {}", propertiesDirectory.getAbsolutePath());
+                return customMetrics;
+            }
+
+            final File customMetricsFile = filesList[0];
+            try (FileInputStream fis = new FileInputStream(customMetricsFile))
+            {
+                customMetrics.load(fis);
+                LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                        customMetricsFile.getAbsolutePath());
+            }
+            catch (final IOException e)
+            {
+                final String msg = SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '"
+                        + customMetricsFile.getAbsolutePath() + "'";
+                LOGGER.error(msg, e);
+            }
+        }
+
+        return customMetrics;
+    }
+
+    /**
+     * Load all properties files from the user-home containing metric definitions.
+     *
+     * @param logLevel
+     * @param systemId
+     * @return Properties containing the custom metric definitions.
+     */
+    Properties loadSonargraphCustomMetrics(final MetricLogLevel logLevel)
+    {
+        final Properties customMetrics = new Properties();
+        final String propertiesFilePath = loadDeprecatedCustomMetricProperties(customMetrics, logLevel);
+
+        final File propertiesDirectory = new File(getDirectory());
+        if (!propertiesDirectory.exists())
+        {
+            return customMetrics;
+        }
 
         int counter = 0;
+        final File[] filesList = propertiesDirectory.listFiles();
         if (filesList != null)
         {
             for (final File nextFile : filesList)
@@ -253,31 +308,82 @@ class SonargraphMetricsProvider
                 try (FileInputStream fis = new FileInputStream(nextFile))
                 {
                     customMetrics.load(fis);
-                    LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    final String message = String.format("%s: Loaded custom metrics file '%s'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                             nextFile.getAbsolutePath());
+                    if (logLevel == MetricLogLevel.DEBUG)
+                    {
+                        LOGGER.debug(message);
+                    }
+                    else if (logLevel == MetricLogLevel.INFO)
+                    {
+                        LOGGER.info(message);
+                    }
+
                     counter++;
                 }
                 catch (final IOException e)
                 {
-                    LOGGER.error(
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '" + propertiesFilePath + "'",
-                            e);
+                    final String msg = SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '"
+                            + propertiesFilePath + "'";
+                    LOGGER.error(msg, e);
                 }
             }
         }
+        final String message;
         if (counter == 0)
         {
-            LOGGER.info("No custom metric properties files found in directory {}", propertiesDirectory.getAbsolutePath());
+            message = String.format("No custom metric properties files found in directory %s", propertiesDirectory.getAbsolutePath());
         }
         else
         {
-            LOGGER.info("Loaded {} custom metric properties files from directory {}", counter, propertiesDirectory.getAbsolutePath());
+            message = String.format("Loaded %d custom metric properties files from directory %s", counter, propertiesDirectory.getAbsolutePath());
         }
 
+        if (logLevel == MetricLogLevel.DEBUG)
+        {
+            LOGGER.debug(message);
+        }
+        else if (logLevel == MetricLogLevel.INFO)
+        {
+            LOGGER.info(message);
+        }
         return customMetrics;
     }
 
-    List<Metric<Serializable>> getCustomMetrics(final Properties customMetrics)
+    private String loadDeprecatedCustomMetricProperties(final Properties customMetrics, final MetricLogLevel logLevel)
+    {
+        final String propertiesFilePath = getFilePath();
+        final File file = new File(propertiesFilePath);
+        if (!file.exists())
+        {
+            LOGGER.debug("{}: Deprecated custom metrics file '{}' does not exist.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    propertiesFilePath);
+        }
+        else
+        {
+            try (FileInputStream fis = new FileInputStream(file))
+            {
+                customMetrics.load(fis);
+                if (logLevel == MetricLogLevel.INFO)
+                {
+                    LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
+                }
+                else if (logLevel == MetricLogLevel.DEBUG)
+                {
+                    LOGGER.debug("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
+                }
+            }
+            catch (final IOException e)
+            {
+                final String msg = SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to load custom metrics file '" + propertiesFilePath
+                        + "'";
+                LOGGER.error(msg, e);
+            }
+        }
+        return propertiesFilePath;
+    }
+
+    List<Metric<Serializable>> convertCustomMetricProperties(final Properties customMetrics)
     {
         if (customMetrics.isEmpty())
         {
@@ -301,7 +407,7 @@ class SonargraphMetricsProvider
                     final String nextSoftwareSystemName = nextSplitKey[0];
                     final String nextMetricIdName = nextSplitKey[1];
 
-                    final String nextMetricKey = createCustomMetricKeyFromStandardName(nextSoftwareSystemName, nextMetricIdName);
+                    final String nextMetricKey = createSqCustomMetricKeyFromStandardName(nextSoftwareSystemName, nextMetricIdName);
                     final String nextMetricPresentationName = nextSplitValue[0];
                     ValueType nextValueType = null;
                     final String nextTypeInfo = nextSplitValue[1];

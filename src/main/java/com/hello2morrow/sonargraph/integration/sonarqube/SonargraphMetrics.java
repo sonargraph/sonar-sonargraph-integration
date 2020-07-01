@@ -24,9 +24,13 @@ import java.util.List;
 
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsProvider.MetricLogLevel;
+
+@ServerSide
 public final class SonargraphMetrics implements Metrics
 {
     private static final Logger LOGGER = Loggers.get(SonargraphMetrics.class);
@@ -56,13 +60,13 @@ public final class SonargraphMetrics implements Metrics
         if (metrics == null)
         {
             final List<Metric<Serializable>> standardMetrics = metricPropertiesProvider.loadStandardMetrics();
-            final List<Metric<Serializable>> customMetrics = metricPropertiesProvider.getCustomMetrics();
+            final List<Metric<Serializable>> customMetrics = metricPropertiesProvider.getCustomMetrics(MetricLogLevel.DEBUG);
 
             metrics = new ArrayList<>(standardMetrics.size() + customMetrics.size());
             metrics.addAll(standardMetrics);
             metrics.addAll(customMetrics);
 
-            LOGGER.info("{}: Created {} predefined and {} custom metric(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+            LOGGER.debug("{}: Created {} predefined and {} custom metric(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                     standardMetrics.size(), customMetrics.size());
         }
 

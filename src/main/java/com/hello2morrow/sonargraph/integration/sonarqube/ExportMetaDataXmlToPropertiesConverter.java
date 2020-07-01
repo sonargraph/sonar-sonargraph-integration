@@ -66,7 +66,7 @@ class ExportMetaDataXmlToPropertiesConverter
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
         final Properties metricProperties = new Properties();
         final Collection<IMetricId> sonargraphMetrics = standardMetrics.values();
-        sonargraphMetrics.forEach(m -> metricsProvider.addMetric(m, metricProperties));
+        sonargraphMetrics.forEach(m -> metricsProvider.addMetricToProperties(m, metricProperties));
         LOGGER.info("Created {} standard metrics", standardMetrics.size());
         final File targetDirectory = new File(RESOURCES_PATH);
         metricsProvider.saveMetricProperties(metricProperties, targetDirectory, SonargraphMetricsProvider.PROPERTIES_FILENAME,
@@ -99,7 +99,7 @@ class ExportMetaDataXmlToPropertiesConverter
                 final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {
-                    LOGGER.error("{} - {}", errorMsg, result.toString());
+                    LOGGER.error("{} - {}", errorMsg, result);
                 }
                 else
                 {
