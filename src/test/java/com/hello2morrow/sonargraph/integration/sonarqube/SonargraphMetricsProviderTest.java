@@ -51,7 +51,7 @@ public class SonargraphMetricsProviderTest
         final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue("Failed to load report", result.isSuccess());
-        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
+        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(targetDirectory.getRoot().getAbsolutePath());
         final Properties customMetrics = new Properties();
         final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
         for (final IMetricId nextMetricId : metricIds)
@@ -69,6 +69,10 @@ public class SonargraphMetricsProviderTest
 
         final File customMetricsFile = new File(targetDirectory.getRoot(), customPropertiesFileName);
         assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
+
+        final Properties customMetricsProperties = metricsProvider.loadCustomMetrics(MetricLogLevel.DEBUG, systemIdFromReport);
+        assertNotNull(customMetricsProperties);
+        assertEquals("Wrong number of custom metrics", metrics.size(), customMetricsProperties.size());
     }
 
     @Test

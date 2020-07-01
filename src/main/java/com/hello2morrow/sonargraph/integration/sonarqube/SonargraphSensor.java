@@ -549,28 +549,6 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private void createSqMeasure(final SensorContext sensorContext, final InputComponent inputComponent, final Metric<? extends Serializable> metric,
-            final IMetricValue metricValue)
-    {
-        if (metricValue.getId().isFloat())
-        {
-            final NewMeasure<Double> sqMeasure = sensorContext.<Double> newMeasure();
-            sqMeasure.forMetric((Metric<Double>) metric);
-            sqMeasure.on(inputComponent);
-            sqMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
-            sqMeasure.save();
-        }
-        else
-        {
-            final NewMeasure<Integer> sqMeasure = sensorContext.<Integer> newMeasure();
-            sqMeasure.forMetric((Metric<Integer>) metric);
-            sqMeasure.on(inputComponent);
-            sqMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
-            sqMeasure.save();
-        }
-    }
-
     private void createSqIssue(final SensorContext sensorContext, final InputComponent inputComponent, final ActiveRule rule, final String msg,
             final Consumer<NewIssueLocation> consumer)
     {
@@ -602,4 +580,27 @@ public final class SonargraphSensor implements ProjectSensor
 
         return new ActiveRulesAndMetrics(activeRules, metrics);
     }
+
+    @SuppressWarnings("unchecked")
+    private void createSqMeasure(final SensorContext sensorContext, final InputComponent inputComponent, final Metric<? extends Serializable> metric,
+            final IMetricValue metricValue)
+    {
+        if (metricValue.getId().isFloat())
+        {
+            final NewMeasure<Double> sqMeasure = sensorContext.<Double> newMeasure();
+            sqMeasure.forMetric((Metric<Double>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
+            sqMeasure.save();
+        }
+        else
+        {
+            final NewMeasure<Integer> sqMeasure = sensorContext.<Integer> newMeasure();
+            sqMeasure.forMetric((Metric<Integer>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
+            sqMeasure.save();
+        }
+    }
+
 }
