@@ -71,6 +71,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsProvider.MetricLogLevel;
 
 public final class SonargraphSensor implements ProjectSensor
 {
@@ -103,6 +104,9 @@ public final class SonargraphSensor implements ProjectSensor
     private final MetricFinder sqMetricFinder;
     private Properties customMetrics;
     private final SonargraphMetrics sonargraphMetrics;
+
+    private boolean isUpdateOfLocalCustomMetricsNeeded = false;
+    private boolean isUpdateOfServerCustomMetricsNeeded = false;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
     {
@@ -217,19 +221,29 @@ public final class SonargraphSensor implements ProjectSensor
             processModule(sensorContext, moduleInfoProcessor, rulesAndMetrics);
         }
 
-        if (customMetrics != null)
+        if (customMetrics != null && (isUpdateOfLocalCustomMetricsNeeded || isUpdateOfServerCustomMetricsNeeded))
         {
             //New custom metrics have been introduced.
             try
             {
-
                 final File customMetricsFile = sonargraphMetrics.getMetricsProvider().saveCustomMetrics(customMetrics, softwareSystem.getSystemId(),
                         softwareSystem.getName());
-                LOGGER.warn(
-                        "{}: Custom properties for system '{}' updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
-                                + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube scan.",
-                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath(),
-                        SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+                if (isUpdateOfServerCustomMetricsNeeded)
+                {
+                    LOGGER.warn(
+                            "{}: Custom metrics for system '{}' have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                    + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube analysis.",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath(),
+                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+                }
+                else
+                {
+                    //Metrics are already present on the server but the custom metric properties file was not found during the build on the local machine.
+                    LOGGER.warn(
+                            "{}: Custom metrics for system '{}' have been updated and saved to file {}."
+                                    + " Values for those metrics will be saved on the next SonarQube analysis.",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath());
+                }
             }
             catch (final IOException e)
             {
@@ -277,7 +291,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private final void processModule(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
+    private void processModule(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
             final ActiveRulesAndMetrics rulesAndMetrics)
     {
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
@@ -492,18 +506,32 @@ public final class SonargraphSensor implements ProjectSensor
                 //Try custom metrics
                 nextMetricKey = SonargraphMetricsProvider.createCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
                 metric = rulesAndMetrics.getMetrics().get(nextMetricKey);
-            }
-            if (metric == null)
-            {
+
                 if (customMetrics == null)
                 {
-                    customMetrics = customMetricsProvider.loadCustomMetrics();
+                    customMetrics = customMetricsProvider.loadCustomMetrics(MetricLogLevel.INFO, softwareSystem.getSystemId());
                 }
 
+                if (metric != null && !customMetrics
+                        .containsKey(SonargraphMetricsProvider.createPropertiesMetricKey(softwareSystem.getName(), nextMetricId.getName())))
+                {
+                    LOGGER.warn("{}: Custom metric {}/{} is present on server but not yet on client.",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), nextMetricId.getName());
+                    isUpdateOfLocalCustomMetricsNeeded = true;
+                    customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
+                    //Custom metric has now been added and needs to be persisted and loaded at plugin startup. Only then, measures can be saved.
+                    //There is nothing left that can be done here and now.
+                    continue;
+                }
+            }
+
+            if (metric == null)
+            {
                 customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customMetrics);
                 LOGGER.warn("{}: Custom metric added '{}/{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(),
                         nextMetricId.getName());
-                //Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup, before measures can be saved.
+                isUpdateOfServerCustomMetricsNeeded = true;
+                //Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup. Only then, measures can be saved.
                 //There is nothing left that can be done here and now.
                 continue;
             }

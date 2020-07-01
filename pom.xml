@@ -6,7 +6,7 @@
 
 	<groupId>com.hello2morrow</groupId>
 	<artifactId>sonar-sonargraph-integration</artifactId>
-	<version>5.1</version>
+	<version>5.1.1-SNAPSHOT</version>
 	<packaging>sonar-plugin</packaging>
 
 	<name>SonarQube Sonargraph 9 Integration Plugin</name>
@@ -41,7 +41,7 @@
 	<properties>
 		<sonar.plugin.class>com.hello2morrow.sonargraph.integration.sonarqube.SonargraphPlugin</sonar.plugin.class>
 		<sonar.apiVersion>7.9</sonar.apiVersion>
-		<sonar.organization>default</sonar.organization>
+	    <sonar.organization>default</sonar.organization>
 		<license.name>AL2</license.name>
 		<license.owner>hello2morrow GmbH</license.owner>
 		<license.mailto>mailto: support AT hello2morrow DOT com</license.mailto>

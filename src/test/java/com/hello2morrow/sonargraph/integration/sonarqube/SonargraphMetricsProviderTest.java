@@ -38,6 +38,7 @@ import com.hello2morrow.sonargraph.integration.access.controller.ControllerFacto
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
+import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsProvider.MetricLogLevel;
 
 public class SonargraphMetricsProviderTest
 {
@@ -123,7 +124,7 @@ public class SonargraphMetricsProviderTest
         assertTrue("Failed to load report", result.isSuccess());
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider("./src/test/customMetricsUserHome");
 
-        final Properties customMetrics = metricsProvider.loadCustomMetrics();
+        final Properties customMetrics = metricsProvider.loadCustomMetrics(MetricLogLevel.INFO);
         assertEquals("Wrong number of custom metrics", 4, customMetrics.size());
 
         final List<String> expectedMetricKeys = Arrays.asList("IntegrationSonarqube|CoreIgnoredThresholdViolations",
