@@ -47,8 +47,6 @@ public final class SonargraphBaseTest
         assertEquals("plugin-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME));
 
         //Metrics
-        assertEquals("sg_i.Sonargraph.NUMBER_OF_STATEMENTS",
-                SonargraphMetricsProvider.createSqCustomMetricKeyFromStandardName("Sonargraph", "NumberOfStatements"));
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
     }
 

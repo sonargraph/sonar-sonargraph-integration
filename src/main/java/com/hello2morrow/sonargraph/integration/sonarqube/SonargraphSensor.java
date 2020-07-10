@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -71,7 +70,6 @@ import com.hello2morrow.sonargraph.integration.access.model.IResolution;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
 import com.hello2morrow.sonargraph.integration.access.model.ISourceFile;
 import com.hello2morrow.sonargraph.integration.access.model.ResolutionType;
-import com.hello2morrow.sonargraph.integration.sonarqube.SonargraphMetricsProvider.MetricLogLevel;
 
 public final class SonargraphSensor implements ProjectSensor
 {
@@ -102,10 +100,8 @@ public final class SonargraphSensor implements ProjectSensor
 
     private final FileSystem sqFileSystem;
     private final MetricFinder sqMetricFinder;
-    private Properties customSgMetrics;
     private final SonargraphMetrics sgMetrics;
 
-    private boolean isUpdateOfLocalCustomMetricsNeeded = false;
     private boolean isUpdateOfServerCustomMetricsNeeded = false;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
@@ -124,6 +120,8 @@ public final class SonargraphSensor implements ProjectSensor
     @Override
     public void execute(final SensorContext context)
     {
+        isUpdateOfServerCustomMetricsNeeded = false;
+
         final String projectKey = context.config().get("sonar.projectKey").orElse("<unknown>");
         LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
 
@@ -140,7 +138,8 @@ public final class SonargraphSensor implements ProjectSensor
             }
             else
             {
-                LOGGER.info("{}: Adjusting baseDirectory of Sonargraph system to '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, systemBaseDir);
+                LOGGER.info("{}: Adjusting baseDirectory of Sonargraph system to '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                        systemBaseDir);
                 loadReportResult = sgController.loadSystemReport(reportFile, systemBaseDir);
             }
             if (loadReportResult.isSuccess())
@@ -221,40 +220,27 @@ public final class SonargraphSensor implements ProjectSensor
             processModule(context, moduleInfoProcessor, rulesAndMetrics);
         }
 
-        if (customSgMetrics != null && (isUpdateOfLocalCustomMetricsNeeded || isUpdateOfServerCustomMetricsNeeded))
+        if (isUpdateOfServerCustomMetricsNeeded)
         {
             //New custom metrics have been introduced.
             try
             {
-                final File customMetricsFile = sgMetrics.getMetricsProvider().saveCustomMetrics(customSgMetrics, softwareSystem.getSystemId(),
-                        softwareSystem.getName());
-                if (isUpdateOfServerCustomMetricsNeeded)
-                {
-                    LOGGER.warn(
-                            "{}: Custom metrics for system '{}' have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
-                                    + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube analysis.",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath(),
-                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
-                }
-                else
-                {
-                    //Metrics are already present on the server but the custom metric properties file was not found during the build on the local machine.
-                    LOGGER.warn(
-                            "{}: Custom metrics for system '{}' have been updated and saved to file {}."
-                                    + " Values for those metrics will be saved on the next SonarQube analysis.",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), customMetricsFile.getAbsolutePath());
-                }
+                final File customMetricsFile = sgMetrics.getMetricsProvider().saveCustomMetricProperties("Custom Sonargraph Metrics");
+                LOGGER.warn(
+                        "{}: Custom metrics have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube analysis.",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customMetricsFile.getAbsolutePath(),
+                        SonargraphBase.SONARGRAPH_PLUGIN_KEY);
             }
             catch (final IOException e)
             {
-                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save metrics file.", e);
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom metrics file.", e);
             }
-            customSgMetrics = null;
         }
     }
 
-    private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem,
-            final ISystemInfoProcessor systemInfoProcessor, final ActiveRulesAndMetrics rulesAndMetrics)
+    private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
+            final ActiveRulesAndMetrics rulesAndMetrics)
     {
         processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
 
@@ -383,8 +369,8 @@ public final class SonargraphSensor implements ProjectSensor
         return createIssueDescription(infoProcessor, issue, "");
     }
 
-    private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
-            final ISourceFile sourceFile, final InputPath inputPath, final IIssue issue, final ActiveRule rule)
+    private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile,
+            final InputPath inputPath, final IIssue issue, final ActiveRule rule)
     {
         if (issue instanceof IDuplicateCodeBlockIssue)
         {
@@ -497,39 +483,16 @@ public final class SonargraphSensor implements ProjectSensor
 
         final IMetricLevel systemLevel = systemLevelOpt.get();
         final SonargraphMetricsProvider customMetricsProvider = sgMetrics.getMetricsProvider();
+
         for (final IMetricId nextMetricId : systemInfoProcessor.getMetricIdsForLevel(systemLevel))
         {
-            String metricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
-            Metric<Serializable> metric = rulesAndMetrics.getMetrics().get(metricKey);
-            if (metric == null)
-            {
-                //Try custom metrics
-                metricKey = SonargraphMetricsProvider.createSqCustomMetricKeyFromStandardName(softwareSystem.getName(), nextMetricId.getName());
-                metric = rulesAndMetrics.getMetrics().get(metricKey);
-
-                if (customSgMetrics == null)
-                {
-                    customSgMetrics = customMetricsProvider.loadSonargraphCustomMetrics(MetricLogLevel.INFO, softwareSystem.getSystemId());
-                }
-
-                if (isServerSideMetricMissingLocally(metric,
-                        SonargraphMetricsProvider.createPropertiesMetricKey(softwareSystem.getName(), nextMetricId.getName())))
-                {
-                    LOGGER.warn("{}: Custom metric {}/{} is present on server but not yet on client.",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(), nextMetricId.getName());
-                    isUpdateOfLocalCustomMetricsNeeded = true;
-                    customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customSgMetrics);
-                    //Custom metric has now been added and needs to be persisted and loaded at plugin startup. Only then, measures can be saved.
-                    //There is nothing left that can be done here and now.
-                    continue;
-                }
-            }
+            final String metricKey = SonargraphBase.createMetricKeyFromStandardName(nextMetricId.getName());
+            final Metric<Serializable> metric = rulesAndMetrics.getMetrics().get(metricKey);
 
             if (metric == null)
             {
-                customMetricsProvider.addCustomMetric(softwareSystem, nextMetricId, customSgMetrics);
-                LOGGER.warn("{}: Custom metric added '{}/{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, softwareSystem.getName(),
-                        nextMetricId.getName());
+                customMetricsProvider.addCustomMetric(nextMetricId);
+                LOGGER.warn("{}: Custom metric added '{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, nextMetricId.getName());
                 isUpdateOfServerCustomMetricsNeeded = true;
                 //Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup. Only then, measures can be saved.
                 //There is nothing left that can be done here and now.
@@ -547,11 +510,6 @@ public final class SonargraphSensor implements ProjectSensor
                 LOGGER.warn("{}: No value found for metric '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, metricKey);
             }
         }
-    }
-
-    private boolean isServerSideMetricMissingLocally(final Metric<Serializable> metric, final String propertiesMetricKey)
-    {
-        return metric != null && !customSgMetrics.containsKey(propertiesMetricKey);
     }
 
     private void createSqIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
