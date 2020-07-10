@@ -25,7 +25,6 @@ import static org.junit.Assert.fail;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
@@ -52,27 +51,27 @@ public class SonargraphMetricsProviderTest
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue("Failed to load report", result.isSuccess());
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(targetDirectory.getRoot().getAbsolutePath());
-        final Properties customMetrics = new Properties();
         final List<IMetricId> metricIds = controller.createSystemInfoProcessor().getMetricIds();
+        final int numberOfCustomMetrics = metricsProvider.getCustomMetricProperties().size();
         for (final IMetricId nextMetricId : metricIds)
         {
-            metricsProvider.addCustomMetric(controller.getSoftwareSystem(), nextMetricId, customMetrics);
+            metricsProvider.addCustomMetric(nextMetricId);
         }
 
-        assertEquals("Wrong number of custom metrics", customMetrics.size(), metricIds.size());
+        final Properties customMetricProperties = metricsProvider.getCustomMetricProperties();
+        assertEquals("Wrong number of custom metrics", numberOfCustomMetrics + metricIds.size(), customMetricProperties.size());
 
-        final List<Metric<Serializable>> metrics = metricsProvider.convertCustomMetricProperties(customMetrics);
+        final List<Metric<Serializable>> metrics = metricsProvider.convertMetricProperties(metricsProvider.getCustomMetricProperties());
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
-        final String systemIdFromReport = "ae8982aeeb97a896d5c5f4668d46a1ee";
-        final String customPropertiesFileName = systemIdFromReport + ".properties";
-        metricsProvider.saveMetricProperties(customMetrics, targetDirectory.getRoot(), customPropertiesFileName, "Sonargraph Test Metrics");
+        final File targetFile = new File(metricsProvider.getFilePath());
+        metricsProvider.saveMetricProperties(customMetricProperties, targetFile, "Sonargraph Test Metrics");
 
-        final File customMetricsFile = new File(targetDirectory.getRoot(), customPropertiesFileName);
+        final File customMetricsFile = new File(metricsProvider.getFilePath());
         assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
 
-        final Properties customMetricsProperties = metricsProvider.loadSonargraphCustomMetrics(MetricLogLevel.DEBUG, systemIdFromReport);
-        assertNotNull(customMetricsProperties);
-        assertEquals("Wrong number of custom metrics", metrics.size(), customMetricsProperties.size());
+        final List<Metric<Serializable>> customMetricsReloaded = metricsProvider.loadCustomMetrics(MetricLogLevel.DEBUG);
+        assertNotNull(customMetricsReloaded);
+        assertEquals("Wrong number of custom metrics", metrics.size(), customMetricsReloaded.size());
     }
 
     @Test
@@ -114,28 +113,6 @@ public class SonargraphMetricsProviderTest
         catch (final IllegalArgumentException e)
         {
             //Expected
-        }
-    }
-
-    /**
-     * Verifies that custom metrics are loaded from different metric properties files
-     */
-    @Test
-    public void testLoadCustomMetricsForMultipleSystems()
-    {
-        final ISonargraphSystemController controller = ControllerFactory.createController();
-        final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
-        assertTrue("Failed to load report", result.isSuccess());
-        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider("./src/test/customMetricsUserHome");
-
-        final Properties customMetrics = metricsProvider.loadSonargraphCustomMetrics(MetricLogLevel.INFO);
-        assertEquals("Wrong number of custom metrics", 4, customMetrics.size());
-
-        final List<String> expectedMetricKeys = Arrays.asList("IntegrationSonarqube|CoreIgnoredThresholdViolations",
-                "IntegrationSonarqube|CoreEmptyArtifactCount", "IntegrationSonarqube|CoreViolatingComponents", "AlarmClock|UsageOfSystemOutPrintln");
-        for (final String next : expectedMetricKeys)
-        {
-            assertNotNull("Missing metric value for " + next, customMetrics.get(next));
         }
     }
 }

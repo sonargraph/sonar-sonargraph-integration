@@ -60,7 +60,7 @@ public final class SonargraphMetrics implements Metrics
         if (metrics == null)
         {
             final List<Metric<Serializable>> standardMetrics = metricPropertiesProvider.loadStandardMetrics();
-            final List<Metric<Serializable>> customMetrics = metricPropertiesProvider.getCustomMetrics(MetricLogLevel.DEBUG);
+            final List<Metric<Serializable>> customMetrics = metricPropertiesProvider.loadCustomMetrics(MetricLogLevel.DEBUG);
 
             metrics = new ArrayList<>(standardMetrics.size() + customMetrics.size());
             metrics.addAll(standardMetrics);
