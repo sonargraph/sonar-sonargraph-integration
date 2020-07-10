@@ -97,11 +97,6 @@ class SonargraphMetricsProvider
         customMetrics.put(metricId.getName(), definition);
     }
 
-    static String createPropertiesMetricKey(final String softwareSystemName, final String metricName)
-    {
-        return softwareSystemName + SEPARATOR + metricName;
-    }
-
     private String createMetricDefinition(final IMetricId metricId)
     {
         final StringJoiner result = new StringJoiner(SEPARATOR + "");
@@ -122,13 +117,7 @@ class SonargraphMetricsProvider
 
     List<Metric<Serializable>> loadStandardMetrics()
     {
-        standardMetrics = loadStandardMetricProperties();
-        return convertMetricProperties(standardMetrics);
-    }
-
-    private Properties loadStandardMetricProperties()
-    {
-        final Properties standardMetrics = new Properties();
+        standardMetrics = new Properties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
@@ -140,7 +129,7 @@ class SonargraphMetricsProvider
                     + BUILT_IN_METRICS_RESOURCE_PATH + "'", e);
         }
 
-        return standardMetrics;
+        return convertMetricProperties(standardMetrics);
     }
 
     List<Metric<Serializable>> convertMetricProperties(final Properties metricProperties)
@@ -209,29 +198,15 @@ class SonargraphMetricsProvider
 
     Properties getCustomMetricProperties()
     {
-        if (customMetrics == null)
-        {
-            customMetrics = loadCustomMetricProperties(MetricLogLevel.DEBUG);
-        }
-
         return customMetrics;
-    }
-
-    List<Metric<Serializable>> loadCustomMetrics(final MetricLogLevel logLevel)
-    {
-        customMetrics = loadCustomMetricProperties(logLevel);
-        return convertMetricProperties(customMetrics);
     }
 
     /**
      * Load all properties files from the user-home containing metric definitions.
-     *
-     * @param logLevel
-     * @return Properties containing the custom metric definitions.
      */
-    Properties loadCustomMetricProperties(final MetricLogLevel logLevel)
+    List<Metric<Serializable>> loadCustomMetrics()
     {
-        final Properties customMetrics = new Properties();
+        customMetrics = new Properties();
         final String propertiesFilePath = getFilePath();
         final File file = new File(propertiesFilePath);
         if (!file.exists())
@@ -243,14 +218,7 @@ class SonargraphMetricsProvider
             try (FileInputStream fis = new FileInputStream(file))
             {
                 customMetrics.load(fis);
-                if (logLevel == MetricLogLevel.INFO)
-                {
-                    LOGGER.info("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
-                }
-                else if (logLevel == MetricLogLevel.DEBUG)
-                {
-                    LOGGER.debug("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
-                }
+                LOGGER.debug("{}: Loaded custom metrics file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, propertiesFilePath);
             }
             catch (final IOException e)
             {
@@ -259,7 +227,7 @@ class SonargraphMetricsProvider
                 LOGGER.error(msg, e);
             }
         }
-        return customMetrics;
+        return convertMetricProperties(customMetrics);
     }
 
     File saveMetricProperties(final Properties metrics, final File targetFile, final String comment) throws IOException
@@ -280,12 +248,12 @@ class SonargraphMetricsProvider
         return saveMetricProperties(metrics, new File(getFilePath()), comment);
     }
 
-    public File saveCustomMetricProperties(final String comment) throws IOException
+    File saveCustomMetricProperties(final String comment) throws IOException
     {
         return saveMetricProperties(customMetrics, comment);
     }
 
-    public Properties getCombinedMetricProperties()
+    Properties getCombinedMetricProperties()
     {
         if (combinedMetricProperties == null)
         {
