@@ -104,7 +104,7 @@ final class SonargraphBase
     {
         if (description != null && !description.isEmpty())
         {
-            final String trimmedDescription = description.replaceAll("\r", " ").replaceAll("\n", " ").trim();
+            final String trimmedDescription = description.replace("\r", " ").replace("\n", " ").trim();
             return trimmedDescription.length() > 255 ? trimmedDescription.substring(0, 252) + "..." : trimmedDescription;
         }
         return "";
