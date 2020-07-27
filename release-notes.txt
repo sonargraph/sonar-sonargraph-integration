@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+5.1.3
+=====
+- Support for Sonargraph quality gate issues.
+
+
 5.1.2
 =====
 - Custom metric definitions are now again stored globally for all Sonargraph systems in a single file, 
