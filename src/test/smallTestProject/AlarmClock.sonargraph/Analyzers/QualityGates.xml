@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="10.2.2.100" analyzer="QualityGates">
+	<stringEntry value="" name="./No_Additional_CycleGroups.xml"></stringEntry>
+	<stringEntry value="" name="./No_Threshold_Violations.xml"></stringEntry>
+</analyzerConfiguration>
