@@ -63,6 +63,8 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_NAME = "PluginIssue";
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
+    static final String QUALITY_GATE_ISSUE_CATEGORY = "QualityGate";
+    
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphBase.class);
 
     static final Set<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableSet(Arrays
