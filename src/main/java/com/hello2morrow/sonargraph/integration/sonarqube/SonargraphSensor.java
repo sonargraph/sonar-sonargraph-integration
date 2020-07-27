@@ -245,7 +245,7 @@ public final class SonargraphSensor implements ProjectSensor
         processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
-                && !SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem));
+                && (issue.getIssueType().getCategory().getName().equals(SonargraphBase.QUALITY_GATE_ISSUE_CATEGORY)) || (!SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem)));
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
 
         for (final IIssue nextIssue : systemIssues)

@@ -31,7 +31,7 @@ public class SonargraphProfile implements BuiltInQualityProfilesDefinition
     private static final Logger LOGGER = Loggers.get(SonargraphProfile.class);
     static final List<String> RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP", "CRITICAL_NAMESPACE_CYCLE_GROUP",
             "CRITICAL_COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING", "MOVE_REFACTORING",
-            "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "SCRIPT_ISSUE", "DUPLICATE_CODE_BLOCK");
+            "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "SCRIPT_ISSUE", "DUPLICATE_CODE_BLOCK", "QUALITY_GATE_ISSUE");
 
     private final String profileName;
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<qualityGate version="10.3.0.100">
+	<description></description>
+	<currentSystemConditions>
+		<issueCondition operator="lessOrEqual" limit="0" issueType="Any" severity="Error" resolution="None"></issueCondition>
+	</currentSystemConditions>
+	<diffAgainstBaselineConditions>
+		<metricDiffCondition metricId="Core:System:CyclicComponents" operator="lessOrEqual" diffThreshold="1.0"></metricDiffCondition>
+		<metricDiffCondition metricId="Java:System:CyclicityPackages" operator="lessOrEqual" diffThreshold="1.0"></metricDiffCondition>
+	</diffAgainstBaselineConditions>
+</qualityGate>

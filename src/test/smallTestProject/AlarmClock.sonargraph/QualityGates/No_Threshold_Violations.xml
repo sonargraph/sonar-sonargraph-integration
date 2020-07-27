@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<qualityGate version="10.2.2.100">
+	<description></description>
+	<currentSystemConditions>
+		<issueCondition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xsdThresholdIssueCondition" metricId="Core:Type:SourceElementCount" operator="lessOrEqual" limit="0" issueType="ThresholdViolation" severity="Any" resolution="None"></issueCondition>
+		<issueCondition operator="lessOrEqual" limit="0" issueType="ThresholdViolationError" severity="Any" resolution="None"></issueCondition>
+	</currentSystemConditions>
+	<diffAgainstBaselineConditions>
+		<issueDiffCondition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="xsdThresholdIssueDiffCondition" metricId="Core:Type:SourceElementCount" operator="n/a" check="strict" issueType="ThresholdViolation" severity="Any" resolution="None"></issueDiffCondition>
+	</diffAgainstBaselineConditions>
+</qualityGate>

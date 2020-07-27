@@ -48,6 +48,6 @@ public class ExportMetaDataXmlToPropertiesConverterTest
         final ExportMetaDataXmlToPropertiesConverter converter = new ExportMetaDataXmlToPropertiesConverter();
         final IExportMetaData metaData = converter.readBuiltInMetaData();
         final int numberOfRules = converter.convertRules(metaData);
-        assertEquals("Wrong number of rules", 17, numberOfRules);
+        assertEquals("Wrong number of rules", 18, numberOfRules);
     }
 }

@@ -21,6 +21,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Activates additional non-critical Sonargraph rules.
+ */
 public final class SonargraphStrictProfile extends SonargraphProfile
 {
     static final List<String> RULE_KEYS = Arrays.asList("MODULE_CYCLE_GROUP", "NAMESPACE_CYCLE_GROUP", "COMPONENT_CYCLE_GROUP",

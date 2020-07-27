@@ -1,0 +1,5 @@
+<?xml version="1.0" ?>
+<analyzerConfiguration version="10.3.0.100" analyzer="SystemDiff">
+	<stringEntry value="../baselines/AlarmClock_2020-07-27_14-08-38.xml" name="baselinePath"></stringEntry>
+	<booleanEntry value="true" name="enabled"></booleanEntry>
+</analyzerConfiguration>
