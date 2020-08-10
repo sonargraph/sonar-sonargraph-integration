@@ -103,6 +103,7 @@ public final class SonargraphSensor implements ProjectSensor
     private final SonargraphMetrics sgMetrics;
 
     private boolean isUpdateOfServerCustomMetricsNeeded = false;
+    private boolean isUpdateOfScannerCustomMetricsNeeded = false;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
     {
@@ -121,6 +122,7 @@ public final class SonargraphSensor implements ProjectSensor
     public void execute(final SensorContext context)
     {
         isUpdateOfServerCustomMetricsNeeded = false;
+        isUpdateOfScannerCustomMetricsNeeded = false;
 
         final String projectKey = context.config().get("sonar.projectKey").orElse("<unknown>");
         LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
@@ -170,9 +172,18 @@ public final class SonargraphSensor implements ProjectSensor
 
         if (relativePath == null)
         {
-            relativePath = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
-            LOGGER.warn("{}: XML report file path not configured - using default '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT);
+            final Optional<String> scannerApp = configuration.get("sonar.scanner.app");
+            if (scannerApp.isPresent())
+            {
+                relativePath = getRelativePathForScannerApp(configuration, scannerApp.get());
+            }
+        }
+
+        if (relativePath == null)
+        {
+            relativePath = "target/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+            LOGGER.info("{}: XML report file path not configured - using default '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    relativePath);
         }
 
         final File reportFile = sqFileSystem.resolvePath(relativePath);
@@ -183,6 +194,29 @@ public final class SonargraphSensor implements ProjectSensor
         }
 
         LOGGER.warn("{}: XML report file '{}' not found", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, reportFile.getAbsolutePath());
+        return null;
+    }
+
+    private String getRelativePathForScannerApp(final Configuration configuration, final String scannerApp)
+    {
+        if (scannerApp.equals("ScannerMaven"))
+        {
+            final Optional<String> buildDir = configuration.get("sonar.projectBuildDir");
+            if (buildDir.isPresent())
+            {
+                return new File(buildDir.get(), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getAbsolutePath();
+            }
+        }
+        else if (scannerApp.equals("ScannerGradle"))
+        {
+            final Optional<String> workingDirectory = configuration.get("sonar.working.directory");
+            if (workingDirectory.isPresent())
+            {
+                final File buildDir = new File(workingDirectory.get()).getParentFile();
+                return new File(buildDir, SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getAbsolutePath();
+            }
+        }
+
         return null;
     }
 
@@ -220,17 +254,27 @@ public final class SonargraphSensor implements ProjectSensor
             processModule(context, moduleInfoProcessor, rulesAndMetrics);
         }
 
-        if (isUpdateOfServerCustomMetricsNeeded)
+        if (isUpdateOfServerCustomMetricsNeeded || isUpdateOfScannerCustomMetricsNeeded)
         {
             //New custom metrics have been introduced.
             try
             {
                 final File customMetricsFile = sgMetrics.getMetricsProvider().saveCustomMetricProperties("Custom Sonargraph Metrics");
-                LOGGER.warn(
-                        "{}: Custom metrics have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
-                                + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube analysis.",
-                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customMetricsFile.getAbsolutePath(),
-                        SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+                if (isUpdateOfServerCustomMetricsNeeded)
+                {
+                    LOGGER.warn(
+                            "{}: Custom metrics have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                    + " After a restart of the server the values for those additional metrics will be saved on the next SonarQube analysis.",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customMetricsFile.getAbsolutePath(),
+                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+                }
+                else if (isUpdateOfScannerCustomMetricsNeeded)
+                {
+                    LOGGER.warn(
+                            "{}: Local custom metrics configuration file '{}' has been updated. Values for those additional metrics will be saved on the next SonarQube analysis.",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customMetricsFile.getAbsolutePath(),
+                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+                }
             }
             catch (final IOException e)
             {
@@ -244,8 +288,9 @@ public final class SonargraphSensor implements ProjectSensor
     {
         processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
 
-        final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
-                && (issue.getIssueType().getCategory().getName().equals(SonargraphBase.QUALITY_GATE_ISSUE_CATEGORY)) || (!SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem)));
+        final List<IIssue> systemIssues = systemInfoProcessor.getIssues(
+                issue -> !issue.isIgnored() && (issue.getIssueType().getCategory().getName().equals(SonargraphBase.QUALITY_GATE_ISSUE_CATEGORY))
+                        || (!SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem)));
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
 
         for (final IIssue nextIssue : systemIssues)
@@ -494,8 +539,10 @@ public final class SonargraphSensor implements ProjectSensor
                 customMetricsProvider.addCustomMetric(nextMetricId);
                 LOGGER.warn("{}: Custom metric added '{}'.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, nextMetricId.getName());
                 isUpdateOfServerCustomMetricsNeeded = true;
-                //Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup. Only then, measures can be saved.
-                //There is nothing left that can be done here and now.
+                /**
+                 * Custom metric has now been added and needs to be persisted and loaded at SonarQube server startup. Only then, measures can be
+                 * saved. There is nothing left that can be done here and now.
+                 */
                 continue;
             }
 
@@ -503,7 +550,27 @@ public final class SonargraphSensor implements ProjectSensor
                     softwareSystem.getFqName());
             if (metricValueOpt.isPresent())
             {
-                createSqMeasure(context, inputComponent, metric, metricValueOpt.get());
+                try
+                {
+                    /**
+                     * Throws UnsupportedOperationException, if custom metric is present on server side, but was not available at scanner start on
+                     * scanner side.
+                     */
+                    createSqMeasure(context, inputComponent, metric, metricValueOpt.get());
+                }
+                catch (final UnsupportedOperationException e)
+                {
+                    customMetricsProvider.addCustomMetric(nextMetricId);
+                    LOGGER.warn("{}: Custom metric already existed on server but not on scanner side '{}'. ",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, nextMetricId.getName());
+                    isUpdateOfScannerCustomMetricsNeeded = true;
+
+                    /**
+                     * Custom metric has now been added and needs to be persisted and loaded at SonarScanner startup. Only then, measures can be
+                     * saved. There is nothing left that can be done here and now.
+                     */
+                    continue;
+                }
             }
             else
             {
