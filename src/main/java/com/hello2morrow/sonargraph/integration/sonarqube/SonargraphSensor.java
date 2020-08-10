@@ -175,7 +175,7 @@ public final class SonargraphSensor implements ProjectSensor
             final Optional<String> scannerApp = configuration.get("sonar.scanner.app");
             if (scannerApp.isPresent())
             {
-                relativePath = getRelativePathForScannerApp(configuration, scannerApp.get());
+                relativePath = SonargraphSensor.getRelativePathForScannerApp(configuration, scannerApp.get());
             }
         }
 
@@ -197,7 +197,7 @@ public final class SonargraphSensor implements ProjectSensor
         return null;
     }
 
-    private String getRelativePathForScannerApp(final Configuration configuration, final String scannerApp)
+    static String getRelativePathForScannerApp(final Configuration configuration, final String scannerApp)
     {
         if (scannerApp.equals("ScannerMaven"))
         {
