@@ -284,6 +284,56 @@ public final class SonargraphSensorTest
         validateContextForTestProject(context);
     }
 
+    @Test
+    public void testGetRelativePathForMavenScannerApp() throws IOException
+    {
+        final MapSettings settings = new MapSettings();
+        final String scanner = "ScannerMaven";
+        settings.setProperty("sonar.scanner.app", scanner);
+        final String outputPath = "target";
+        settings.setProperty("sonar.projectBuildDir", outputPath);
+
+        final File baseToUse = new File(".").getCanonicalFile();
+        final SensorContextTester context = SensorContextTester.create(baseToUse);
+        context.setSettings(settings);
+
+        assertEquals("Wrong Maven default path",
+                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getCanonicalPath(),
+                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+    }
+
+    @Test
+    public void testGetRelativePathForGradleScannerApp() throws IOException
+    {
+        final MapSettings settings = new MapSettings();
+        final String scanner = "ScannerGradle";
+        settings.setProperty("sonar.scanner.app", scanner);
+        final String outputPath = "build";
+        settings.setProperty("sonar.working.directory", outputPath + "/sonar");
+
+        final File baseToUse = new File(".").getCanonicalFile();
+        final SensorContextTester context = SensorContextTester.create(baseToUse);
+        context.setSettings(settings);
+
+        assertEquals("Wrong Gradle default path",
+                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getCanonicalPath(),
+                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+    }
+
+    @Test
+    public void testGetRelativePathForDefaultScannerApp() throws IOException
+    {
+        final MapSettings settings = new MapSettings();
+        final String scanner = "Scanner";
+        settings.setProperty("sonar.scanner.app", scanner);
+
+        final File baseToUse = new File(".").getCanonicalFile();
+        final SensorContextTester context = SensorContextTester.create(baseToUse);
+        context.setSettings(settings);
+
+        assertNull("Wrong Gradle default path", SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+    }
+
     private SensorContextTester setupAndExecuteSensorForTestProject(final MapSettings settings, final String basePath) throws IOException
     {
         File baseToUse;

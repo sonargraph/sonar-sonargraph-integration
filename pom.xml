@@ -6,7 +6,7 @@
 
 	<groupId>com.hello2morrow</groupId>
 	<artifactId>sonar-sonargraph-integration</artifactId>
-	<version>5.1.3</version>
+	<version>5.1.4</version>
 	<packaging>sonar-plugin</packaging>
 
 	<name>SonarQube Sonargraph 9 Integration Plugin</name>
@@ -25,16 +25,16 @@
 	</licenses>
 	<developers>
 		<developer>
+			<id>ingmarkellner</id>
+			<name>Ingmar Kellner</name>
+		</developer>
+		<developer>
 			<id>andreashoyerh2m</id>
 			<name>Andreas Hoyer</name>
 		</developer>
 		<developer>
 			<id>dietmarmenges</id>
 			<name>Dietmar Menges</name>
-		</developer>
-		<developer>
-			<id>ingmarkellner</id>
-			<name>Ingmar Kellner</name>
 		</developer>
 	</developers>
 

@@ -51,7 +51,7 @@ final class SonargraphBase
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
     static final String SONARGRAPH_BASE_DIR_KEY = CONFIG_PREFIX + ":" + "system.basedir";
     static final String XML_REPORT_FILE_PATH_KEY = CONFIG_PREFIX + ":" + "report.path";
-    static final String XML_REPORT_FILE_PATH_DEFAULT = "target/sonargraph/sonargraph-sonarqube-report.xml";
+    static final String XML_REPORT_FILE_PATH_DEFAULT = "sonargraph/sonargraph-sonarqube-report.xml";
 
     static final String SCRIPT_ISSUE_CATEGORY = "ScriptBased";
     static final String SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME = "Script Based";
@@ -64,7 +64,7 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
     static final String QUALITY_GATE_ISSUE_CATEGORY = "QualityGate";
-    
+
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphBase.class);
 
     static final Set<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableSet(Arrays
@@ -283,8 +283,7 @@ final class SonargraphBase
             if (matchedRootDirs > 0)
             {
                 final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                final List<IModule> matched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger,
-                        k -> new ArrayList<>(2));
+                final List<IModule> matched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger, k -> new ArrayList<>(2));
                 matched.add(nextModule);
             }
         }

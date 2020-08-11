@@ -22,7 +22,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 
 @Properties({
-        @Property(key = SonargraphBase.XML_REPORT_FILE_PATH_KEY, defaultValue = SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT, name = "XML report file path", project = true, module = false, global = false, description = ""
+        @Property(key = SonargraphBase.XML_REPORT_FILE_PATH_KEY, name = "XML report file path", project = true, module = false, global = false, description = ""
                 + "The Sonargraph integration reads the XML report file and adds the issues and metrics to the corresponding elements."
                 + " Per default the XML report file is expected under each module (project and sub-modules) at the relative path '"
                 + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT + "'."
