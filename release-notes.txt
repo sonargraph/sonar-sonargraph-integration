@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+5.1.4
+=====
+- Automatically detect Sonargraph XML report default location for Gradle. 
+
+
 5.1.3
 =====
 - Support for Sonargraph quality gate issues.
