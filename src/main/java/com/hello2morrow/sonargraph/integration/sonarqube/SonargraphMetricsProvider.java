@@ -60,9 +60,7 @@ class SonargraphMetricsProvider
     private final String customMetricsDirectoryPath;
 
     private Properties customMetrics;
-
     private Properties standardMetrics;
-
     private Properties combinedMetricProperties;
 
     SonargraphMetricsProvider()
@@ -117,7 +115,7 @@ class SonargraphMetricsProvider
 
     Map<String, Metric<Serializable>> loadStandardMetrics()
     {
-        standardMetrics = new Properties();
+        standardMetrics = new SortedProperties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
@@ -206,7 +204,7 @@ class SonargraphMetricsProvider
      */
     Map<String, Metric<Serializable>> loadCustomMetrics()
     {
-        customMetrics = new Properties();
+        customMetrics = new SortedProperties();
         final String propertiesFilePath = getFilePath();
         final File file = new File(propertiesFilePath);
         if (!file.exists())
@@ -257,7 +255,7 @@ class SonargraphMetricsProvider
     {
         if (combinedMetricProperties == null)
         {
-            combinedMetricProperties = new Properties();
+            combinedMetricProperties = new SortedProperties();
             combinedMetricProperties.putAll(customMetrics);
             combinedMetricProperties.putAll(standardMetrics);
         }

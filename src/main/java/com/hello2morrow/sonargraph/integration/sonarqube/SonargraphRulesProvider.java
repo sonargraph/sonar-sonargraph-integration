@@ -200,7 +200,7 @@ class SonargraphRulesProvider
 
     private Properties loadBuiltInRulesProperties() throws IOException
     {
-        final Properties standardMetrics = new Properties();
+        final Properties standardMetrics = new SortedProperties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);

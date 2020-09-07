@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +64,7 @@ class ExportMetaDataXmlToPropertiesConverter
         getMetricsForLevel(metaData, metaData.getMetricLevels().get(IMetricLevel.MODULE), standardMetrics);
 
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider();
-        final Properties metricProperties = new Properties();
+        final SortedProperties metricProperties = new SortedProperties();
         final Collection<IMetricId> sonargraphMetrics = standardMetrics.values();
         sonargraphMetrics.forEach(m -> metricsProvider.addMetricToProperties(m, metricProperties));
         LOGGER.info("Created {} standard metrics", standardMetrics.size());
@@ -79,7 +78,7 @@ class ExportMetaDataXmlToPropertiesConverter
     {
         final List<IIssueType> issueTypes = new ArrayList<>(metaData.getIssueTypes().values());
         final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider();
-        final Properties ruleProperties = new Properties();
+        final SortedProperties ruleProperties = new SortedProperties();
 
         for (final IIssueType next : issueTypes)
         {
