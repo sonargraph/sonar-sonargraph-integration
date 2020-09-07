@@ -23,9 +23,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringJoiner;
@@ -115,7 +115,7 @@ class SonargraphMetricsProvider
         return metricKey;
     }
 
-    List<Metric<Serializable>> loadStandardMetrics()
+    Map<String, Metric<Serializable>> loadStandardMetrics()
     {
         standardMetrics = new Properties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
@@ -132,14 +132,14 @@ class SonargraphMetricsProvider
         return convertMetricProperties(standardMetrics);
     }
 
-    List<Metric<Serializable>> convertMetricProperties(final Properties metricProperties)
+    Map<String, Metric<Serializable>> convertMetricProperties(final Properties metricProperties)
     {
         if (metricProperties.isEmpty())
         {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final List<Metric<Serializable>> metrics = new ArrayList<>(metricProperties.size());
+        final Map<String, Metric<Serializable>> metrics = new HashMap<>(metricProperties.size());
         for (final Entry<Object, Object> nextEntry : metricProperties.entrySet())
         {
             String notCreatedInfo = null;
@@ -175,7 +175,7 @@ class SonargraphMetricsProvider
                     SonargraphBase.setWorstValue(nextWorstValue, builder);
                     SonargraphBase.setMetricDirection(nextBestValue, nextWorstValue, builder);
 
-                    metrics.add(builder.create());
+                    metrics.put(nextMetricKey, builder.create());
                 }
                 else
                 {
@@ -204,7 +204,7 @@ class SonargraphMetricsProvider
     /**
      * Load all properties files from the user-home containing metric definitions.
      */
-    List<Metric<Serializable>> loadCustomMetrics()
+    Map<String, Metric<Serializable>> loadCustomMetrics()
     {
         customMetrics = new Properties();
         final String propertiesFilePath = getFilePath();

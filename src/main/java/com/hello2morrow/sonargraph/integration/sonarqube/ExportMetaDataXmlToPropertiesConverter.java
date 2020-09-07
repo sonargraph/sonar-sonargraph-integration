@@ -37,6 +37,7 @@ import com.hello2morrow.sonargraph.integration.access.model.IExportMetaData;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
+import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
 class ExportMetaDataXmlToPropertiesConverter
 {
@@ -79,7 +80,34 @@ class ExportMetaDataXmlToPropertiesConverter
         final List<IIssueType> issueTypes = new ArrayList<>(metaData.getIssueTypes().values());
         final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider();
         final Properties ruleProperties = new Properties();
-        issueTypes.forEach(issueType -> rulesProvider.addRule(issueType, ruleProperties));
+
+        for (final IIssueType next : issueTypes)
+        {
+            for (final Severity severity : next.getSupportedSeverities())
+            {
+                String name = next.getName();
+                String presentationName = next.getPresentationName();
+                String issueTypePresentationName = next.getDescription().length() > 0 ? next.getDescription() : next.getPresentationName();
+                if (severity == Severity.ERROR)
+                {
+                    if (next.getName().endsWith("CycleGroup"))
+                    {
+                        name = "Critical" + next.getName();
+                        presentationName = "Critical " + next.getPresentationName();
+                        issueTypePresentationName = presentationName;
+                    }
+                    else if (next.getName().equals("ThresholdViolation"))
+                    {
+                        name = next.getName() + "Error";
+                        presentationName = next.getPresentationName() + " (Error)";
+                        issueTypePresentationName = presentationName;
+                    }
+                }
+
+                rulesProvider.addRule(name, issueTypePresentationName, presentationName, severity, next, ruleProperties);
+            }
+        }
+
         LOGGER.info("Created {} standard rules", issueTypes.size());
         final File targetDirectory = new File(RESOURCES_PATH);
         rulesProvider.save(ruleProperties, targetDirectory, "Standard Sonargraph Rules / Issue Types");

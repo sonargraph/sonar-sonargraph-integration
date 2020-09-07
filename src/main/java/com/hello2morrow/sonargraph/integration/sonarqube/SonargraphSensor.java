@@ -60,7 +60,6 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
-import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
@@ -295,8 +294,7 @@ public final class SonargraphSensor implements ProjectSensor
 
         for (final IIssue nextIssue : systemIssues)
         {
-            final IIssueType nextIssueType = nextIssue.getIssueType();
-            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
             if (nextRule != null)
             {
                 createSonarqubeIssue(context, context.project(), nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
@@ -464,7 +462,8 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
+
                 if (nextRule != null)
                 {
                     try
@@ -495,7 +494,7 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
                 if (nextRule != null)
                 {
                     try

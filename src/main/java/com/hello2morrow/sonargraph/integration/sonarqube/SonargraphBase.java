@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
+import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
@@ -160,8 +161,9 @@ final class SonargraphBase
         return Utility.convertMixedCaseStringToConstantName(issueTypeName).replace(" ", "_");
     }
 
-    static String createRuleKeyToCheck(final IIssueType issueType)
+    static String createRuleKeyToCheck(final IIssue issue)
     {
+        final IIssueType issueType = issue.getIssueType();
         if (isScriptIssue(issueType))
         {
             return SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME);
@@ -170,7 +172,36 @@ final class SonargraphBase
         {
             return SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME);
         }
-        return SonargraphBase.createRuleKey(issueType.getName());
+
+        final Severity severity = issue.getSeverity();
+        String issuetypeName = issueType.getName();
+
+        //Need to handle issue types that have a multiple severities in Sonargraph
+        if (severity == Severity.ERROR)
+        {
+            if (issueType.getName().equals("ThresholdViolation"))
+            {
+                issuetypeName = "ThresholdViolationError";
+            }
+            else if (issueType.getName().equals("ModuleCycleGroup"))
+            {
+                issuetypeName = "CriticalModuleCycleGroup";
+            }
+            else if (issueType.getName().equals("NamespaceCycleGroup"))
+            {
+                issuetypeName = "CriticalNamespaceCycleGroup";
+            }
+            else if (issueType.getName().equals("DirectoryCycleGroup"))
+            {
+                issuetypeName = "CriticalDirectoryCycleGroup";
+            }
+            else if (issueType.getName().equals("ComponentCycleGroup"))
+            {
+                issuetypeName = "CriticalComponentCycleGroup";
+            }
+        }
+
+        return SonargraphBase.createRuleKey(issuetypeName);
     }
 
     static String createRuleName(final String issueTypePresentationName)
@@ -196,7 +227,7 @@ final class SonargraphBase
     static boolean isIgnoredErrorOrWarningIssue(final IIssueType issueType)
     {
         return ignoreIssueType(issueType.getCategory().getName())
-                && (Severity.ERROR.equals(issueType.getSeverity()) || Severity.WARNING.equals(issueType.getSeverity()));
+                && (issueType.getSupportedSeverities().contains(Severity.ERROR) || issueType.getSupportedSeverities().contains(Severity.WARNING));
     }
 
     static boolean isScriptIssue(final IIssueType issueType)

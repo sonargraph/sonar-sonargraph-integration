@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Rule;
@@ -64,7 +65,7 @@ public class SonargraphMetricsProviderTest
         final Properties customMetricProperties = metricsProvider.getCustomMetricProperties();
         assertEquals("Wrong number of custom metrics", numberOfCustomMetrics + metricIds.size(), customMetricProperties.size());
 
-        final List<Metric<Serializable>> metrics = metricsProvider.convertMetricProperties(metricsProvider.getCustomMetricProperties());
+        final Map<String, Metric<Serializable>> metrics = metricsProvider.convertMetricProperties(metricsProvider.getCustomMetricProperties());
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
         final File targetFile = new File(metricsProvider.getFilePath());
         metricsProvider.saveMetricProperties(customMetricProperties, targetFile, "Sonargraph Test Metrics");
@@ -72,7 +73,7 @@ public class SonargraphMetricsProviderTest
         final File customMetricsFile = new File(metricsProvider.getFilePath());
         assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
 
-        final List<Metric<Serializable>> customMetricsReloaded = metricsProvider.loadCustomMetrics();
+        final Map<String, Metric<Serializable>> customMetricsReloaded = metricsProvider.loadCustomMetrics();
         assertNotNull(customMetricsReloaded);
         assertEquals("Wrong number of custom metrics", metrics.size(), customMetricsReloaded.size());
     }
@@ -81,10 +82,10 @@ public class SonargraphMetricsProviderTest
     public void testStandardMetrics()
     {
         final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(targetDirectory.getRoot().getAbsolutePath());
-        final List<Metric<Serializable>> standardMetrics = metricsProvider.loadStandardMetrics();
+        final Map<String, Metric<Serializable>> standardMetrics = metricsProvider.loadStandardMetrics();
         assertTrue("Missing standard metrics, size = " + standardMetrics.size(), standardMetrics.size() > 50);
 
-        final List<Metric<Serializable>> customMetrics = metricsProvider.loadCustomMetrics();
+        final Map<String, Metric<Serializable>> customMetrics = metricsProvider.loadCustomMetrics();
         assertEquals("No custom metrics expected", 0, customMetrics.size());
 
         assertEquals("Combined metrics and standard metrics are expected to be the same if no custom metrics exist",
