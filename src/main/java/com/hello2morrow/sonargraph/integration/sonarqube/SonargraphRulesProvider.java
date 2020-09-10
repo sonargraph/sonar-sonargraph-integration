@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2018 hello2morrow GmbH
+ * Copyright (C) 2016-2020 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -99,7 +99,8 @@ class SonargraphRulesProvider
         super();
     }
 
-    void addRule(final IIssueType issueType, final Properties properties)
+    void addRule(final String issueTypeName, final String issueTypePresentationName, final String presentationName,
+            final com.hello2morrow.sonargraph.integration.access.model.Severity severity, final IIssueType issueType, final Properties ruleProperties)
     {
         if (SonargraphBase.ignoreIssueType(issueType.getCategory().getName()))
         {
@@ -107,29 +108,28 @@ class SonargraphRulesProvider
             return;
         }
 
-        final String key = SonargraphBase.createRuleKey(issueType.getName());
-        final String name = SonargraphBase.createRuleName(issueType.getPresentationName());
+        final String key = SonargraphBase.createRuleKey(issueTypeName);
+        final String name = SonargraphBase.createRuleName(presentationName);
         final IIssueCategory category = issueType.getCategory();
         final String categoryPresentationName = category.getPresentationName();
-        final String issuePresentationName = issueType.getDescription().length() > 0 ? issueType.getDescription() : issueType.getPresentationName();
-        final String description = createDescription(issuePresentationName, categoryPresentationName);
+        final String description = createDescription(issueTypePresentationName, categoryPresentationName);
         final String categoryTag = SonargraphBase.createRuleCategoryTag(categoryPresentationName);
 
-        final String severity;
-        switch (issueType.getSeverity())
+        final String convertedSeverity;
+        switch (severity)
         {
         case ERROR:
-            severity = Severity.MAJOR;
+            convertedSeverity = Severity.MAJOR;
             break;
         case WARNING:
-            severity = Severity.MINOR;
+            convertedSeverity = Severity.MINOR;
             break;
         case INFO:
             //$FALL-THROUGH$
         case NONE:
             //$FALL-THROUGH$
         default:
-            severity = Severity.INFO;
+            convertedSeverity = Severity.INFO;
             break;
         }
 
@@ -137,10 +137,10 @@ class SonargraphRulesProvider
         propertiesValue.add(name);
         propertiesValue.add(category.getName());
         propertiesValue.add(categoryTag);
-        propertiesValue.add(severity);
+        propertiesValue.add(convertedSeverity);
         propertiesValue.add(description);
 
-        properties.put(key, propertiesValue.toString());
+        ruleProperties.put(key, propertiesValue.toString());
     }
 
     private String createDescription(final String issuePresentationName, final String issueCategoryPresentationName)
@@ -200,7 +200,7 @@ class SonargraphRulesProvider
 
     private Properties loadBuiltInRulesProperties() throws IOException
     {
-        final Properties standardMetrics = new Properties();
+        final Properties standardMetrics = new SortedProperties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);

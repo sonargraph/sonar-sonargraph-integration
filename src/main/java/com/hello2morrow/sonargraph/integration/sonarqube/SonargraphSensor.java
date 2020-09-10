@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2018 hello2morrow GmbH
+ * Copyright (C) 2016-2020 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,6 @@ import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IDuplicateCodeBlockOccurrence;
 import com.hello2morrow.sonargraph.integration.access.model.IIssue;
-import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricLevel;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricValue;
@@ -295,8 +294,7 @@ public final class SonargraphSensor implements ProjectSensor
 
         for (final IIssue nextIssue : systemIssues)
         {
-            final IIssueType nextIssueType = nextIssue.getIssueType();
-            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssueType));
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
             if (nextRule != null)
             {
                 createSonarqubeIssue(context, context.project(), nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
@@ -464,7 +462,8 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
+
                 if (nextRule != null)
                 {
                     try
@@ -495,7 +494,7 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType()));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
                 if (nextRule != null)
                 {
                     try
@@ -581,20 +580,20 @@ public final class SonargraphSensor implements ProjectSensor
     private void createSonarqubeIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
             final Consumer<NewIssueLocation> consumer)
     {
-        final NewIssue sonarqubeIssue = context.newIssue();
-        sonarqubeIssue.forRule(rule.ruleKey());
+        final NewIssue sqIssue = context.newIssue();
+        sqIssue.forRule(rule.ruleKey());
 
-        final NewIssueLocation sqIssueLoc = sonarqubeIssue.newLocation();
+        final NewIssueLocation sqIssueLoc = sqIssue.newLocation();
         sqIssueLoc.on(inputComponent);
         sqIssueLoc.message(msg);
-        sonarqubeIssue.at(sqIssueLoc);
+        sqIssue.at(sqIssueLoc);
 
         if (consumer != null)
         {
             consumer.accept(sqIssueLoc);
         }
 
-        sonarqubeIssue.save();
+        sqIssue.save();
     }
 
     private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext context)
@@ -616,19 +615,19 @@ public final class SonargraphSensor implements ProjectSensor
     {
         if (metricValue.getId().isFloat())
         {
-            final NewMeasure<Double> sonarqubeMeasure = context.<Double> newMeasure();
-            sonarqubeMeasure.forMetric((Metric<Double>) metric);
-            sonarqubeMeasure.on(inputComponent);
-            sonarqubeMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
-            sonarqubeMeasure.save();
+            final NewMeasure<Double> sqMeasure = context.<Double> newMeasure();
+            sqMeasure.forMetric((Metric<Double>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
+            sqMeasure.save();
         }
         else
         {
-            final NewMeasure<Integer> sonarqubeMeasure = context.<Integer> newMeasure();
-            sonarqubeMeasure.forMetric((Metric<Integer>) metric);
-            sonarqubeMeasure.on(inputComponent);
-            sonarqubeMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
-            sonarqubeMeasure.save();
+            final NewMeasure<Integer> sqMeasure = context.<Integer> newMeasure();
+            sqMeasure.forMetric((Metric<Integer>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
+            sqMeasure.save();
         }
     }
 }

@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2018 hello2morrow GmbH
+ * Copyright (C) 2016-2020 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,9 +23,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringJoiner;
@@ -60,9 +60,7 @@ class SonargraphMetricsProvider
     private final String customMetricsDirectoryPath;
 
     private Properties customMetrics;
-
     private Properties standardMetrics;
-
     private Properties combinedMetricProperties;
 
     SonargraphMetricsProvider()
@@ -115,9 +113,9 @@ class SonargraphMetricsProvider
         return metricKey;
     }
 
-    List<Metric<Serializable>> loadStandardMetrics()
+    Map<String, Metric<Serializable>> loadStandardMetrics()
     {
-        standardMetrics = new Properties();
+        standardMetrics = new SortedProperties();
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_METRICS_RESOURCE_PATH))
         {
             standardMetrics.load(inputStream);
@@ -132,14 +130,14 @@ class SonargraphMetricsProvider
         return convertMetricProperties(standardMetrics);
     }
 
-    List<Metric<Serializable>> convertMetricProperties(final Properties metricProperties)
+    Map<String, Metric<Serializable>> convertMetricProperties(final Properties metricProperties)
     {
         if (metricProperties.isEmpty())
         {
-            return Collections.emptyList();
+            return Collections.emptyMap();
         }
 
-        final List<Metric<Serializable>> metrics = new ArrayList<>(metricProperties.size());
+        final Map<String, Metric<Serializable>> metrics = new HashMap<>(metricProperties.size());
         for (final Entry<Object, Object> nextEntry : metricProperties.entrySet())
         {
             String notCreatedInfo = null;
@@ -175,7 +173,7 @@ class SonargraphMetricsProvider
                     SonargraphBase.setWorstValue(nextWorstValue, builder);
                     SonargraphBase.setMetricDirection(nextBestValue, nextWorstValue, builder);
 
-                    metrics.add(builder.create());
+                    metrics.put(nextMetricKey, builder.create());
                 }
                 else
                 {
@@ -204,9 +202,9 @@ class SonargraphMetricsProvider
     /**
      * Load all properties files from the user-home containing metric definitions.
      */
-    List<Metric<Serializable>> loadCustomMetrics()
+    Map<String, Metric<Serializable>> loadCustomMetrics()
     {
-        customMetrics = new Properties();
+        customMetrics = new SortedProperties();
         final String propertiesFilePath = getFilePath();
         final File file = new File(propertiesFilePath);
         if (!file.exists())
@@ -257,7 +255,7 @@ class SonargraphMetricsProvider
     {
         if (combinedMetricProperties == null)
         {
-            combinedMetricProperties = new Properties();
+            combinedMetricProperties = new SortedProperties();
             combinedMetricProperties.putAll(customMetrics);
             combinedMetricProperties.putAll(standardMetrics);
         }
