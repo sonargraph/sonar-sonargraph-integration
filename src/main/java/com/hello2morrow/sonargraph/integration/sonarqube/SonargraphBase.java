@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2018 hello2morrow GmbH
+ * Copyright (C) 2016-2020 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -174,34 +174,38 @@ final class SonargraphBase
         }
 
         final Severity severity = issue.getSeverity();
-        String issuetypeName = issueType.getName();
+        final String issuetypeName = SonargraphBase.adjustIssueTypeName(issueType.getName(), severity);
 
+        return SonargraphBase.createRuleKey(issuetypeName);
+    }
+
+    static String adjustIssueTypeName(String issuetypeName, final Severity severity)
+    {
         //Need to handle issue types that have a multiple severities in Sonargraph
         if (severity == Severity.ERROR)
         {
-            if (issueType.getName().equals("ThresholdViolation"))
+            if (issuetypeName.equals("ThresholdViolation"))
             {
                 issuetypeName = "ThresholdViolationError";
             }
-            else if (issueType.getName().equals("ModuleCycleGroup"))
+            else if (issuetypeName.equals("ModuleCycleGroup"))
             {
                 issuetypeName = "CriticalModuleCycleGroup";
             }
-            else if (issueType.getName().equals("NamespaceCycleGroup"))
+            else if (issuetypeName.equals("NamespaceCycleGroup"))
             {
                 issuetypeName = "CriticalNamespaceCycleGroup";
             }
-            else if (issueType.getName().equals("DirectoryCycleGroup"))
+            else if (issuetypeName.equals("DirectoryCycleGroup"))
             {
                 issuetypeName = "CriticalDirectoryCycleGroup";
             }
-            else if (issueType.getName().equals("ComponentCycleGroup"))
+            else if (issuetypeName.equals("ComponentCycleGroup"))
             {
                 issuetypeName = "CriticalComponentCycleGroup";
             }
         }
-
-        return SonargraphBase.createRuleKey(issuetypeName);
+        return issuetypeName;
     }
 
     static String createRuleName(final String issueTypePresentationName)
@@ -257,7 +261,7 @@ final class SonargraphBase
         IModule matched = null;
 
         final String sqMsgPart = "SonarQube " + (isProject ? "project" : "module") + " '" + inputModuleKey + "'.";
-        final List<IModule> moduleCandidates = getSgModuleCandidates(softwareSystem, baseDirectory);
+        final List<IModule> moduleCandidates = getSonargraphModuleCandidates(softwareSystem, baseDirectory);
         if (moduleCandidates.isEmpty())
         {
             LOGGER.warn("{}: No Sonargraph module match found for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME, sqMsgPart);
@@ -283,7 +287,7 @@ final class SonargraphBase
      * @param baseDirectory
      * @return A list of matching Sonargraph modules. Problems are indicated by list size of 0 (no match) or > 1 (several modules found).
      */
-    private static List<IModule> getSgModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());

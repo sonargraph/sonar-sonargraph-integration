@@ -1,6 +1,11 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+5.2.0
+=====
+- Compatibility with Sonargraph 10.4 report format.
+
+
 5.1.4
 =====
 - Automatically detect Sonargraph XML report default location for Gradle. 

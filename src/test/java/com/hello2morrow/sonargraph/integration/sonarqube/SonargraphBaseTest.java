@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2018 hello2morrow GmbH
+ * Copyright (C) 2016-2020 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -31,6 +31,7 @@ import com.hello2morrow.sonargraph.integration.access.controller.ControllerFacto
 import com.hello2morrow.sonargraph.integration.access.controller.ISonargraphSystemController;
 import com.hello2morrow.sonargraph.integration.access.foundation.Result;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
+import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
 public final class SonargraphBaseTest
 {
@@ -48,6 +49,22 @@ public final class SonargraphBaseTest
 
         //Metrics
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
+    }
+
+    //Checks that issues with different severities are correctly converted to separated SonarQube issue types (rules)
+    @Test
+    public void testIssueTypeName()
+    {
+        assertEquals("ThresholdViolation", SonargraphBase.adjustIssueTypeName("ThresholdViolation", Severity.WARNING));
+        assertEquals("ThresholdViolationError", SonargraphBase.adjustIssueTypeName("ThresholdViolation", Severity.ERROR));
+        assertEquals("ComponentCycleGroup", SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.WARNING));
+        assertEquals("CriticalComponentCycleGroup", SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.ERROR));
+        assertEquals("NamespaceCycleGroup", SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.WARNING));
+        assertEquals("CriticalNamespaceCycleGroup", SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.ERROR));
+        assertEquals("DirectoryCycleGroup", SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.WARNING));
+        assertEquals("CriticalDirectoryCycleGroup", SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.ERROR));
+        assertEquals("ModuleCycleGroup", SonargraphBase.adjustIssueTypeName("ModuleCycleGroup", Severity.WARNING));
+        assertEquals("CriticalModuleCycleGroup", SonargraphBase.adjustIssueTypeName("ModuleCycleGroup", Severity.ERROR));
     }
 
     @Test
