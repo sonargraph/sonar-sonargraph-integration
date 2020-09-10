@@ -19,7 +19,6 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,14 +47,8 @@ final class SortedProperties extends Properties
         {
             keyList.add(keysEnum.nextElement());
         }
-        Collections.sort(keyList, new Comparator<Object>()
-        {
-            @Override
-            public int compare(final Object o1, final Object o2)
-            {
-                return o1.toString().compareTo(o2.toString());
-            }
-        });
+
+        Collections.sort(keyList, (o1, o2) -> o1.toString().compareTo(o2.toString()));
         return Collections.enumeration(keyList);
     }
 
@@ -64,14 +57,7 @@ final class SortedProperties extends Properties
     public Set<java.util.Map.Entry<Object, Object>> entrySet()
     {
         final List<java.util.Map.Entry<Object, Object>> entries = new ArrayList<>(super.entrySet());
-        entries.sort(new Comparator<java.util.Map.Entry<Object, Object>>()
-        {
-            @Override
-            public int compare(final java.util.Map.Entry<Object, Object> o1, final java.util.Map.Entry<Object, Object> o2)
-            {
-                return o1.getKey().toString().compareTo(o2.getKey().toString());
-            }
-        });
+        entries.sort((o1, o2) -> o1.getKey().toString().compareTo(o2.getKey().toString()));
         return new LinkedHashSet<>(entries);
     }
 }

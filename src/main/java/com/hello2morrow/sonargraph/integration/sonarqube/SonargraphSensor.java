@@ -580,20 +580,20 @@ public final class SonargraphSensor implements ProjectSensor
     private void createSonarqubeIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
             final Consumer<NewIssueLocation> consumer)
     {
-        final NewIssue sonarqubeIssue = context.newIssue();
-        sonarqubeIssue.forRule(rule.ruleKey());
+        final NewIssue sqIssue = context.newIssue();
+        sqIssue.forRule(rule.ruleKey());
 
-        final NewIssueLocation sqIssueLoc = sonarqubeIssue.newLocation();
+        final NewIssueLocation sqIssueLoc = sqIssue.newLocation();
         sqIssueLoc.on(inputComponent);
         sqIssueLoc.message(msg);
-        sonarqubeIssue.at(sqIssueLoc);
+        sqIssue.at(sqIssueLoc);
 
         if (consumer != null)
         {
             consumer.accept(sqIssueLoc);
         }
 
-        sonarqubeIssue.save();
+        sqIssue.save();
     }
 
     private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext context)
@@ -615,19 +615,19 @@ public final class SonargraphSensor implements ProjectSensor
     {
         if (metricValue.getId().isFloat())
         {
-            final NewMeasure<Double> sonarqubeMeasure = context.<Double> newMeasure();
-            sonarqubeMeasure.forMetric((Metric<Double>) metric);
-            sonarqubeMeasure.on(inputComponent);
-            sonarqubeMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
-            sonarqubeMeasure.save();
+            final NewMeasure<Double> sqMeasure = context.<Double> newMeasure();
+            sqMeasure.forMetric((Metric<Double>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
+            sqMeasure.save();
         }
         else
         {
-            final NewMeasure<Integer> sonarqubeMeasure = context.<Integer> newMeasure();
-            sonarqubeMeasure.forMetric((Metric<Integer>) metric);
-            sonarqubeMeasure.on(inputComponent);
-            sonarqubeMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
-            sonarqubeMeasure.save();
+            final NewMeasure<Integer> sqMeasure = context.<Integer> newMeasure();
+            sqMeasure.forMetric((Metric<Integer>) metric);
+            sqMeasure.on(inputComponent);
+            sqMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
+            sqMeasure.save();
         }
     }
 }
