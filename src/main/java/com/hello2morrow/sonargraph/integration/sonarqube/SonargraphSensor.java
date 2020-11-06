@@ -100,15 +100,26 @@ public final class SonargraphSensor implements ProjectSensor
     private final FileSystem sonarqubeFileSystem;
     private final MetricFinder sonarqubeMetricFinder;
     private final SonargraphMetrics sonargraphMetrics;
+    private final SonargraphRulesProvider sonargraphRulesProvider;
 
     private boolean isUpdateOfServerCustomMetricsNeeded = false;
     private boolean isUpdateOfScannerCustomMetricsNeeded = false;
 
+    //[IK] In contrast to metrics, rules are dynamically provided to the client, so there cannot be a situation that the scanner needs updating.
+    private boolean isUpdateOfServerCustomRulesNeeded = false;
+
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
+    {
+        this(fileSystem, metricFinder, sonargraphMetrics, new SonargraphRulesProvider());
+    }
+
+    SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics,
+            final SonargraphRulesProvider sonargraphRulesProvider)
     {
         this.sonarqubeFileSystem = fileSystem;
         this.sonarqubeMetricFinder = metricFinder;
         this.sonargraphMetrics = sonargraphMetrics;
+        this.sonargraphRulesProvider = sonargraphRulesProvider;
     }
 
     @Override
@@ -122,6 +133,10 @@ public final class SonargraphSensor implements ProjectSensor
     {
         isUpdateOfServerCustomMetricsNeeded = false;
         isUpdateOfScannerCustomMetricsNeeded = false;
+        isUpdateOfServerCustomRulesNeeded = false;
+
+        sonargraphRulesProvider.loadStandardRules();
+        sonargraphRulesProvider.loadCustomRules();
 
         final String projectKey = context.config().get("sonar.projectKey").orElse("<unknown>");
         LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
@@ -280,6 +295,24 @@ public final class SonargraphSensor implements ProjectSensor
                 LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom metrics file.", e);
             }
         }
+
+        if (isUpdateOfServerCustomRulesNeeded)
+        {
+            //New custom rules have been introduced.
+            try
+            {
+                final File customRulesFile = sonargraphRulesProvider.saveCustomRuleProperties("Custom Sonargraph Rules");
+                LOGGER.warn(
+                        "{}: Custom rules have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                + " After a restart of the server the additional rules can be activated in the quality profile"
+                                + " and issues will then be created on the next SonarQube analysis.",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customRulesFile.getAbsolutePath(), SonargraphBase.SONARGRAPH_PLUGIN_KEY);
+            }
+            catch (final IOException e)
+            {
+                LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Unable to save custom ruels file.", e);
+            }
+        }
     }
 
     private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
@@ -294,10 +327,14 @@ public final class SonargraphSensor implements ProjectSensor
 
         for (final IIssue nextIssue : systemIssues)
         {
-            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
+            final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
             if (nextRule != null)
             {
                 createSonarqubeIssue(context, context.project(), nextRule, createIssueDescription(systemInfoProcessor, nextIssue), null);
+            }
+            else
+            {
+                createCustomRuleForIssue(nextIssue);
             }
         }
 
@@ -317,6 +354,15 @@ public final class SonargraphSensor implements ProjectSensor
                 }
                 i++;
             }
+        }
+    }
+
+    private void createCustomRuleForIssue(final IIssue issue)
+    {
+        if (issue.getIssueType().getProvider() != null)
+        {
+            isUpdateOfServerCustomRulesNeeded = true;
+            sonargraphRulesProvider.addCustomRuleForIssue(issue);
         }
     }
 
@@ -462,8 +508,7 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
-
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
                 if (nextRule != null)
                 {
                     try
@@ -474,6 +519,10 @@ public final class SonargraphSensor implements ProjectSensor
                     {
                         LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '" + nextIssue + "'. ", e);
                     }
+                }
+                else
+                {
+                    createCustomRuleForIssue(nextIssue);
                 }
             }
         }
@@ -494,7 +543,7 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue));
+                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
                 if (nextRule != null)
                 {
                     try
@@ -505,6 +554,10 @@ public final class SonargraphSensor implements ProjectSensor
                     {
                         LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '" + nextIssue + "'. ", e);
                     }
+                }
+                else
+                {
+                    createCustomRuleForIssue(nextIssue);
                 }
             }
         }

@@ -19,7 +19,6 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,9 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
-import com.hello2morrow.sonargraph.integration.access.model.IIssue;
 import com.hello2morrow.sonargraph.integration.access.model.IIssueType;
-import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 import com.hello2morrow.sonargraph.integration.access.model.IModule;
 import com.hello2morrow.sonargraph.integration.access.model.IRootDirectory;
 import com.hello2morrow.sonargraph.integration.access.model.ISoftwareSystem;
@@ -143,37 +140,30 @@ final class SonargraphBase
         }
     }
 
-    static Metric<Serializable> createMetric(final IMetricId metricId)
-    {
-        final Metric.Builder builder = new Metric.Builder(createMetricKeyFromStandardName(metricId.getName()), metricId.getPresentationName(),
-                metricId.isFloat() ? Metric.ValueType.FLOAT : Metric.ValueType.INT).setDescription(trimDescription(metricId.getDescription()))
-                        .setDomain(SONARGRAPH_PLUGIN_PRESENTATION_NAME);
-
-        setBestValue(metricId.getBest(), builder);
-        setWorstValue(metricId.getWorst(), builder);
-        setMetricDirection(metricId.getBest(), metricId.getWorst(), builder);
-
-        return builder.create();
-    }
-
     static String createRuleKey(final String issueTypeName)
     {
         return Utility.convertMixedCaseStringToConstantName(issueTypeName).replace(" ", "_");
     }
 
-    static String createRuleKeyToCheck(final IIssue issue)
+    static String createRuleKeyToCheck(final IIssueType issueType, final Severity severity)
     {
-        final IIssueType issueType = issue.getIssueType();
         if (isScriptIssue(issueType))
         {
-            return SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME);
+            final String providerTag = SonargraphBase.createRuleCategoryTag(issueType.getProvider().getName());
+            final String issueTag = SonargraphBase.createRuleCategoryTag(issueType.getPresentationName());
+
+            return new StringBuilder("script_").append(providerTag).append("_").append(issueTag).append("_")
+                    .append(severity.getStandardName().toLowerCase()).toString();
         }
         if (isPluginIssue(issueType))
         {
-            return SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME);
+            final String providerTag = SonargraphBase.createRuleCategoryTag(issueType.getProvider().getName());
+            final String issueTag = SonargraphBase.createRuleCategoryTag(issueType.getPresentationName());
+
+            return new StringBuilder("plugin_").append(providerTag).append("_").append(issueTag).append("_")
+                    .append(severity.getStandardName().toLowerCase()).toString();
         }
 
-        final Severity severity = issue.getSeverity();
         final String issuetypeName = SonargraphBase.adjustIssueTypeName(issueType.getName(), severity);
 
         return SonargraphBase.createRuleKey(issuetypeName);
@@ -215,7 +205,10 @@ final class SonargraphBase
 
     static String createRuleCategoryTag(final String categoryPresentationName)
     {
-        return categoryPresentationName.replace(' ', '-').toLowerCase();
+        final String withoutLeadingDotSlash = categoryPresentationName.replace("./", "");
+        final String replacedSlashes = withoutLeadingDotSlash.replace('/', '-');
+        final String replacedWhitespace = replacedSlashes.replace(' ', '-').toLowerCase();
+        return replacedWhitespace;
     }
 
     static boolean ignoreIssueType(final String categoryName)

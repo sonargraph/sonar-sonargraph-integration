@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<script version="9.12.0.100">
+<script version="10.5.0.100">
 	<description></description>
 	<source><![CDATA[ICoreVisitor v = coreAccess.createVisitor()
 MetricIdAccess metric = coreAccess.getOrCreateMetricId("SQ_Test_Metric", "SonarQube Test Metric",
@@ -69,38 +69,37 @@ MetricIdAccess metric = coreAccess.getOrCreateMetricId("SQ_Test_Metric", "SonarQ
 //    result.addMetricValue(metric, module, 42)
 //    v.visitChildren(module)
 //}
-//
-//v.onType
-//{
-//    ITypeAccess type ->
-//    if (type.external || type.excluded)
-//    {
-//        return
-//    }
-//    
-//    if (type.name.equals("com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"))
-//    {
-//        result.addWarningIssue(type, "TypeIssue", "This is a type issue")
-//        result.addMetricValue(metric, type, 100)
-//    }
-//}
-/*
-v.onExternalElementContainer
+
+v.onType
 {
-    ExternalElementContainerAccess externalContainer ->
-    println("externalContainer: $externalContainer")
-    result.addWarningIssue(externalContainer, "ContainerIssue", "This is a container issue")
-    try
+    ITypeAccess type ->
+    if (type.external || type.excluded)
     {
-        result.addMetricValue(metric, externalContainer, 1000)
+        return
     }
-    catch(IllegalArgumentException ex)
+    
+    if (type.name.equals("com.hello2morrow.sonargraph.integration.sonarqube.SonargraphBase"))
     {
-        //expected
+        result.addWarningIssue(type, "TypeIssue", "This is a type issue")
+        result.addMetricValue(metric, type, 100)
     }
-    v.visitChildren(externalContainer)
 }
-*/
+
+//v.onExternalElementContainer
+//{
+//    ExternalElementContainerAccess externalContainer ->
+//    println("externalContainer: $externalContainer")
+//    result.addWarningIssue(externalContainer, "ContainerIssue", "This is a container issue")
+//    try
+//    {
+//        result.addMetricValue(metric, externalContainer, 1000)
+//    }
+//    catch(IllegalArgumentException ex)
+//    {
+//        //expected
+//    }
+//    v.visitChildren(externalContainer)
+//}
 
 //Traverse the model
 coreAccess.visitModel(v)

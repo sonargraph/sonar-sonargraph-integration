@@ -19,7 +19,6 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -38,26 +37,17 @@ import org.sonar.api.measures.Metric.ValueType;
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
-class SonargraphMetricsProvider
+class SonargraphMetricsProvider extends AbstractDataProvider
 {
-    enum MetricLogLevel
-    {
-        DEBUG,
-        INFO;
-    }
-
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphMetricsProvider.class);
 
     static final String PROPERTIES_FILENAME = "SonargraphMetrics.properties";
     private static final String BUILT_IN_METRICS_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/" + PROPERTIES_FILENAME;
 
-    private static final char SEPARATOR = '|';
     private static final String INT = "INT";
     private static final String FLOAT = "FLOAT";
 
     private static final int NUBMER_OF_VALUE_PARTS = 5;
-
-    private final String customMetricsDirectoryPath;
 
     private Properties customMetrics;
     private Properties standardMetrics;
@@ -70,17 +60,7 @@ class SonargraphMetricsProvider
 
     SonargraphMetricsProvider(final String customMetricsDirectoryPath)
     {
-        this.customMetricsDirectoryPath = customMetricsDirectoryPath;
-    }
-
-    String getDirectory()
-    {
-        return customMetricsDirectoryPath;
-    }
-
-    String getFilePath()
-    {
-        return getDirectory() + "/" + PROPERTIES_FILENAME;
+        super(PROPERTIES_FILENAME, customMetricsDirectoryPath);
     }
 
     void addMetricToProperties(final IMetricId metricId, final Properties metricProperties)
@@ -228,27 +208,9 @@ class SonargraphMetricsProvider
         return convertMetricProperties(customMetrics);
     }
 
-    File saveMetricProperties(final Properties metrics, final File targetFile, final String comment) throws IOException
-    {
-        final File targetDirectory = targetFile.getParentFile();
-        targetDirectory.mkdirs();
-
-        try (FileWriter writer = new FileWriter(targetFile))
-        {
-            metrics.store(writer, comment);
-        }
-
-        return targetFile;
-    }
-
-    File saveMetricProperties(final Properties metrics, final String comment) throws IOException
-    {
-        return saveMetricProperties(metrics, new File(getFilePath()), comment);
-    }
-
     File saveCustomMetricProperties(final String comment) throws IOException
     {
-        return saveMetricProperties(customMetrics, comment);
+        return saveProperties(customMetrics, new File(getFilePath()), comment);
     }
 
     Properties getCombinedMetricProperties()

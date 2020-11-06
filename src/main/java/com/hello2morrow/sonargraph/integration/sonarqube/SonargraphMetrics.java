@@ -35,7 +35,7 @@ public final class SonargraphMetrics implements Metrics
 {
     private static final Logger LOGGER = Loggers.get(SonargraphMetrics.class);
     private List<Metric<Serializable>> metrics;
-    private final SonargraphMetricsProvider metricPropertiesProvider;
+    private final SonargraphMetricsProvider metricProvider;
 
     public SonargraphMetrics()
     {
@@ -45,12 +45,12 @@ public final class SonargraphMetrics implements Metrics
     /** Test support */
     public SonargraphMetrics(final SonargraphMetricsProvider metricsPropertiesProvider)
     {
-        this.metricPropertiesProvider = metricsPropertiesProvider;
+        this.metricProvider = metricsPropertiesProvider;
     }
 
     SonargraphMetricsProvider getMetricsProvider()
     {
-        return metricPropertiesProvider;
+        return metricProvider;
     }
 
     @SuppressWarnings("rawtypes")
@@ -59,8 +59,8 @@ public final class SonargraphMetrics implements Metrics
     {
         if (metrics == null)
         {
-            final Map<String, Metric<Serializable>> standardMetrics = metricPropertiesProvider.loadStandardMetrics();
-            final Map<String, Metric<Serializable>> customMetrics = metricPropertiesProvider.loadCustomMetrics();
+            final Map<String, Metric<Serializable>> standardMetrics = metricProvider.loadStandardMetrics();
+            final Map<String, Metric<Serializable>> customMetrics = metricProvider.loadCustomMetrics();
 
             final Map<String, Metric<Serializable>> result = new HashMap<>(standardMetrics);
             int customMetricCounter = 0;
