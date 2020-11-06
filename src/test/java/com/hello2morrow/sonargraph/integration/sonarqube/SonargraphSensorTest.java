@@ -138,7 +138,7 @@ public final class SonargraphSensorTest
     };
 
     @Rule
-    public TemporaryFolder m_tempFolder = new TemporaryFolder();
+    public TemporaryFolder tempFolder = new TemporaryFolder();
 
     private MetricFinder metricFinder;
     private ActiveRulesBuilder rulesBuilder;
@@ -152,7 +152,7 @@ public final class SonargraphSensorTest
     {
         initRules();
 
-        sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(m_tempFolder.getRoot().getAbsolutePath()));
+        sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
         {
@@ -192,7 +192,7 @@ public final class SonargraphSensorTest
 
     private void initRules()
     {
-        sonargraphRules = new SonargraphRules(new SonargraphRulesProvider(m_tempFolder.getRoot().getAbsolutePath()));
+        sonargraphRules = new SonargraphRules(new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath()));
         final Context rulesContext = new Context();
         sonargraphRules.define(rulesContext);
         final List<RulesDefinition.Rule> rules = rulesContext.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules();
