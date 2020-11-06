@@ -97,7 +97,6 @@ class SonargraphRulesProvider extends AbstractDataProvider
     private static final String BUILT_IN_RULES_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/" + PROPERTIES_FILENAME;
     private static final int NUMBER_OF_VALUE_PARTS = 5;
 
-    private Properties standardRules;
     private SortedProperties customRules;
 
     SonargraphRulesProvider()
@@ -235,7 +234,7 @@ class SonargraphRulesProvider extends AbstractDataProvider
     List<RuleDto> loadStandardRules()
     {
         final List<RuleDto> result = new ArrayList<>();
-
+        Properties standardRules;
         try
         {
             standardRules = loadBuiltInRulesProperties();

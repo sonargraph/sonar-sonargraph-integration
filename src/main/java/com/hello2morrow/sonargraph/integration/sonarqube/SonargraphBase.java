@@ -207,8 +207,7 @@ final class SonargraphBase
     {
         final String withoutLeadingDotSlash = categoryPresentationName.replace("./", "");
         final String replacedSlashes = withoutLeadingDotSlash.replace('/', '-');
-        final String replacedWhitespace = replacedSlashes.replace(' ', '-').toLowerCase();
-        return replacedWhitespace;
+        return replacedSlashes.replace(' ', '-').toLowerCase();
     }
 
     static boolean ignoreIssueType(final String categoryName)

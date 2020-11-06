@@ -313,12 +313,6 @@ public final class SonargraphSensorTest
     }
 
     @Test
-    public void testSonargraphSensorOnReportWithPluginIssues()
-    {
-
-    }
-
-    @Test
     public void testSonargraphSensorOnInvalidReportFile() throws IOException
     {
         final File moduleBaseDir = new File(".").getCanonicalFile();

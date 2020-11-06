@@ -28,12 +28,12 @@ abstract class AbstractDataProvider
     private final String propertiesFileName;
     private final String customDirectoryPath;
 
-    public AbstractDataProvider(final String propertiesFileName)
+    protected AbstractDataProvider(final String propertiesFileName)
     {
         this(propertiesFileName, System.getProperty("user.home") + "/." + SonargraphBase.SONARGRAPH_PLUGIN_KEY);
     }
 
-    public AbstractDataProvider(final String propertiesFileName, final String customDirectoryPath)
+    protected AbstractDataProvider(final String propertiesFileName, final String customDirectoryPath)
     {
         this.propertiesFileName = propertiesFileName;
         this.customDirectoryPath = customDirectoryPath;
