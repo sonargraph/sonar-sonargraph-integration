@@ -19,22 +19,25 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.util.List;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.measures.Metric;
 
 public final class SonargraphMetricsTest
 {
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Test
-    public void testMetricsDefinition() throws IOException
+    public void testMetricsDefinition()
     {
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new TestSupportMetricPropertiesProvider());
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
         assertEquals("Wrong number of metrics (init triggered)", 55, metrics.size());
-
         assertEquals("Wrong number of metrics (no init necessary)", metrics, sonargraphMetrics.getMetrics());
     }
 }

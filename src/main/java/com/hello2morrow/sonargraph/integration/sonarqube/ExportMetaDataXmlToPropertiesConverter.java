@@ -69,7 +69,7 @@ class ExportMetaDataXmlToPropertiesConverter
         sonargraphMetrics.forEach(m -> metricsProvider.addMetricToProperties(m, metricProperties));
         LOGGER.info("Created {} standard metrics", standardMetrics.size());
         final File targetFile = new File(RESOURCES_PATH, SonargraphMetricsProvider.PROPERTIES_FILENAME);
-        metricsProvider.saveMetricProperties(metricProperties, targetFile, "Standard Sonargraph Metrics");
+        metricsProvider.saveProperties(metricProperties, targetFile, "Standard Sonargraph Metrics");
 
         return sonargraphMetrics.size();
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<pluginConfiguration version="10.5.0.100" pluginId="com.hello2morrow.sonargraph.plugin.spotbugs">
+	<booleanEntry value="true" name="enabled"></booleanEntry>
+	<stringEntry value="max" name="analysisEffort"></stringEntry>
+	<intEntry value="20" name="minimumRank"></intEntry>
+</pluginConfiguration>
