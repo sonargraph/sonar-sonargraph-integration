@@ -138,7 +138,7 @@ public final class SonargraphSensorTest
     };
 
     @Rule
-    public TemporaryFolder m_tempFolder = new TemporaryFolder(new File(".", "src/test/temp"));
+    public TemporaryFolder m_tempFolder = new TemporaryFolder();
 
     private MetricFinder metricFinder;
     private ActiveRulesBuilder rulesBuilder;
