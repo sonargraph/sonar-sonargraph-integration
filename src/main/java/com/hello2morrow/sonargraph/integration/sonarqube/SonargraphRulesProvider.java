@@ -42,12 +42,12 @@ class SonargraphRulesProvider extends AbstractDataProvider
 {
     public static class RuleDto
     {
-        final String key;
-        final String name;
+        private final String key;
+        private final String name;
         private final String categoryName;
-        final String[] categoryTag;
-        final String severity;
-        final String description;
+        private final String[] categoryTag;
+        private final String severity;
+        private final String description;
 
         public RuleDto(final String key, final String name, final String categoryName, final String severity, final String description,
                 final String... categoryTag)

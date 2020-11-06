@@ -104,8 +104,9 @@ public final class SonargraphSensor implements ProjectSensor
 
     private boolean isUpdateOfServerCustomMetricsNeeded = false;
     private boolean isUpdateOfScannerCustomMetricsNeeded = false;
+
+    //[IK] In contrast to metrics, rules are dynamically provided to the client, so there cannot be a situation that the scanner needs updating.
     private boolean isUpdateOfServerCustomRulesNeeded = false;
-    private boolean isUpdateOfScannerCustomRulesNeeded = false;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
     {
@@ -133,7 +134,6 @@ public final class SonargraphSensor implements ProjectSensor
         isUpdateOfServerCustomMetricsNeeded = false;
         isUpdateOfScannerCustomMetricsNeeded = false;
         isUpdateOfServerCustomRulesNeeded = false;
-        isUpdateOfScannerCustomRulesNeeded = false;
 
         sonargraphRulesProvider.loadStandardRules();
         sonargraphRulesProvider.loadCustomRules();
@@ -296,28 +296,17 @@ public final class SonargraphSensor implements ProjectSensor
             }
         }
 
-        if (isUpdateOfServerCustomRulesNeeded || isUpdateOfScannerCustomRulesNeeded)
+        if (isUpdateOfServerCustomRulesNeeded)
         {
             //New custom rules have been introduced.
             try
             {
                 final File customRulesFile = sonargraphRulesProvider.saveCustomRuleProperties("Custom Sonargraph Rules");
-                if (isUpdateOfServerCustomRulesNeeded)
-                {
-                    LOGGER.warn(
-                            "{}: Custom rules have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
-                                    + " After a restart of the server the additional rules can be activated in the quality profile"
-                                    + " and issues will then be created on the next SonarQube analysis.",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customRulesFile.getAbsolutePath(),
-                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
-                }
-                else
-                {
-                    LOGGER.warn(
-                            "{}: Local custom rules configuration file '{}' has been updated. Issues for those additional rules will be saved on the next SonarQube analysis.",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customRulesFile.getAbsolutePath(),
-                            SonargraphBase.SONARGRAPH_PLUGIN_KEY);
-                }
+                LOGGER.warn(
+                        "{}: Custom rules have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
+                                + " After a restart of the server the additional rules can be activated in the quality profile"
+                                + " and issues will then be created on the next SonarQube analysis.",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, customRulesFile.getAbsolutePath(), SonargraphBase.SONARGRAPH_PLUGIN_KEY);
             }
             catch (final IOException e)
             {
@@ -644,7 +633,6 @@ public final class SonargraphSensor implements ProjectSensor
     private void createSonarqubeIssue(final SensorContext context, final InputComponent inputComponent, final ActiveRule rule, final String msg,
             final Consumer<NewIssueLocation> consumer)
     {
-        //FIXME [IK] What happens, if rule exists locally but not on server? Is also an UnsupportedOperationException thrown?
         final NewIssue sqIssue = context.newIssue();
         sqIssue.forRule(rule.ruleKey());
 
