@@ -264,7 +264,7 @@ class SonargraphRulesProvider extends AbstractDataProvider
                 final String categoryName = splitValues[index++];
 
                 final String categoryTag = splitValues[index++];
-                final String[] tags = categoryTag.split(",");
+                final String[] tags = convertTags(categoryTag.split(","));
 
                 final String severity = splitValues[index++];
                 final String description = splitValues[index];
@@ -277,6 +277,23 @@ class SonargraphRulesProvider extends AbstractDataProvider
                 LOGGER.warn("Unable to create rule from '{}={}'", key, value);
             }
         }
+    }
+
+    private String[] convertTags(final String[] rawTags)
+    {
+        if (rawTags.length == 0)
+        {
+            return rawTags;
+        }
+
+        final String[] tags = new String[rawTags.length];
+        for (int i = 0; i < rawTags.length; i++)
+        {
+            final String next = rawTags[i];
+            tags[i] = SonargraphBase.createRuleCategoryTag(next);
+        }
+
+        return tags;
     }
 
     private Properties loadBuiltInRulesProperties() throws IOException

@@ -25,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import com.hello2morrow.sonargraph.integration.access.model.Severity;
 
 final class SonargraphBase
 {
+    private static final int MAX_TAG_LENGTH = 60;
     static final String SONARGRAPH_PLUGIN_KEY = "sonargraphintegration";
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
@@ -62,6 +64,11 @@ final class SonargraphBase
     static final String PLUGIN_ISSUE_PRESENTATION_NAME = "Plugin Issue";
 
     static final String QUALITY_GATE_ISSUE_CATEGORY = "QualityGate";
+
+    //See regex for validating rule tags in org.sonar.api.server.rule.RuleTagFormat
+    private static final Pattern INVALID_TAG_CHARACTERS_PATTERN = Pattern.compile("[^a-z0-9\\+#\\-\\.]");
+    private static final String ESCAPE = "-";
+    private static final Pattern AVOID_DUPLICATE_ESCAPES_PATTERN = Pattern.compile("-{2,}");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphBase.class);
 
@@ -206,8 +213,19 @@ final class SonargraphBase
     static String createRuleCategoryTag(final String categoryPresentationName)
     {
         final String withoutLeadingDotSlash = categoryPresentationName.replace("./", "");
-        final String replacedSlashes = withoutLeadingDotSlash.replace('/', '-');
-        return replacedSlashes.replace(' ', '-').toLowerCase();
+        final String escaped = INVALID_TAG_CHARACTERS_PATTERN.matcher(withoutLeadingDotSlash.toLowerCase()).replaceAll(ESCAPE);
+        final String removedDuplicateEscapes = AVOID_DUPLICATE_ESCAPES_PATTERN.matcher(escaped).replaceAll(ESCAPE);
+        if (removedDuplicateEscapes.length() > MAX_TAG_LENGTH)
+        {
+            return removedDuplicateEscapes.substring(0, MAX_TAG_LENGTH) + "...";
+        }
+
+        if (removedDuplicateEscapes.endsWith(ESCAPE))
+        {
+            return removedDuplicateEscapes.substring(0, removedDuplicateEscapes.length() - 1);
+        }
+
+        return removedDuplicateEscapes;
     }
 
     static boolean ignoreIssueType(final String categoryName)
