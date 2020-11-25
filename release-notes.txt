@@ -5,7 +5,7 @@ SonarQube Sonargraph 8 Integration Plugin
 =====
 - Removal of Sonargraph rules 'Script-Based' and 'Plugin-Based' in favor of individual rules per script and plugin issue
   to allow better filtering on the issues view. 
-  Requires at least Sonargraph 10.5 if plugins have been configured.
+  Requires at least Sonargraph 10.5 if plugins have been configured in the Sonargraph system.
 
 
 5.2.0
