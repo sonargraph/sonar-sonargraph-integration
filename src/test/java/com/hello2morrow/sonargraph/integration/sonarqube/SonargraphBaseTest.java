@@ -47,6 +47,11 @@ public final class SonargraphBaseTest
         assertEquals("Sonargraph Integration: Plugin Issue", SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME));
         assertEquals("plugin-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME));
 
+        assertEquals("use-case-cluster-depends-on-legacy-module-shared",
+                SonargraphBase.createRuleCategoryTag("Use case cluster depends on legacy module: 'shared'?"));
+        assertEquals("use-case-cluster-depends-on-legacy-module-shared-.-this-over...",
+                SonargraphBase.createRuleCategoryTag("Use case cluster depends on legacy module: 'shared'. This overly long tag is truncated?"));
+
         //Metrics
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
     }

@@ -77,9 +77,16 @@ public final class SonargraphRules implements RulesDefinition
                 customRuleDtos.size());
     }
 
-    private void createRule(final String key, final String name, final String severity, final String description, final NewRepository repository,
+    private void createRule(String key, final String name, final String severity, final String description, final NewRepository repository,
             final String[] categoryTag)
     {
+        if (key.length() > 200)
+        {
+            LOGGER.warn("{}: Key '{}' exceeds max length of 200 characters and is truncated.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    key);
+            key = key.substring(0, 200);
+        }
+
         final NewRule rule = repository.createRule(key);
         rule.setName(name);
         final String[] tags = new String[categoryTag.length + 1];
