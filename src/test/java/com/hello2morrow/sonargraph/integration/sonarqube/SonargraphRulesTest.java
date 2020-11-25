@@ -19,8 +19,11 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import static org.junit.Assert.assertEquals;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Context;
 
 public final class SonargraphRulesTest
 {
@@ -38,16 +41,23 @@ public final class SonargraphRulesTest
         }
     }
 
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
     @Test
-    public void testRulesDefinition()
+    public void testStandardRulesDefinition()
     {
-        final RulesDefinition.Context context = TestRules.createTestContext();
-        final SonargraphRules sonargraphRules = new SonargraphRules();
+        final RulesDefinition.Context context = new Context();
+        final SonargraphRules sonargraphRules = new SonargraphRules(new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath()));
         sonargraphRules.define(context);
         final int numberOfBuiltinRules = 18;
-        final int scriptRule = 1;
-        final int pluginRule = 1;
-        assertEquals("Wrong number of rules", numberOfBuiltinRules + scriptRule + pluginRule,
-                context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
+        assertEquals("Wrong number of rules", numberOfBuiltinRules, context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
+    }
+
+    @Test
+    public void testEmptyCustomRulesDefinition()
+    {
+        final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath());
+        assertEquals("No custom rules expected", 0, rulesProvider.loadCustomRules().size());
     }
 }

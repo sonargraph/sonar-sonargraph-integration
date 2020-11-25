@@ -68,7 +68,7 @@ public class SonargraphMetricsProviderTest
         final Map<String, Metric<Serializable>> metrics = metricsProvider.convertMetricProperties(metricsProvider.getCustomMetricProperties());
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
         final File targetFile = new File(metricsProvider.getFilePath());
-        metricsProvider.saveMetricProperties(customMetricProperties, targetFile, "Sonargraph Test Metrics");
+        metricsProvider.saveProperties(customMetricProperties, targetFile, "Sonargraph Test Metrics");
 
         final File customMetricsFile = new File(metricsProvider.getFilePath());
         assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
