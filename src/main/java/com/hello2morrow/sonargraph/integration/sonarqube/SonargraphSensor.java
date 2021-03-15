@@ -213,7 +213,7 @@ public final class SonargraphSensor implements ProjectSensor
 
     private File getReportFile(final Configuration configuration)
     {
-        String relativePath = null;
+        String relPath = null;
         final Optional<String> configuredRelativeReportPathOpt = configuration
                 .get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
         if (configuredRelativeReportPathOpt.isPresent())
@@ -221,27 +221,27 @@ public final class SonargraphSensor implements ProjectSensor
             final String configuredRelativeReportPath = configuredRelativeReportPathOpt.get();
             if (!configuredRelativeReportPath.isEmpty())
             {
-                relativePath = configuredRelativeReportPath;
+                relPath = configuredRelativeReportPath;
             }
         }
 
-        if (relativePath == null)
+        if (relPath == null)
         {
             final Optional<String> scannerApp = configuration.get("sonar.scanner.app");
             if (scannerApp.isPresent())
             {
-                relativePath = SonargraphSensor.getRelativePathForScannerApp(configuration, scannerApp.get());
+                relPath = SonargraphSensor.getRelativePathForScannerApp(configuration, scannerApp.get());
             }
         }
 
-        if (relativePath == null)
+        if (relPath == null)
         {
-            relativePath = "target/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+            relPath = "target/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
             LOGGER.info("{}: XML report file path not configured - using default '{}'",
-                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, relativePath);
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, relPath);
         }
 
-        final File reportFile = sqFileSystem.resolvePath(relativePath);
+        final File reportFile = sqFileSystem.resolvePath(relPath);
         if (reportFile.exists())
         {
             LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
@@ -295,11 +295,11 @@ public final class SonargraphSensor implements ProjectSensor
         return null;
     }
 
-    private void process(final SensorContext context, final ISonargraphSystemController sonargraphController)
+    private void process(final SensorContext sensorContext, final ISonargraphSystemController sonargraphController)
     {
         final ISoftwareSystem softwareSystem = sonargraphController.getSoftwareSystem();
 
-        final ActiveRulesAndMetrics rulesAndMetrics = createActiveRulesAndMetrics(context);
+        final ActiveRulesAndMetrics rulesAndMetrics = createActiveRulesAndMetrics(sensorContext);
         final ISystemInfoProcessor systemInfoProcessor = sonargraphController.createSystemInfoProcessor();
 
         final String language = determineLanguage(softwareSystem, rulesAndMetrics);
@@ -308,8 +308,8 @@ public final class SonargraphSensor implements ProjectSensor
             return;
         }
 
-        processSystem(context, softwareSystem, systemInfoProcessor, rulesAndMetrics, language);
-        processModules(context, sonargraphController, rulesAndMetrics, systemInfoProcessor, language);
+        processSystem(sensorContext, softwareSystem, systemInfoProcessor, rulesAndMetrics, language);
+        processModules(sensorContext, sonargraphController, rulesAndMetrics, systemInfoProcessor, language);
         updateRules();
     }
 
@@ -368,7 +368,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processModules(final SensorContext context, final ISonargraphSystemController sonargraphController,
+    private void processModules(final SensorContext sensorContext, final ISonargraphSystemController sonargraphController,
             final ActiveRulesAndMetrics rulesAndMetrics, final ISystemInfoProcessor systemInfoProcessor,
             final String language)
     {
@@ -382,7 +382,7 @@ public final class SonargraphSensor implements ProjectSensor
             {
                 if (sqModuleLanguage.equals(language))
                 {
-                    processModule(context, moduleInfoProcessor, rulesAndMetrics, language);
+                    processModule(sensorContext, moduleInfoProcessor, rulesAndMetrics, language);
                 }
                 else
                 {
@@ -426,12 +426,12 @@ public final class SonargraphSensor implements ProjectSensor
         return language;
     }
 
-    private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem,
+    private void processSystem(final SensorContext sensorContext, final ISoftwareSystem softwareSystem,
             final ISystemInfoProcessor systemInfoProcessor, final ActiveRulesAndMetrics rulesAndMetrics,
             final String language)
     {
 
-        processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
+        processSystemMetrics(sensorContext, sensorContext.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules(language);
         if (keyToRule == null || keyToRule.isEmpty())
         {
@@ -450,7 +450,7 @@ public final class SonargraphSensor implements ProjectSensor
                     .get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
             if (nextRule != null)
             {
-                createSqIssue(context, context.project(), nextRule,
+                createSqIssue(sensorContext, sensorContext.project(), nextRule,
                         createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
             else
@@ -528,7 +528,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processModule(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
+    private void processModule(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
             final ActiveRulesAndMetrics rulesAndMetrics, final String language)
     {
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules(language);
@@ -542,7 +542,7 @@ public final class SonargraphSensor implements ProjectSensor
                 .getIssuesForSourceFiles(i -> !i.isIgnored() && !SonargraphBase.ignoreIssueType(i.getIssueType()));
         for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
         {
-            addIssuesToSourceFile(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(),
+            addIssuesToSourceFile(sensorContext, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(),
                     issuesPerSourceFile.getKey(), issuesPerSourceFile.getValue());
         }
 
@@ -550,14 +550,14 @@ public final class SonargraphSensor implements ProjectSensor
                 .getIssuesForDirectories(i -> !i.isIgnored() && !SonargraphBase.ignoreIssueType(i.getIssueType()));
         for (final Entry<String, List<IIssue>> issuesPerDirectory : directoryIssueMap.entrySet())
         {
-            addIssuesToDirectory(context, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(),
+            addIssuesToDirectory(sensorContext, moduleInfoProcessor, keyToRule, moduleInfoProcessor.getBaseDirectory(),
                     issuesPerDirectory.getKey(), issuesPerDirectory.getValue());
         }
     }
 
     private String createIssueDescription(final IInfoProcessor infoProcessor, final IIssue issue, final String detail)
     {
-        final StringBuilder description = new StringBuilder();
+        final StringBuilder result = new StringBuilder();
 
         final IResolution resolution = infoProcessor.getResolution(issue);
         if (resolution != null)
@@ -566,13 +566,13 @@ public final class SonargraphSensor implements ProjectSensor
             switch (type)
             {
             case FIX:
-                description.append("[").append(SonargraphBase.toLowerCase(type.toString(), false)).append(": ")
+                result.append("[").append(SonargraphBase.toLowerCase(type.toString(), false)).append(": ")
                         .append(issue.getPresentationName()).append("]");
                 break;
             case REFACTORING:
                 //$FALL-THROUGH$
             case TODO:
-                description.append("[").append(issue.getPresentationName()).append("]");
+                result.append("[").append(issue.getPresentationName()).append("]");
                 break;
             case IGNORE:
                 //$FALL-THROUGH$
@@ -583,25 +583,25 @@ public final class SonargraphSensor implements ProjectSensor
                 break;
             }
 
-            description.append(" assignee='").append(resolution.getAssignee()).append("'");
-            description.append(" priority='")
+            result.append(" assignee='").append(resolution.getAssignee()).append("'");
+            result.append(" priority='")
                     .append(SonargraphBase.toLowerCase(resolution.getPriority().toString(), false)).append("'");
-            description.append(" description='").append(resolution.getDescription()).append("'");
-            description.append(" created='").append(resolution.getDate()).append("'");
+            result.append(" description='").append(resolution.getDescription()).append("'");
+            result.append(" created='").append(resolution.getDate()).append("'");
         }
         else
         {
-            description.append("[").append(issue.getPresentationName()).append("]");
+            result.append("[").append(issue.getPresentationName()).append("]");
         }
 
-        description.append(" ").append(issue.getDescription());
+        result.append(" ").append(issue.getDescription());
         if (!detail.isEmpty())
         {
-            description.append(" ").append(detail);
+            result.append(" ").append(detail);
         }
-        description.append(" [").append(issue.getIssueProvider().getPresentationName()).append("]");
+        result.append(" [").append(issue.getIssueProvider().getPresentationName()).append("]");
 
-        return description.toString();
+        return result.toString();
     }
 
     private String createIssueDescription(final IModuleInfoProcessor moduleInfoProcessor,
@@ -682,27 +682,27 @@ public final class SonargraphSensor implements ProjectSensor
                 .hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
         if (inputPath != null)
         {
-            for (final IIssue nextIssue : issues)
+            for (final IIssue issue : issues)
             {
-                final String ruleKey = SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(),
-                        nextIssue.getSeverity());
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(),
+                        issue.getSeverity());
                 final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
                     {
-                        createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, nextIssue,
+                        createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, issue,
                                 nextRule);
                     }
                     catch (final Exception e)
                     {
                         LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '"
-                                + nextIssue + "'. ", e);
+                                + issue + "'. ", e);
                     }
                 }
                 else
                 {
-                    createCustomRuleForIssue(nextIssue);
+                    createCustomRuleForIssue(issue);
                 }
             }
         }
@@ -723,27 +723,27 @@ public final class SonargraphSensor implements ProjectSensor
 
         if (inputDir != null)
         {
-            for (final IIssue nextIssue : issues)
+            for (final IIssue issue : issues)
             {
-                final String ruleKey = SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(),
-                        nextIssue.getSeverity());
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(),
+                        issue.getSeverity());
                 final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
                     {
                         createSqIssue(context, inputDir, nextRule,
-                                createIssueDescription(moduleInfoProcessor, nextIssue), null);
+                                createIssueDescription(moduleInfoProcessor, issue), null);
                     }
                     catch (final Exception e)
                     {
                         LOGGER.error(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + ": Failed to create issue '"
-                                + nextIssue + "'. ", e);
+                                + issue + "'. ", e);
                     }
                 }
                 else
                 {
-                    createCustomRuleForIssue(nextIssue);
+                    createCustomRuleForIssue(issue);
                 }
             }
         }
@@ -754,7 +754,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processSystemMetrics(final SensorContext context, final InputComponent inputComponent,
+    private void processSystemMetrics(final SensorContext sensorContext, final InputComponent inputComponent,
             final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
             final ActiveRulesAndMetrics rulesAndMetrics)
     {
@@ -797,7 +797,7 @@ public final class SonargraphSensor implements ProjectSensor
                      * Throws UnsupportedOperationException, if custom metric is present on server side, but was not available at scanner start on
                      * scanner side.
                      */
-                    createSonarqubeMeasure(context, inputComponent, metric, metricValueOpt.get());
+                    createSqMeasure(sensorContext, inputComponent, metric, metricValueOpt.get());
                 }
                 catch (final UnsupportedOperationException e)
                 {
@@ -872,7 +872,7 @@ public final class SonargraphSensor implements ProjectSensor
     }
 
     @SuppressWarnings("unchecked")
-    private void createSonarqubeMeasure(final SensorContext context, final InputComponent inputComponent,
+    private void createSqMeasure(final SensorContext context, final InputComponent inputComponent,
             final Metric<? extends Serializable> metric, final IMetricValue metricValue)
     {
         if (metricValue.getId().isFloat())
