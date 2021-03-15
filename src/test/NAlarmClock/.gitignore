@@ -1,0 +1,11 @@
+**/target/
+.sonar
+.scannerwork
+.settings
+.idea
+*.log
+.sonargraphintegration
+.vs
+**/bin/**
+**/obj/**
+.sonarqube

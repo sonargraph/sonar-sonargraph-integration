@@ -1,0 +1,44 @@
+<?xml version="1.0" ?>
+<ns2:softwareSystem xmlns:ns2="http://www.hello2morrow.com/sonargraph/core" id="b0834025fd004e3e43a8c2b26976c7a1" version="11.1.0.100">
+	<description></description>
+	<module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpProjectFileBasedModule" assemblyName="NAlarmClock" name="NAlarmClock" id="30ea47f0fd6a867b730bda1844c6c101" language="CSharp">
+		<description></description>
+		<dependsOn xsi:type="ns4:xsdCSharpVisualStudioProjectDependency" id="188d643ed343519fb4d9fe8d5506db34" name="View"></dependsOn>
+		<dependsOn xsi:type="ns4:xsdCSharpVisualStudioProjectDependency" id="5a2fadb83a841ea2154210f4c61c43f5" name="Model"></dependsOn>
+		<dependsOn xsi:type="ns4:xsdCSharpVisualStudioProjectDependency" id="ab5a4ff231659bcf447c7f10373addd0" name="Foundation"></dependsOn>
+		<csharpProjectFile configurationName="Debug|x86" path="./NAlarmClock/NAlarmClock.csproj" solutionFilePath="./NAlarmClock.sln"></csharpProjectFile>
+		<moduleProfileForImport targetFrameworkIdentifier=".NETFramework" projectFileType="PreVs2017" targetFrameworkVersion2="4.0">
+			<preprocessorSymbols>DEBUG</preprocessorSymbols>
+		</moduleProfileForImport>
+	</module>
+	<module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpProjectFileBasedModule" assemblyName="Foundation" name="Foundation" id="ab5a4ff231659bcf447c7f10373addd0" language="CSharp">
+		<description></description>
+		<csharpProjectFile configurationName="Debug|AnyCPU" path="./Foundation/Foundation.csproj" solutionFilePath="./NAlarmClock.sln"></csharpProjectFile>
+		<moduleProfileForImport targetFrameworkIdentifier=".NETFramework" projectFileType="PreVs2017" targetFrameworkVersion2="4.0">
+			<preprocessorSymbols>DEBUG</preprocessorSymbols>
+		</moduleProfileForImport>
+	</module>
+	<module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpProjectFileBasedModule" assemblyName="Model" name="Model" id="5a2fadb83a841ea2154210f4c61c43f5" language="CSharp">
+		<description></description>
+		<dependsOn xsi:type="ns4:xsdCSharpVisualStudioProjectDependency" id="ab5a4ff231659bcf447c7f10373addd0" name="Foundation"></dependsOn>
+		<csharpProjectFile configurationName="Debug|AnyCPU" path="./Model/Model.csproj" solutionFilePath="./NAlarmClock.sln"></csharpProjectFile>
+		<moduleProfileForImport targetFrameworkIdentifier=".NETFramework" projectFileType="PreVs2017" targetFrameworkVersion2="4.0">
+			<preprocessorSymbols>DEBUG</preprocessorSymbols>
+		</moduleProfileForImport>
+	</module>
+	<module xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpProjectFileBasedModule" assemblyName="View" name="View" id="188d643ed343519fb4d9fe8d5506db34" language="CSharp">
+		<description></description>
+		<dependsOn xsi:type="ns4:xsdCSharpVisualStudioProjectDependency" id="ab5a4ff231659bcf447c7f10373addd0" name="Foundation"></dependsOn>
+		<csharpProjectFile configurationName="Debug|AnyCPU" path="./View/View.csproj" solutionFilePath="./NAlarmClock.sln"></csharpProjectFile>
+		<moduleProfileForImport targetFrameworkIdentifier=".NETFramework" projectFileType="PreVs2017" targetFrameworkVersion2="4.0">
+			<preprocessorSymbols>DEBUG</preprocessorSymbols>
+		</moduleProfileForImport>
+	</module>
+	<systemExtension xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpSystemConfiguration" language="CSharp">
+		<systemProfile targetFrameworkVersion2="4.0">
+			<profileRef profileId="Local4.7.2"></profileRef>
+			<directories></directories>
+			<preprocessorSymbols></preprocessorSymbols>
+		</systemProfile>
+	</systemExtension>
+</ns2:softwareSystem>
