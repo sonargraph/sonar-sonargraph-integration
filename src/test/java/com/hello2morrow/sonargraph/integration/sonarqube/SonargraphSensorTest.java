@@ -380,6 +380,33 @@ public final class SonargraphSensorTest
     }
 
     @Test
+    public void testReportWithUnsupportedLanguage() throws IOException
+    {
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/NAlarmClock/NAlarmClock_Report.xml");
+        settings.setProperty(SonargraphBase.SONARGRAPH_BASE_DIR_KEY, "./src/test/test-project");
+
+        final SensorContextTester context = setupAndExecuteSensorForTestProject(settings, "./src/test/test-project");
+        final Measure<Integer> coreTypesMeasure = context.measure(context.module().key(),
+                SonargraphBase.createMetricKeyFromStandardName("CoreComponents"));
+        assertNull("No measure expected", coreTypesMeasure);
+    }
+
+    @Test
+    public void testEmtpyReport() throws IOException
+    {
+        final MapSettings settings = new MapSettings();
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY,
+                "./src/test/NAlarmClock/NAlarmClock_Report_empty_workspace.xml");
+        settings.setProperty(SonargraphBase.SONARGRAPH_BASE_DIR_KEY, "./src/test/test-project");
+
+        final SensorContextTester context = setupAndExecuteSensorForTestProject(settings, "./src/test/test-project");
+        final Measure<Integer> coreTypesMeasure = context.measure(context.module().key(),
+                SonargraphBase.createMetricKeyFromStandardName("CoreComponents"));
+        assertNull("No measure expected", coreTypesMeasure);
+    }
+
+    @Test
     public void testGetRelativePathForMavenScannerApp() throws IOException
     {
         final MapSettings settings = new MapSettings();

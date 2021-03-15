@@ -24,7 +24,7 @@
     proxyPort="" 
     proxyUsername=""
     proxyPassword="" 
-    logLevel="debug"
+    logLevel="info"
     progressInfo="basic">
     
    <!-- 
