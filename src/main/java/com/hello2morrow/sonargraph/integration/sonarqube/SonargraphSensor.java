@@ -22,12 +22,15 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -77,24 +80,102 @@ public final class SonargraphSensor implements ProjectSensor
 
     static final class ActiveRulesAndMetrics
     {
-        private final Map<String, ActiveRule> activeRules;
+        private final Map<String, Map<String, ActiveRule>> languageToActiveRules;
         private final Map<String, Metric<Serializable>> metrics;
 
-        ActiveRulesAndMetrics(final Map<String, ActiveRule> activeRules, final Map<String, Metric<Serializable>> metrics)
+        ActiveRulesAndMetrics(final Map<String, Map<String, ActiveRule>> languageToActiveRules, final Map<String, Metric<Serializable>> metrics)
         {
-            this.activeRules = activeRules;
+            this.languageToActiveRules = languageToActiveRules;
             this.metrics = metrics;
         }
 
-        Map<String, ActiveRule> getActiveRules()
+        Map<String, ActiveRule> getActiveRules(final String language)
         {
-            return Collections.unmodifiableMap(activeRules);
+            final Map<String, ActiveRule> rules = languageToActiveRules.get(language);
+            if (rules != null)
+            {
+                return Collections.unmodifiableMap(rules);
+            }
+
+            return null;
         }
 
         Map<String, Metric<Serializable>> getMetrics()
         {
             return Collections.unmodifiableMap(metrics);
         }
+
+        Set<String> getLanguages()
+        {
+            return Collections.unmodifiableSet(languageToActiveRules.keySet());
+        }
+    }
+
+    private static class ModulesLanguageCounter
+    {
+        private final int count;
+        private final String language;
+
+        public ModulesLanguageCounter(final String language, final int count)
+        {
+            this.language = language;
+            this.count = count;
+        }
+
+        public int getCount()
+        {
+            return count;
+        }
+
+        public String getLanguage()
+        {
+            return language;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + count;
+            result = prime * result + ((language == null) ? 0 : language.hashCode());
+            return result;
+        }
+
+        @Override
+        public boolean equals(final Object obj)
+        {
+            if (this == obj)
+            {
+                return true;
+            }
+            if (obj == null)
+            {
+                return false;
+            }
+            if (getClass() != obj.getClass())
+            {
+                return false;
+            }
+            final ModulesLanguageCounter other = (ModulesLanguageCounter) obj;
+            if (count != other.count)
+            {
+                return false;
+            }
+            if (language == null)
+            {
+                if (other.language != null)
+                {
+                    return false;
+                }
+            }
+            else if (!language.equals(other.language))
+            {
+                return false;
+            }
+            return true;
+        }
+
     }
 
     private final FileSystem sonarqubeFileSystem;
@@ -107,6 +188,7 @@ public final class SonargraphSensor implements ProjectSensor
 
     //[IK] In contrast to metrics, rules are dynamically provided to the client, so there cannot be a situation that the scanner needs updating.
     private boolean isUpdateOfServerCustomRulesNeeded = false;
+    private String m_language;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sonargraphMetrics)
     {
@@ -258,14 +340,34 @@ public final class SonargraphSensor implements ProjectSensor
 
         final ActiveRulesAndMetrics rulesAndMetrics = createActiveRulesAndMetrics(context);
         final ISystemInfoProcessor systemInfoProcessor = sonargraphController.createSystemInfoProcessor();
-        processSystem(context, softwareSystem, systemInfoProcessor, rulesAndMetrics);
+        if (!processSystem(context, softwareSystem, systemInfoProcessor, rulesAndMetrics))
+        {
+            return;
+        }
 
         for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
         {
             final IModule module = nextEntry.getValue();
             final IModuleInfoProcessor moduleInfoProcessor = sonargraphController.createModuleInfoProcessor(module);
 
-            processModule(context, moduleInfoProcessor, rulesAndMetrics);
+            final String sqModuleLanguage = SonargraphBase.convertLanguage(module.getLanguage());
+            if (sqModuleLanguage != null)
+            {
+                if (sqModuleLanguage.equals(m_language))
+                {
+                    processModule(context, moduleInfoProcessor, rulesAndMetrics, m_language);
+                }
+                else
+                {
+                    LOGGER.warn("{}: Ignoring module '{}', since language '{}' is not active for project",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
+                }
+            }
+            else
+            {
+                LOGGER.warn("{}: Ignoring module '{}', since language '{}' is not supported by Sonargraph SonarQube Plugin",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
+            }
         }
 
         if (isUpdateOfServerCustomMetricsNeeded || isUpdateOfScannerCustomMetricsNeeded)
@@ -315,7 +417,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processSystem(final SensorContext context, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
+    private boolean processSystem(final SensorContext context, final ISoftwareSystem softwareSystem, final ISystemInfoProcessor systemInfoProcessor,
             final ActiveRulesAndMetrics rulesAndMetrics)
     {
         processSystemMetrics(context, context.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
@@ -323,8 +425,32 @@ public final class SonargraphSensor implements ProjectSensor
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(
                 issue -> !issue.isIgnored() && (issue.getIssueType().getCategory().getName().equals(SonargraphBase.QUALITY_GATE_ISSUE_CATEGORY))
                         || (!SonargraphBase.ignoreIssueType(issue.getIssueType()) && issue.getAffectedNamedElements().contains(softwareSystem)));
-        final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
 
+        final List<ModulesLanguageCounter> languagesOfModules = determineLanguagesOfSystem(softwareSystem);
+        if (languagesOfModules.isEmpty())
+        {
+            LOGGER.error("{}: No languages could be determined from the modules of the Sonargraph system.",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+            return false;
+        }
+
+        m_language = getMostUsedActiveLanguage(languagesOfModules, rulesAndMetrics);
+        if (m_language == null)
+        {
+            LOGGER.error("{}: No rules are active that match the languages or the Sonargraph system: {}",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    languagesOfModules.stream().map(m -> m.getLanguage()).collect(Collectors.joining(", ")));
+            return false;
+        }
+        if (languagesOfModules.size() > 1)
+        {
+            LOGGER.warn(
+                    "{}: Several languages are detected in Sonargraph system. "
+                            + "As support for multi-language systems has not been implemented, only information for language {} will be processed",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, m_language);
+        }
+
+        final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules(m_language);
         for (final IIssue nextIssue : systemIssues)
         {
             final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
@@ -355,6 +481,48 @@ public final class SonargraphSensor implements ProjectSensor
                 i++;
             }
         }
+
+        return true;
+    }
+
+    private String getMostUsedActiveLanguage(final List<ModulesLanguageCounter> languagesOfModules, final ActiveRulesAndMetrics rulesAndMetrics)
+    {
+        final Set<String> configuredLanguages = rulesAndMetrics.getLanguages();
+        for (final ModulesLanguageCounter next : languagesOfModules)
+        {
+            if (configuredLanguages.contains(next.getLanguage()))
+            {
+                return next.getLanguage();
+            }
+        }
+        return null;
+    }
+
+    private List<ModulesLanguageCounter> determineLanguagesOfSystem(final ISoftwareSystem softwareSystem)
+    {
+        final Map<String, Integer> languagesToModuleCount = new HashMap<>();
+        for (final Map.Entry<String, IModule> next : softwareSystem.getModules().entrySet())
+        {
+            final String language = next.getValue().getLanguage();
+            final Integer count = languagesToModuleCount.computeIfAbsent(language, k -> new Integer(0));
+            languagesToModuleCount.put(language, count + 1);
+        }
+
+        final List<ModulesLanguageCounter> sorted = new ArrayList<>();
+        for (final Map.Entry<String, Integer> next : languagesToModuleCount.entrySet())
+        {
+            final String sqLanguage = SonargraphBase.convertLanguage(next.getKey());
+            if (sqLanguage == null)
+            {
+                LOGGER.warn("Ignoring {} modules with unsupported language '{}'", next.getValue(), next.getKey());
+            }
+            else
+            {
+                sorted.add(new ModulesLanguageCounter(sqLanguage, next.getValue()));
+            }
+        }
+        sorted.sort(Comparator.comparing(ModulesLanguageCounter::getCount).reversed());
+        return sorted;
     }
 
     private void createCustomRuleForIssue(final IIssue issue)
@@ -367,9 +535,9 @@ public final class SonargraphSensor implements ProjectSensor
     }
 
     private void processModule(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
-            final ActiveRulesAndMetrics rulesAndMetrics)
+            final ActiveRulesAndMetrics rulesAndMetrics, final String language)
     {
-        final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules();
+        final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules(language);
         final Map<ISourceFile, List<IIssue>> sourceFileIssueMap = moduleInfoProcessor
                 .getIssuesForSourceFiles(i -> !i.isIgnored() && !SonargraphBase.ignoreIssueType(i.getIssueType()));
         for (final Entry<ISourceFile, List<IIssue>> issuesPerSourceFile : sourceFileIssueMap.entrySet())
@@ -508,7 +676,8 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity());
+                final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
@@ -543,7 +712,8 @@ public final class SonargraphSensor implements ProjectSensor
         {
             for (final IIssue nextIssue : issues)
             {
-                final ActiveRule nextRule = keyToRule.get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity());
+                final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
@@ -651,15 +821,31 @@ public final class SonargraphSensor implements ProjectSensor
 
     private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext context)
     {
-        final Map<String, ActiveRule> activeRules = new HashMap<>();
-        context.activeRules().findByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).forEach(a -> activeRules.put(a.ruleKey().rule(), a));
-        LOGGER.info("{}: {} rule(s) activated", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, activeRules.size());
+        final Map<String, Map<String, ActiveRule>> languageToActiveRules = new HashMap<>();
+        HashMap<String, ActiveRule> activeRules;
+        for (final String nextLanguage : SonargraphBase.SUPPORTED_LANGUAGES)
+        {
+            final Collection<ActiveRule> rules = context.activeRules().findByRepository(SonargraphRules.getRepositoryKeyForLanguage(nextLanguage));
+            if (rules.isEmpty())
+            {
+                continue;
+            }
+
+            activeRules = new HashMap<>();
+            languageToActiveRules.put(nextLanguage, activeRules);
+            for (final ActiveRule rule : rules)
+            {
+                activeRules.put(rule.ruleKey().rule(), rule);
+            }
+        }
+
+        LOGGER.info("{}: {} rule(s) activated", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, languageToActiveRules.size());
 
         final Map<String, Metric<Serializable>> metrics = sonarqubeMetricFinder.findAll().stream()
                 .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX)).collect(Collectors.toMap(Metric::key, m -> m));
         LOGGER.info("{}: {} metric(s) defined", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, metrics.size());
 
-        return new ActiveRulesAndMetrics(activeRules, metrics);
+        return new ActiveRulesAndMetrics(languageToActiveRules, metrics);
     }
 
     @SuppressWarnings("unchecked")

@@ -61,12 +61,6 @@ public final class SonargraphPluginTest
                 {
                     return SonarEdition.COMMUNITY;
                 }
-
-                //                @Override
-                //                public SonarEdition getEdition()
-                //                {
-                //                    return SonarEdition.COMMUNITY;
-                //                }
             });
         }
 
@@ -86,6 +80,6 @@ public final class SonargraphPluginTest
 
         @SuppressWarnings("rawtypes")
         final List extensions = context.getExtensions();
-        assertEquals("Wrong number of extensions", 5, extensions.size());
+        assertEquals("Wrong number of extensions", 7, extensions.size());
     }
 }

@@ -49,7 +49,32 @@ public final class SonargraphRules implements RulesDefinition
     @Override
     public void define(final Context context)
     {
-        final NewRepository repository = context.createRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY, SonargraphBase.JAVA)
+        for (final String next : SonargraphBase.SUPPORTED_LANGUAGES)
+        {
+            final String repositoryKey = getRepositoryKeyForLanguage(next);
+            createRepository(context, repositoryKey, next);
+        }
+    }
+
+    static String getRepositoryKeyForLanguage(final String language)
+    {
+        if (language.equals(SonargraphBase.JAVA))
+        {
+            return SonargraphBase.SONARGRAPH_PLUGIN_KEY;
+        }
+
+        if (language.equals(SonargraphBase.CSHARP))
+        {
+            return SonargraphBase.SONARGRAPH_PLUGIN_KEY + "_" + SonargraphBase.CSHARP;
+        }
+
+        throw new IllegalArgumentException("Unsupported language: " + language);
+    }
+
+    private void createRepository(final Context context, final String repositoryKey, final String language)
+    {
+        LOGGER.debug("Creating repository {} for language {}", repositoryKey, language);
+        final NewRepository repository = context.createRepository(repositoryKey, language)
                 .setName(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
 
         final List<RuleDto> ruleDtos = rulesProvider.loadStandardRules();
@@ -57,18 +82,15 @@ public final class SonargraphRules implements RulesDefinition
         {
             if (!SonargraphBase.ignoreIssueType(ruleDto.getCategoryName()))
             {
-                final String key = ruleDto.getKey();
-                final String name = ruleDto.getName();
-                createRule(key, name, ruleDto.getSeverity(), ruleDto.getDescription(), repository, ruleDto.getCategoryTags());
+                createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(), repository,
+                        ruleDto.getCategoryTags());
             }
         }
 
         final List<RuleDto> customRuleDtos = rulesProvider.loadCustomRules();
         for (final RuleDto ruleDto : customRuleDtos)
         {
-            final String key = ruleDto.getKey();
-            final String name = ruleDto.getName();
-            createRule(key, name, ruleDto.getSeverity(), ruleDto.getDescription(), repository, ruleDto.getCategoryTags());
+            createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(), repository, ruleDto.getCategoryTags());
         }
 
         repository.done();
@@ -80,6 +102,7 @@ public final class SonargraphRules implements RulesDefinition
     private void createRule(String key, final String name, final String severity, final String description, final NewRepository repository,
             final String[] categoryTag)
     {
+        LOGGER.debug("Create rule {} on repository {} ", key, repository.key());
         if (key.length() > 200)
         {
             LOGGER.warn("{}: Key '{}' exceeds max length of 200 characters and is truncated.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,

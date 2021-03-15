@@ -46,6 +46,9 @@ final class SonargraphBase
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
     static final String JAVA = "java";
+    static final String CSHARP = "cs";
+    static final String[] SUPPORTED_LANGUAGES = new String[] { SonargraphBase.JAVA, SonargraphBase.CSHARP };
+
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
@@ -348,5 +351,18 @@ final class SonargraphBase
             return (String) input;
         }
         throw new IllegalArgumentException("Empty input");
+    }
+
+    public static String convertLanguage(final String sonargraphLanguage)
+    {
+        switch (sonargraphLanguage)
+        {
+        case "Java":
+            return JAVA;
+        case "CSharp":
+            return CSHARP;
+        default:
+            return null;
+        }
     }
 }
