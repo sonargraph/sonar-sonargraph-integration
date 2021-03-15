@@ -136,8 +136,8 @@ public final class SonargraphSensor implements ProjectSensor
 
     private final FileSystem sqFileSystem;
     private final MetricFinder sqMetricFinder;
-    private final SonargraphMetrics sonargraphMetrics;
-    private final SonargraphRulesProvider sonargraphRulesProvider;
+    private final SonargraphMetrics sgMetrics;
+    private final SonargraphRulesProvider sgRulesProvider;
 
     private boolean isUpdateOfServerCustomMetricsNeeded = false;
     private boolean isUpdateOfScannerCustomMetricsNeeded = false;
@@ -146,18 +146,18 @@ public final class SonargraphSensor implements ProjectSensor
     private boolean isUpdateOfServerCustomRulesNeeded = false;
 
     public SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder,
-            final SonargraphMetrics sonargraphMetrics)
+            final SonargraphMetrics sgMetrics)
     {
-        this(fileSystem, metricFinder, sonargraphMetrics, new SonargraphRulesProvider());
+        this(fileSystem, metricFinder, sgMetrics, new SonargraphRulesProvider());
     }
 
     SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder,
-            final SonargraphMetrics sonargraphMetrics, final SonargraphRulesProvider sonargraphRulesProvider)
+            final SonargraphMetrics sgMetrics, final SonargraphRulesProvider sgRulesProvider)
     {
         this.sqFileSystem = fileSystem;
         this.sqMetricFinder = metricFinder;
-        this.sonargraphMetrics = sonargraphMetrics;
-        this.sonargraphRulesProvider = sonargraphRulesProvider;
+        this.sgMetrics = sgMetrics;
+        this.sgRulesProvider = sgRulesProvider;
     }
 
     @Override
@@ -167,43 +167,43 @@ public final class SonargraphSensor implements ProjectSensor
     }
 
     @Override
-    public void execute(final SensorContext context)
+    public void execute(final SensorContext sensorContext)
     {
         isUpdateOfServerCustomMetricsNeeded = false;
         isUpdateOfScannerCustomMetricsNeeded = false;
         isUpdateOfServerCustomRulesNeeded = false;
 
-        sonargraphRulesProvider.loadStandardRules();
-        sonargraphRulesProvider.loadCustomRules();
+        sgRulesProvider.loadStandardRules();
+        sgRulesProvider.loadCustomRules();
 
-        final String projectKey = context.config().get("sonar.projectKey").orElse("<unknown>");
+        final String projectKey = sensorContext.config().get("sonar.projectKey").orElse("<unknown>");
         LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                 projectKey);
 
-        final File reportFile = getReportFile(context.config());
+        final File reportFile = getReportFile(sensorContext.config());
         if (reportFile != null)
         {
             final ISonargraphSystemController sgController = ControllerFactory.createController();
 
-            final File systemBaseDir = getSystemBaseDirectory(context.config());
-            Result loadReportResult;
+            final File systemBaseDir = getSystemBaseDirectory(sensorContext.config());
+            Result loadReport;
             if (systemBaseDir == null)
             {
-                loadReportResult = sgController.loadSystemReport(reportFile);
+                loadReport = sgController.loadSystemReport(reportFile);
             }
             else
             {
                 LOGGER.info("{}: Adjusting baseDirectory of Sonargraph system to '{}'",
                         SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, systemBaseDir);
-                loadReportResult = sgController.loadSystemReport(reportFile, systemBaseDir);
+                loadReport = sgController.loadSystemReport(reportFile, systemBaseDir);
             }
-            if (loadReportResult.isSuccess())
+            if (loadReport.isSuccess())
             {
-                process(context, sgController);
+                process(sensorContext, sgController);
             }
             else
             {
-                LOGGER.error("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, loadReportResult.toString());
+                LOGGER.error("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, loadReport.toString());
             }
         }
 
@@ -211,11 +211,10 @@ public final class SonargraphSensor implements ProjectSensor
                 SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
     }
 
-    private File getReportFile(final Configuration configuration)
+    private File getReportFile(final Configuration config)
     {
         String relPath = null;
-        final Optional<String> configuredRelativeReportPathOpt = configuration
-                .get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
+        final Optional<String> configuredRelativeReportPathOpt = config.get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
         if (configuredRelativeReportPathOpt.isPresent())
         {
             final String configuredRelativeReportPath = configuredRelativeReportPathOpt.get();
@@ -227,10 +226,12 @@ public final class SonargraphSensor implements ProjectSensor
 
         if (relPath == null)
         {
-            final Optional<String> scannerApp = configuration.get("sonar.scanner.app");
+            final Optional<String> scannerApp = config.get("sonar.scanner.app");
             if (scannerApp.isPresent())
             {
-                relPath = SonargraphSensor.getRelativePathForScannerApp(configuration, scannerApp.get());
+                final String scanner = scannerApp.get();
+                LOGGER.info("Determine report path from scanner app {}", scanner);
+                relPath = SonargraphSensor.getRelativePathForScannerApp(config, scanner);
             }
         }
 
@@ -241,16 +242,16 @@ public final class SonargraphSensor implements ProjectSensor
                     SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, relPath);
         }
 
-        final File reportFile = sqFileSystem.resolvePath(relPath);
-        if (reportFile.exists())
+        final File report = sqFileSystem.resolvePath(relPath);
+        if (report.exists())
         {
             LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    reportFile.getAbsolutePath());
-            return reportFile;
+                    report.getAbsolutePath());
+            return report;
         }
 
         LOGGER.warn("{}: XML report file '{}' not found", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                reportFile.getAbsolutePath());
+                report.getAbsolutePath());
         return null;
     }
 
@@ -277,9 +278,9 @@ public final class SonargraphSensor implements ProjectSensor
         return null;
     }
 
-    private File getSystemBaseDirectory(final Configuration configuration)
+    private File getSystemBaseDirectory(final Configuration config)
     {
-        final Optional<String> basePathOpt = configuration.get(SonargraphBase.SONARGRAPH_BASE_DIR_KEY);
+        final Optional<String> basePathOpt = config.get(SonargraphBase.SONARGRAPH_BASE_DIR_KEY);
         if (!basePathOpt.isPresent())
         {
             return null;
@@ -295,12 +296,12 @@ public final class SonargraphSensor implements ProjectSensor
         return null;
     }
 
-    private void process(final SensorContext sensorContext, final ISonargraphSystemController sonargraphController)
+    private void process(final SensorContext sensorContext, final ISonargraphSystemController sgController)
     {
-        final ISoftwareSystem softwareSystem = sonargraphController.getSoftwareSystem();
+        final ISoftwareSystem softwareSystem = sgController.getSoftwareSystem();
 
         final ActiveRulesAndMetrics rulesAndMetrics = createActiveRulesAndMetrics(sensorContext);
-        final ISystemInfoProcessor systemInfoProcessor = sonargraphController.createSystemInfoProcessor();
+        final ISystemInfoProcessor systemInfoProcessor = sgController.createSystemInfoProcessor();
 
         final String language = determineLanguage(softwareSystem, rulesAndMetrics);
         if (language == null)
@@ -309,7 +310,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
 
         processSystem(sensorContext, softwareSystem, systemInfoProcessor, rulesAndMetrics, language);
-        processModules(sensorContext, sonargraphController, rulesAndMetrics, systemInfoProcessor, language);
+        processModules(sensorContext, sgController, rulesAndMetrics, systemInfoProcessor, language);
         updateRules();
     }
 
@@ -320,7 +321,7 @@ public final class SonargraphSensor implements ProjectSensor
             //New custom metrics have been introduced.
             try
             {
-                final File customMetricsFile = sonargraphMetrics.getMetricsProvider()
+                final File customMetricsFile = sgMetrics.getMetricsProvider()
                         .saveCustomMetricProperties("Custom Sonargraph Metrics");
                 if (isUpdateOfServerCustomMetricsNeeded)
                 {
@@ -351,8 +352,7 @@ public final class SonargraphSensor implements ProjectSensor
             //New custom rules have been introduced.
             try
             {
-                final File customRulesFile = sonargraphRulesProvider
-                        .saveCustomRuleProperties("Custom Sonargraph Rules");
+                final File customRulesFile = sgRulesProvider.saveCustomRuleProperties("Custom Sonargraph Rules");
                 LOGGER.warn(
                         "{}: Custom rules have been updated, file {} needs to be copied to the directory <user-home>/.{} of the SonarQube server."
                                 + " After a restart of the server the additional rules can be activated in the quality profile"
@@ -368,14 +368,14 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processModules(final SensorContext sensorContext, final ISonargraphSystemController sonargraphController,
-            final ActiveRulesAndMetrics rulesAndMetrics, final ISystemInfoProcessor systemInfoProcessor,
-            final String language)
+    private void processModules(final SensorContext sensorContext,
+            final ISonargraphSystemController sgController, final ActiveRulesAndMetrics rulesAndMetrics,
+            final ISystemInfoProcessor systemInfoProcessor, final String language)
     {
         for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
         {
             final IModule module = nextEntry.getValue();
-            final IModuleInfoProcessor moduleInfoProcessor = sonargraphController.createModuleInfoProcessor(module);
+            final IModuleInfoProcessor moduleInfoProcessor = sgController.createModuleInfoProcessor(module);
 
             final String sqModuleLanguage = SonargraphBase.convertLanguage(module.getLanguage());
             if (sqModuleLanguage != null)
@@ -431,7 +431,8 @@ public final class SonargraphSensor implements ProjectSensor
             final String language)
     {
 
-        processSystemMetrics(sensorContext, sensorContext.project(), softwareSystem, systemInfoProcessor, rulesAndMetrics);
+        processSystemMetrics(sensorContext, sensorContext.project(), softwareSystem, systemInfoProcessor,
+                rulesAndMetrics);
         final Map<String, ActiveRule> keyToRule = rulesAndMetrics.getActiveRules(language);
         if (keyToRule == null || keyToRule.isEmpty())
         {
@@ -524,7 +525,7 @@ public final class SonargraphSensor implements ProjectSensor
         if (issue.getIssueType().getProvider() != null)
         {
             isUpdateOfServerCustomRulesNeeded = true;
-            sonargraphRulesProvider.addCustomRuleForIssue(issue);
+            sgRulesProvider.addCustomRuleForIssue(issue);
         }
     }
 
@@ -584,8 +585,8 @@ public final class SonargraphSensor implements ProjectSensor
             }
 
             result.append(" assignee='").append(resolution.getAssignee()).append("'");
-            result.append(" priority='")
-                    .append(SonargraphBase.toLowerCase(resolution.getPriority().toString(), false)).append("'");
+            result.append(" priority='").append(SonargraphBase.toLowerCase(resolution.getPriority().toString(), false))
+                    .append("'");
             result.append(" description='").append(resolution.getDescription()).append("'");
             result.append(" created='").append(resolution.getDate()).append("'");
         }
@@ -628,7 +629,7 @@ public final class SonargraphSensor implements ProjectSensor
         return createIssueDescription(infoProcessor, issue, "");
     }
 
-    private void createSourceFileIssues(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
+    private void createSourceFileIssues(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
             final ISourceFile sourceFile, final InputPath inputPath, final IIssue issue, final ActiveRule rule)
     {
         if (issue instanceof IDuplicateCodeBlockIssue)
@@ -647,7 +648,7 @@ public final class SonargraphSensor implements ProjectSensor
                     others.remove(nextOccurrence);
                     final String issueDescription = createIssueDescription(moduleInfoProcessor,
                             nextDuplicateCodeBlockIssue, nextOccurrence, others);
-                    createSqIssue(context, inputPath, rule, issueDescription,
+                    createSqIssue(sensorContext, inputPath, rule, issueDescription,
                             location -> location.at(new DefaultTextRange(
                                     new DefaultTextPointer(nextOccurrence.getStartLine(), ZERO_LINE_OFFSET),
                                     new DefaultTextPointer(
@@ -659,7 +660,7 @@ public final class SonargraphSensor implements ProjectSensor
         else
         {
             final String issueDescription = createIssueDescription(moduleInfoProcessor, issue);
-            createSqIssue(context, inputPath, rule, issueDescription, location ->
+            createSqIssue(sensorContext, inputPath, rule, issueDescription, location ->
             {
                 final int line = issue.getLine();
                 final int lineToUse = line <= 0 ? 1 : line;
@@ -669,7 +670,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void addIssuesToSourceFile(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
+    private void addIssuesToSourceFile(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
             final Map<String, ActiveRule> keyToRule, final String baseDir, final ISourceFile sourceFile,
             final List<IIssue> issues)
     {
@@ -678,21 +679,19 @@ public final class SonargraphSensor implements ProjectSensor
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).toAbsolutePath()
                 .normalize().toString();
 
-        final InputPath inputPath = sqFileSystem.inputFile(sqFileSystem.predicates()
-                .hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
+        final InputPath inputPath = sqFileSystem.inputFile(
+                sqFileSystem.predicates().hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
         if (inputPath != null)
         {
             for (final IIssue issue : issues)
             {
-                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(),
-                        issue.getSeverity());
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(), issue.getSeverity());
                 final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
                     {
-                        createSourceFileIssues(context, moduleInfoProcessor, sourceFile, inputPath, issue,
-                                nextRule);
+                        createSourceFileIssues(sensorContext, moduleInfoProcessor, sourceFile, inputPath, issue, nextRule);
                     }
                     catch (final Exception e)
                     {
@@ -713,27 +712,25 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void addIssuesToDirectory(final SensorContext context, final IModuleInfoProcessor moduleInfoProcessor,
+    private void addIssuesToDirectory(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
             final Map<String, ActiveRule> keyToRule, final String baseDir, final String relDirectory,
             final List<IIssue> issues)
     {
         final String directoryPath = Paths.get(baseDir, relDirectory).toAbsolutePath().normalize().toString();
-        final InputDir inputDir = sqFileSystem
-                .inputDir(new File(Utility.convertPathToUniversalForm(directoryPath)));
+        final InputDir inputDir = sqFileSystem.inputDir(new File(Utility.convertPathToUniversalForm(directoryPath)));
 
         if (inputDir != null)
         {
             for (final IIssue issue : issues)
             {
-                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(),
-                        issue.getSeverity());
+                final String ruleKey = SonargraphBase.createRuleKeyToCheck(issue.getIssueType(), issue.getSeverity());
                 final ActiveRule nextRule = keyToRule.get(ruleKey);
                 if (nextRule != null)
                 {
                     try
                     {
-                        createSqIssue(context, inputDir, nextRule,
-                                createIssueDescription(moduleInfoProcessor, issue), null);
+                        createSqIssue(sensorContext, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, issue),
+                                null);
                     }
                     catch (final Exception e)
                     {
@@ -767,7 +764,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
 
         final IMetricLevel systemLevel = systemLevelOpt.get();
-        final SonargraphMetricsProvider customMetricsProvider = sonargraphMetrics.getMetricsProvider();
+        final SonargraphMetricsProvider customMetricsProvider = sgMetrics.getMetricsProvider();
 
         for (final IMetricId nextMetricId : systemInfoProcessor.getMetricIdsForLevel(systemLevel))
         {
@@ -820,10 +817,10 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void createSqIssue(final SensorContext context, final InputComponent inputComponent,
-            final ActiveRule rule, final String msg, final Consumer<NewIssueLocation> consumer)
+    private void createSqIssue(final SensorContext sensorContext, final InputComponent inputComponent, final ActiveRule rule,
+            final String msg, final Consumer<NewIssueLocation> consumer)
     {
-        final NewIssue sonarqubeIssue = context.newIssue();
+        final NewIssue sonarqubeIssue = sensorContext.newIssue();
         sonarqubeIssue.forRule(rule.ruleKey());
 
         final NewIssueLocation sqIssueLoc = sonarqubeIssue.newLocation();
@@ -839,13 +836,13 @@ public final class SonargraphSensor implements ProjectSensor
         sonarqubeIssue.save();
     }
 
-    private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext context)
+    private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext sensorContext)
     {
         final Map<String, Map<String, ActiveRule>> languageToActiveRules = new HashMap<>();
         HashMap<String, ActiveRule> activeRules;
         for (final String nextLanguage : SonargraphBase.SUPPORTED_LANGUAGES)
         {
-            final Collection<ActiveRule> rules = context.activeRules()
+            final Collection<ActiveRule> rules = sensorContext.activeRules()
                     .findByRepository(SonargraphRules.getRepositoryKeyForLanguage(nextLanguage));
             if (rules.isEmpty())
             {
@@ -872,12 +869,12 @@ public final class SonargraphSensor implements ProjectSensor
     }
 
     @SuppressWarnings("unchecked")
-    private void createSqMeasure(final SensorContext context, final InputComponent inputComponent,
+    private void createSqMeasure(final SensorContext sensorContext, final InputComponent inputComponent,
             final Metric<? extends Serializable> metric, final IMetricValue metricValue)
     {
         if (metricValue.getId().isFloat())
         {
-            final NewMeasure<Double> sqMeasure = context.<Double> newMeasure();
+            final NewMeasure<Double> sqMeasure = sensorContext.<Double> newMeasure();
             sqMeasure.forMetric((Metric<Double>) metric);
             sqMeasure.on(inputComponent);
             sqMeasure.withValue(Double.valueOf(metricValue.getValue().doubleValue()));
@@ -885,7 +882,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
         else
         {
-            final NewMeasure<Integer> sqMeasure = context.<Integer> newMeasure();
+            final NewMeasure<Integer> sqMeasure = sensorContext.<Integer> newMeasure();
             sqMeasure.forMetric((Metric<Integer>) metric);
             sqMeasure.on(inputComponent);
             sqMeasure.withValue(Integer.valueOf(metricValue.getValue().intValue()));
