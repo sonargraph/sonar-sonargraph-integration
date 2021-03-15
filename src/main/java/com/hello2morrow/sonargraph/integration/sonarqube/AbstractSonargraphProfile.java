@@ -30,11 +30,12 @@ abstract class AbstractSonargraphProfile implements BuiltInQualityProfilesDefini
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSonargraphProfile.class);
 
-    protected static final List<String> STANDARD_RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION", "CRITICAL_MODULE_CYCLE_GROUP",
-            "CRITICAL_NAMESPACE_CYCLE_GROUP", "CRITICAL_COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING",
-            "MOVE_REFACTORING", "MOVE_RENAME_REFACTORING", "RENAME_REFACTORING", "DUPLICATE_CODE_BLOCK", "QUALITY_GATE_ISSUE");
-    protected static final List<String> STRICT_RULE_KEYS = Arrays.asList("MODULE_CYCLE_GROUP", "NAMESPACE_CYCLE_GROUP", "COMPONENT_CYCLE_GROUP",
-            "THRESHOLD_VIOLATION");
+    protected static final List<String> STANDARD_RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION",
+            "CRITICAL_MODULE_CYCLE_GROUP", "CRITICAL_NAMESPACE_CYCLE_GROUP", "CRITICAL_COMPONENT_CYCLE_GROUP",
+            "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING", "MOVE_REFACTORING", "MOVE_RENAME_REFACTORING",
+            "RENAME_REFACTORING", "DUPLICATE_CODE_BLOCK", "QUALITY_GATE_ISSUE");
+    protected static final List<String> STRICT_RULE_KEYS = Arrays.asList("MODULE_CYCLE_GROUP", "NAMESPACE_CYCLE_GROUP",
+            "COMPONENT_CYCLE_GROUP", "THRESHOLD_VIOLATION");
 
     private final String profileName;
     private final String language;
@@ -64,7 +65,10 @@ abstract class AbstractSonargraphProfile implements BuiltInQualityProfilesDefini
             final Set<String> activeRuleKeys = new HashSet<>();
             for (final NewBuiltInActiveRule activeRule : newProfile.activeRules())
             {
-                LOGGER.info("Already activated rule key: {}", activeRule.ruleKey());
+                if (LOGGER.isInfoEnabled())
+                {
+                    LOGGER.info("Already activated rule key: {}", activeRule.ruleKey());
+                }
                 activeRuleKeys.add(activeRule.ruleKey());
             }
 

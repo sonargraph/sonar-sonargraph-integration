@@ -152,7 +152,8 @@ public final class SonargraphSensorTest
     {
         initRules();
 
-        sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
+        sonargraphMetrics = new SonargraphMetrics(
+                new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         final Map<String, Metric<Serializable>> keyToMetric = new HashMap<>();
         for (final org.sonar.api.measures.Metric<?> nextMetric : sonargraphMetrics.getMetrics())
         {
@@ -201,8 +202,9 @@ public final class SonargraphSensorTest
         for (final RulesDefinition.Rule nextRule : rules)
         {
             final NewActiveRule.Builder builder = new NewActiveRule.Builder();
-            final NewActiveRule rule = builder.setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key())).setName(nextRule.name())
-                    .setLanguage(SonargraphBase.JAVA).build();
+            final NewActiveRule rule = builder
+                    .setRuleKey(RuleKey.of(SonargraphBase.SONARGRAPH_PLUGIN_KEY, nextRule.key()))
+                    .setName(nextRule.name()).setLanguage(SonargraphBase.JAVA).build();
             rulesBuilder.addRule(rule);
         }
     }
@@ -232,13 +234,16 @@ public final class SonargraphSensorTest
 
             final List<RuleDto> customRules = sonargraphRules.getRulesProvider().loadCustomRules();
             assertEquals("Wrong number of custom rules ", customRulesCount, customRules.size());
-            verifyCustomRule(customRules.get(0), "plugin_com.hello2morrow.sonargraph.plugin.spotbugs_spotbugs-warning_warning",
+            verifyCustomRule(customRules.get(0),
+                    "plugin_com.hello2morrow.sonargraph.plugin.spotbugs_spotbugs-warning_warning",
                     "Sonargraph Integration: Spotbugs warning (com.hello2morrow.sonargraph.plugin.spotbugs)",
-                    Arrays.asList("plugin-based", "spotbugs-warning", "com.hello2morrow.sonargraph.plugin.spotbugs"), "MINOR");
+                    Arrays.asList("plugin-based", "spotbugs-warning", "com.hello2morrow.sonargraph.plugin.spotbugs"),
+                    "MINOR");
             verifyCustomRule(customRules.get(1), "script_core-findfixmeandtodoincomments.xml_fixme_warning",
                     "Sonargraph Integration: FIXME (./Core/FindFixmeAndTodoInComments.xml)",
                     Arrays.asList("script-based", "fixme", "core-findfixmeandtodoincomments.xml"), "MINOR");
-            verifyCustomRule(customRules.get(2), "script_test.xml_typeissue_warning", "Sonargraph Integration: TypeIssue (./Test.xml)",
+            verifyCustomRule(customRules.get(2), "script_test.xml_typeissue_warning",
+                    "Sonargraph Integration: TypeIssue (./Test.xml)",
                     Arrays.asList("script-based", "typeissue", "test.xml"), "MINOR");
             assertEquals("Wrong number of standard rules", standardRulesCount,
                     context.activeRules().findByRepository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).size());
@@ -259,15 +264,17 @@ public final class SonargraphSensorTest
 
             final String scriptIssueKey = "script_test.xml_typeissue_warning";
             final String componentKey = "projectKey:src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java";
-            final List<Issue> issues = context.allIssues().stream().filter(
-                    issue -> issue.ruleKey().rule().equals(scriptIssueKey) && issue.primaryLocation().inputComponent().key().equals(componentKey))
+            final List<Issue> issues = context.allIssues().stream()
+                    .filter(issue -> issue.ruleKey().rule().equals(scriptIssueKey)
+                            && issue.primaryLocation().inputComponent().key().equals(componentKey))
                     .collect(Collectors.toList());
             assertEquals("Missing script issue", 1, issues.size());
 
             final String pluginIssueKey = "plugin_com.hello2morrow.sonargraph.plugin.spotbugs_spotbugs-warning_warning";
             final String componentKey2 = "projectKey:" + SONARGRAPH_RULES_PROVIDER;
-            final List<Issue> issues2 = context.allIssues().stream().filter(
-                    issue -> issue.ruleKey().rule().equals(pluginIssueKey) && issue.primaryLocation().inputComponent().key().equals(componentKey2))
+            final List<Issue> issues2 = context.allIssues().stream()
+                    .filter(issue -> issue.ruleKey().rule().equals(pluginIssueKey)
+                            && issue.primaryLocation().inputComponent().key().equals(componentKey2))
                     .collect(Collectors.toList());
             assertEquals("Missing plugin issue", 2, issues2.size());
 
@@ -278,7 +285,8 @@ public final class SonargraphSensorTest
         }
     }
 
-    private void verifyCustomRule(final RuleDto ruleDto, final String key, final String name, final List<String> categoryTags, final String severity)
+    private void verifyCustomRule(final RuleDto ruleDto, final String key, final String name,
+            final List<String> categoryTags, final String severity)
     {
         assertEquals("Wrong rule key", key, ruleDto.getKey());
         assertEquals("Wrong rule name", name, ruleDto.getName());
@@ -286,7 +294,8 @@ public final class SonargraphSensorTest
         assertEquals("Wrong severity", severity, ruleDto.getSeverity());
     }
 
-    private SensorContextTester setupAndExecuteSensor(final String reportPath, final List<String> paths) throws IOException
+    private SensorContextTester setupAndExecuteSensor(final String reportPath, final List<String> paths)
+            throws IOException
     {
         final File moduleBaseDir = new File(".").getCanonicalFile();
         final SensorContextTester context = SensorContextTester.create(moduleBaseDir);
@@ -321,7 +330,8 @@ public final class SonargraphSensorTest
         createTestFile(moduleBaseDir, fileSystem, SONARGRAPH_BASE);
 
         final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/report/IntegrationSonarqubeInvalid.xml");
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY,
+                "./src/test/report/IntegrationSonarqubeInvalid.xml");
         context.setSettings(settings);
         context.setActiveRules(rulesBuilder.build());
 
@@ -361,7 +371,8 @@ public final class SonargraphSensorTest
     public void testSonargraphSensorOnTestProjectWithReportFromDifferentOrigin() throws IOException
     {
         final MapSettings settings = new MapSettings();
-        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY, "./src/test/test-project/test-project_from_different_origin.xml");
+        settings.setProperty(SonargraphBase.XML_REPORT_FILE_PATH_KEY,
+                "./src/test/test-project/test-project_from_different_origin.xml");
         settings.setProperty(SonargraphBase.SONARGRAPH_BASE_DIR_KEY, "./src/test/test-project");
 
         final SensorContextTester context = setupAndExecuteSensorForTestProject(settings, "./src/test/test-project");
@@ -382,7 +393,8 @@ public final class SonargraphSensorTest
         context.setSettings(settings);
 
         assertEquals("Wrong Maven default path",
-                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getCanonicalPath(),
+                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT)
+                        .getCanonicalPath(),
                 SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
     }
 
@@ -400,7 +412,8 @@ public final class SonargraphSensorTest
         context.setSettings(settings);
 
         assertEquals("Wrong Gradle default path",
-                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT).getCanonicalPath(),
+                new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT)
+                        .getCanonicalPath(),
                 SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
     }
 
@@ -415,10 +428,12 @@ public final class SonargraphSensorTest
         final SensorContextTester context = SensorContextTester.create(baseToUse);
         context.setSettings(settings);
 
-        assertNull("Wrong Gradle default path", SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+        assertNull("Wrong Gradle default path",
+                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
     }
 
-    private SensorContextTester setupAndExecuteSensorForTestProject(final MapSettings settings, final String basePath) throws IOException
+    private SensorContextTester setupAndExecuteSensorForTestProject(final MapSettings settings, final String basePath)
+            throws IOException
     {
         File baseToUse;
         final SensorContextTester context;
@@ -436,9 +451,13 @@ public final class SonargraphSensorTest
         context.setActiveRules(rulesBuilder.build());
 
         final DefaultFileSystem fileSystem = context.fileSystem();
-        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
+        fileSystem.add(TestInputFileBuilder
+                .create("projectKey", fileSystem.baseDir(),
+                        new File(basePath, "src/com/h2m/C1.java").getCanonicalFile())
                 .setLanguage(SonargraphBase.JAVA).setContents(DUMMY_CONTENT).build());
-        fileSystem.add(TestInputFileBuilder.create("projectKey", fileSystem.baseDir(), new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
+        fileSystem.add(TestInputFileBuilder
+                .create("projectKey", fileSystem.baseDir(),
+                        new File(basePath, "src/com/h2m/C2.java").getCanonicalFile())
                 .setLanguage(SonargraphBase.JAVA).setContents(DUMMY_CONTENT).build());
 
         final SonargraphSensor sonargraphSensor = new SonargraphSensor(fileSystem, metricFinder, sonargraphMetrics,
@@ -462,25 +481,28 @@ public final class SonargraphSensorTest
         final int todoCount = 1;
         final int refactoringCount = 1;
         final Collection<Issue> issues = context.allIssues();
-        assertEquals("Wrong number of issues",
-                thresholdViolationErrorCount + thresholdViolationWarningCount + duplicatesCount + todoCount + refactoringCount, issues.size());
+        assertEquals("Wrong number of issues", thresholdViolationErrorCount + thresholdViolationWarningCount
+                + duplicatesCount + todoCount + refactoringCount, issues.size());
 
-        checkIssueCount("Wrong number of threshold errors", "ThresholdViolationError", thresholdViolationErrorCount, issues);
-        checkIssueCount("Wrong number of threshold warnings", "ThresholdViolation", thresholdViolationWarningCount, issues);
+        checkIssueCount("Wrong number of threshold errors", "ThresholdViolationError", thresholdViolationErrorCount,
+                issues);
+        checkIssueCount("Wrong number of threshold warnings", "ThresholdViolation", thresholdViolationWarningCount,
+                issues);
         checkIssueCount("Wrong number of duplicates", "DuplicateCodeBlock", duplicatesCount, issues);
         checkIssueCount("Wrong number of todos", "Todo", todoCount, issues);
         checkIssueCount("Wrong number of refactorings", "RenameRefactoring", refactoringCount, issues);
 
         //Check for resolutions
         final String todoRuleKey = SonargraphBase.createRuleKey("Todo");
-        final Issue todo = issues.stream().filter(issue -> issue.ruleKey().rule().equals(todoRuleKey)).findFirst().get();
+        final Issue todo = issues.stream().filter(issue -> issue.ruleKey().rule().equals(todoRuleKey)).findFirst()
+                .get();
         final String expectedTodoMessage = "[Todo] assignee='Dietmar' priority='Medium' description='Review.'";
-        assertTrue("Wrong message: " + todo.primaryLocation().message(), todo.primaryLocation().message().startsWith(expectedTodoMessage));
+        assertTrue("Wrong message: " + todo.primaryLocation().message(),
+                todo.primaryLocation().message().startsWith(expectedTodoMessage));
 
         final String thresholdRuleKey = SonargraphBase.createRuleKey("ThresholdViolation");
-        final Issue thresholdWarning = issues.stream().filter(
-                issue -> issue.ruleKey().rule().equals(thresholdRuleKey) && issue.primaryLocation().inputComponent().key().contains("C1.java"))
-                .findFirst().get();
+        final Issue thresholdWarning = issues.stream().filter(issue -> issue.ruleKey().rule().equals(thresholdRuleKey)
+                && issue.primaryLocation().inputComponent().key().contains("C1.java")).findFirst().get();
         final String expectedFixMessage = "[Fix: Threshold Violation] assignee='Dietmar' priority='Medium' description='Do it.'";
         assertTrue("Wrong message: " + thresholdWarning.primaryLocation().message(),
                 thresholdWarning.primaryLocation().message().startsWith(expectedFixMessage));
@@ -490,13 +512,16 @@ public final class SonargraphSensorTest
             final Collection<Issue> issues)
     {
         final String issueKey = SonargraphBase.createRuleKey(sonargraphIssueKey);
-        assertEquals(message, expectedCount, issues.stream().filter(issue -> issue.ruleKey().rule().equals(issueKey)).count());
+        assertEquals(message, expectedCount,
+                issues.stream().filter(issue -> issue.ruleKey().rule().equals(issueKey)).count());
     }
 
-    private static void createTestFile(final File moduleBaseDir, final DefaultFileSystem fileSystem, final String path) throws IOException
+    private static void createTestFile(final File moduleBaseDir, final DefaultFileSystem fileSystem, final String path)
+            throws IOException
     {
         final File absoluteSourceFile = new File(moduleBaseDir, path);
-        final String content = Files.lines(absoluteSourceFile.toPath(), StandardCharsets.UTF_8).collect(Collectors.joining("\n"));
+        final String content = Files.lines(absoluteSourceFile.toPath(), StandardCharsets.UTF_8)
+                .collect(Collectors.joining("\n"));
         fileSystem.add(TestInputFileBuilder.create("projectKey", moduleBaseDir, absoluteSourceFile).setContents(content)
                 .setLanguage(SonargraphBase.JAVA).build());
     }

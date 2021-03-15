@@ -69,7 +69,9 @@ public final class SonargraphMetrics implements Metrics
             {
                 if (standardMetrics.containsKey(nextCustom.getKey()))
                 {
-                    LOGGER.warn("Omitting custom metric with key '{}' because same metric key is used for standard metric!", nextCustom.getKey());
+                    LOGGER.warn(
+                            "Omitting custom metric with key '{}' because same metric key is used for standard metric!",
+                            nextCustom.getKey());
                     omittedCustomMetricCounter++;
                 }
                 else
@@ -82,13 +84,15 @@ public final class SonargraphMetrics implements Metrics
             metrics = new ArrayList<>(result.values());
             if (omittedCustomMetricCounter == 0)
             {
-                LOGGER.info("{}: Created {} predefined and {} custom metric(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                        standardMetrics.size(), customMetricCounter);
+                LOGGER.info("{}: Created {} predefined and {} custom metric(s)",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, standardMetrics.size(),
+                        customMetricCounter);
             }
             else
             {
                 LOGGER.info("{}: Created {} predefined and {} custom metric(s). Omitted {} custom metrics.",
-                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, standardMetrics.size(), customMetricCounter, omittedCustomMetricCounter);
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, standardMetrics.size(), customMetricCounter,
+                        omittedCustomMetricCounter);
             }
         }
 

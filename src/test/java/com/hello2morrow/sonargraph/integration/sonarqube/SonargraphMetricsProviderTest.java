@@ -50,7 +50,8 @@ public class SonargraphMetricsProviderTest
         final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue("Failed to load report", result.isSuccess());
-        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(targetDirectory.getRoot().getAbsolutePath());
+        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(
+                targetDirectory.getRoot().getAbsolutePath());
 
         metricsProvider.loadStandardMetrics();
         metricsProvider.loadCustomMetrics();
@@ -63,15 +64,18 @@ public class SonargraphMetricsProviderTest
         }
 
         final Properties customMetricProperties = metricsProvider.getCustomMetricProperties();
-        assertEquals("Wrong number of custom metrics", numberOfCustomMetrics + metricIds.size(), customMetricProperties.size());
+        assertEquals("Wrong number of custom metrics", numberOfCustomMetrics + metricIds.size(),
+                customMetricProperties.size());
 
-        final Map<String, Metric<Serializable>> metrics = metricsProvider.convertMetricProperties(metricsProvider.getCustomMetricProperties());
+        final Map<String, Metric<Serializable>> metrics = metricsProvider
+                .convertMetricProperties(metricsProvider.getCustomMetricProperties());
         assertEquals("Wrong number of metrics", metrics.size(), metricIds.size());
         final File targetFile = new File(metricsProvider.getFilePath());
         metricsProvider.saveProperties(customMetricProperties, targetFile, "Sonargraph Test Metrics");
 
         final File customMetricsFile = new File(metricsProvider.getFilePath());
-        assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(), customMetricsFile.exists());
+        assertTrue("Missing custom metrics properties file: " + customMetricsFile.getAbsolutePath(),
+                customMetricsFile.exists());
 
         final Map<String, Metric<Serializable>> customMetricsReloaded = metricsProvider.loadCustomMetrics();
         assertNotNull(customMetricsReloaded);
@@ -81,7 +85,8 @@ public class SonargraphMetricsProviderTest
     @Test
     public void testStandardMetrics()
     {
-        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(targetDirectory.getRoot().getAbsolutePath());
+        final SonargraphMetricsProvider metricsProvider = new SonargraphMetricsProvider(
+                targetDirectory.getRoot().getAbsolutePath());
         final Map<String, Metric<Serializable>> standardMetrics = metricsProvider.loadStandardMetrics();
         assertTrue("Missing standard metrics, size = " + standardMetrics.size(), standardMetrics.size() > 50);
 

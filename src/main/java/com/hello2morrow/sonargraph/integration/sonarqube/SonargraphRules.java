@@ -82,31 +82,32 @@ public final class SonargraphRules implements RulesDefinition
         {
             if (!SonargraphBase.ignoreIssueType(ruleDto.getCategoryName()))
             {
-                createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(), repository,
-                        ruleDto.getCategoryTags());
+                createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(),
+                        repository, ruleDto.getCategoryTags());
             }
         }
 
         final List<RuleDto> customRuleDtos = rulesProvider.loadCustomRules();
         for (final RuleDto ruleDto : customRuleDtos)
         {
-            createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(), repository, ruleDto.getCategoryTags());
+            createRule(ruleDto.getKey(), ruleDto.getName(), ruleDto.getSeverity(), ruleDto.getDescription(), repository,
+                    ruleDto.getCategoryTags());
         }
 
         repository.done();
 
-        LOGGER.info("{}: Created {} predefined and {} custom rule(s)", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, ruleDtos.size(),
-                customRuleDtos.size());
+        LOGGER.info("{}: Created {} predefined and {} custom rule(s)",
+                SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, ruleDtos.size(), customRuleDtos.size());
     }
 
-    private void createRule(String key, final String name, final String severity, final String description, final NewRepository repository,
-            final String[] categoryTag)
+    private void createRule(String key, final String name, final String severity, final String description,
+            final NewRepository repository, final String[] categoryTag)
     {
         LOGGER.debug("Create rule {} on repository {} ", key, repository.key());
         if (key.length() > 200)
         {
-            LOGGER.warn("{}: Key '{}' exceeds max length of 200 characters and is truncated.", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    key);
+            LOGGER.warn("{}: Key '{}' exceeds max length of 200 characters and is truncated.",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, key);
             key = key.substring(0, 200);
         }
 

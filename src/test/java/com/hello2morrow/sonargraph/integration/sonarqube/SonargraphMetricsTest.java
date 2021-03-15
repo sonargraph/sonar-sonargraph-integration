@@ -34,7 +34,8 @@ public final class SonargraphMetricsTest
     @Test
     public void testMetricsDefinition()
     {
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(
+                new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
         assertEquals("Wrong number of metrics (init triggered)", 55, metrics.size());
