@@ -132,55 +132,10 @@ public final class SonargraphSensor implements ProjectSensor
         {
             return language;
         }
-
-        @Override
-        public int hashCode()
-        {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + count;
-            result = prime * result + ((language == null) ? 0 : language.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(final Object obj)
-        {
-            if (this == obj)
-            {
-                return true;
-            }
-            if (obj == null)
-            {
-                return false;
-            }
-            if (getClass() != obj.getClass())
-            {
-                return false;
-            }
-            final ModulesLanguageCounter other = (ModulesLanguageCounter) obj;
-            if (count != other.count)
-            {
-                return false;
-            }
-            if (language == null)
-            {
-                if (other.language != null)
-                {
-                    return false;
-                }
-            }
-            else if (!language.equals(other.language))
-            {
-                return false;
-            }
-            return true;
-        }
-
     }
 
-    private final FileSystem sonarqubeFileSystem;
-    private final MetricFinder sonarqubeMetricFinder;
+    private final FileSystem sqFileSystem;
+    private final MetricFinder sqMetricFinder;
     private final SonargraphMetrics sonargraphMetrics;
     private final SonargraphRulesProvider sonargraphRulesProvider;
 
@@ -199,8 +154,8 @@ public final class SonargraphSensor implements ProjectSensor
     SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder,
             final SonargraphMetrics sonargraphMetrics, final SonargraphRulesProvider sonargraphRulesProvider)
     {
-        this.sonarqubeFileSystem = fileSystem;
-        this.sonarqubeMetricFinder = metricFinder;
+        this.sqFileSystem = fileSystem;
+        this.sqMetricFinder = metricFinder;
         this.sonargraphMetrics = sonargraphMetrics;
         this.sonargraphRulesProvider = sonargraphRulesProvider;
     }
@@ -286,7 +241,7 @@ public final class SonargraphSensor implements ProjectSensor
                     SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, relativePath);
         }
 
-        final File reportFile = sonarqubeFileSystem.resolvePath(relativePath);
+        final File reportFile = sqFileSystem.resolvePath(relativePath);
         if (reportFile.exists())
         {
             LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
@@ -331,7 +286,7 @@ public final class SonargraphSensor implements ProjectSensor
         }
 
         final String path = basePathOpt.get();
-        final File baseDir = sonarqubeFileSystem.resolvePath(path);
+        final File baseDir = sqFileSystem.resolvePath(path);
         if (baseDir.exists())
         {
             return baseDir;
@@ -354,33 +309,12 @@ public final class SonargraphSensor implements ProjectSensor
         }
 
         processSystem(context, softwareSystem, systemInfoProcessor, rulesAndMetrics, language);
+        processModules(context, sonargraphController, rulesAndMetrics, systemInfoProcessor, language);
+        updateRules();
+    }
 
-        for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
-        {
-            final IModule module = nextEntry.getValue();
-            final IModuleInfoProcessor moduleInfoProcessor = sonargraphController.createModuleInfoProcessor(module);
-
-            final String sqModuleLanguage = SonargraphBase.convertLanguage(module.getLanguage());
-            if (sqModuleLanguage != null)
-            {
-                if (sqModuleLanguage.equals(language))
-                {
-                    processModule(context, moduleInfoProcessor, rulesAndMetrics, language);
-                }
-                else
-                {
-                    LOGGER.warn("{}: Ignoring module '{}', since language '{}' is not active for project",
-                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
-                }
-            }
-            else
-            {
-                LOGGER.warn(
-                        "{}: Ignoring module '{}', since language '{}' is not supported by Sonargraph SonarQube Plugin",
-                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
-            }
-        }
-
+    private void updateRules()
+    {
         if (isUpdateOfServerCustomMetricsNeeded || isUpdateOfScannerCustomMetricsNeeded)
         {
             //New custom metrics have been introduced.
@@ -434,6 +368,37 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
+    private void processModules(final SensorContext context, final ISonargraphSystemController sonargraphController,
+            final ActiveRulesAndMetrics rulesAndMetrics, final ISystemInfoProcessor systemInfoProcessor,
+            final String language)
+    {
+        for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
+        {
+            final IModule module = nextEntry.getValue();
+            final IModuleInfoProcessor moduleInfoProcessor = sonargraphController.createModuleInfoProcessor(module);
+
+            final String sqModuleLanguage = SonargraphBase.convertLanguage(module.getLanguage());
+            if (sqModuleLanguage != null)
+            {
+                if (sqModuleLanguage.equals(language))
+                {
+                    processModule(context, moduleInfoProcessor, rulesAndMetrics, language);
+                }
+                else
+                {
+                    LOGGER.warn("{}: Ignoring module '{}', since language '{}' is not active for project",
+                            SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
+                }
+            }
+            else
+            {
+                LOGGER.warn(
+                        "{}: Ignoring module '{}', since language '{}' is not supported by Sonargraph SonarQube Plugin",
+                        SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, module.getName(), module.getLanguage());
+            }
+        }
+    }
+
     private String determineLanguage(final ISoftwareSystem softwareSystem, final ActiveRulesAndMetrics rulesAndMetrics)
     {
         final List<ModulesLanguageCounter> languagesOfModules = determineLanguagesOfSystem(softwareSystem);
@@ -471,6 +436,7 @@ public final class SonargraphSensor implements ProjectSensor
         if (keyToRule == null || keyToRule.isEmpty())
         {
             LOGGER.warn("Failed to find any rules for language {}", language);
+            return;
         }
 
         final List<IIssue> systemIssues = systemInfoProcessor.getIssues(issue -> !issue.isIgnored()
@@ -484,7 +450,7 @@ public final class SonargraphSensor implements ProjectSensor
                     .get(SonargraphBase.createRuleKeyToCheck(nextIssue.getIssueType(), nextIssue.getSeverity()));
             if (nextRule != null)
             {
-                createSonarqubeIssue(context, context.project(), nextRule,
+                createSqIssue(context, context.project(), nextRule,
                         createIssueDescription(systemInfoProcessor, nextIssue), null);
             }
             else
@@ -681,7 +647,7 @@ public final class SonargraphSensor implements ProjectSensor
                     others.remove(nextOccurrence);
                     final String issueDescription = createIssueDescription(moduleInfoProcessor,
                             nextDuplicateCodeBlockIssue, nextOccurrence, others);
-                    createSonarqubeIssue(context, inputPath, rule, issueDescription,
+                    createSqIssue(context, inputPath, rule, issueDescription,
                             location -> location.at(new DefaultTextRange(
                                     new DefaultTextPointer(nextOccurrence.getStartLine(), ZERO_LINE_OFFSET),
                                     new DefaultTextPointer(
@@ -693,7 +659,7 @@ public final class SonargraphSensor implements ProjectSensor
         else
         {
             final String issueDescription = createIssueDescription(moduleInfoProcessor, issue);
-            createSonarqubeIssue(context, inputPath, rule, issueDescription, location ->
+            createSqIssue(context, inputPath, rule, issueDescription, location ->
             {
                 final int line = issue.getLine();
                 final int lineToUse = line <= 0 ? 1 : line;
@@ -712,7 +678,7 @@ public final class SonargraphSensor implements ProjectSensor
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).toAbsolutePath()
                 .normalize().toString();
 
-        final InputPath inputPath = sonarqubeFileSystem.inputFile(sonarqubeFileSystem.predicates()
+        final InputPath inputPath = sqFileSystem.inputFile(sqFileSystem.predicates()
                 .hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
         if (inputPath != null)
         {
@@ -752,7 +718,7 @@ public final class SonargraphSensor implements ProjectSensor
             final List<IIssue> issues)
     {
         final String directoryPath = Paths.get(baseDir, relDirectory).toAbsolutePath().normalize().toString();
-        final InputDir inputDir = sonarqubeFileSystem
+        final InputDir inputDir = sqFileSystem
                 .inputDir(new File(Utility.convertPathToUniversalForm(directoryPath)));
 
         if (inputDir != null)
@@ -766,7 +732,7 @@ public final class SonargraphSensor implements ProjectSensor
                 {
                     try
                     {
-                        createSonarqubeIssue(context, inputDir, nextRule,
+                        createSqIssue(context, inputDir, nextRule,
                                 createIssueDescription(moduleInfoProcessor, nextIssue), null);
                     }
                     catch (final Exception e)
@@ -854,23 +820,23 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void createSonarqubeIssue(final SensorContext context, final InputComponent inputComponent,
+    private void createSqIssue(final SensorContext context, final InputComponent inputComponent,
             final ActiveRule rule, final String msg, final Consumer<NewIssueLocation> consumer)
     {
-        final NewIssue sqIssue = context.newIssue();
-        sqIssue.forRule(rule.ruleKey());
+        final NewIssue sonarqubeIssue = context.newIssue();
+        sonarqubeIssue.forRule(rule.ruleKey());
 
-        final NewIssueLocation sqIssueLoc = sqIssue.newLocation();
+        final NewIssueLocation sqIssueLoc = sonarqubeIssue.newLocation();
         sqIssueLoc.on(inputComponent);
         sqIssueLoc.message(msg);
-        sqIssue.at(sqIssueLoc);
+        sonarqubeIssue.at(sqIssueLoc);
 
         if (consumer != null)
         {
             consumer.accept(sqIssueLoc);
         }
 
-        sqIssue.save();
+        sonarqubeIssue.save();
     }
 
     private ActiveRulesAndMetrics createActiveRulesAndMetrics(final SensorContext context)
@@ -897,7 +863,7 @@ public final class SonargraphSensor implements ProjectSensor
         LOGGER.info("{}: {} rule(s) activated", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                 languageToActiveRules.size());
 
-        final Map<String, Metric<Serializable>> metrics = sonarqubeMetricFinder.findAll().stream()
+        final Map<String, Metric<Serializable>> metrics = sqMetricFinder.findAll().stream()
                 .filter(m -> m.key().startsWith(SonargraphBase.METRIC_ID_PREFIX))
                 .collect(Collectors.toMap(Metric::key, m -> m));
         LOGGER.info("{}: {} metric(s) defined", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, metrics.size());

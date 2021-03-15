@@ -161,9 +161,16 @@ class ExportMetaDataXmlToPropertiesConverter
         }
     }
 
-    public static void main(final String[] args) throws IOException
+    public static void main(final String[] args)
     {
         final ExportMetaDataXmlToPropertiesConverter converter = new ExportMetaDataXmlToPropertiesConverter();
-        converter.convert();
+        try
+        {
+            converter.convert();
+        }
+        catch (final IOException e)
+        {
+            LOGGER.error("Failed to convert meta data", e);
+        }
     }
 }
