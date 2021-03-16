@@ -49,7 +49,8 @@ abstract class AbstractDataProvider
         return getDirectory() + "/" + propertiesFileName;
     }
 
-    protected final File saveProperties(final Properties properties, final File targetFile, final String comment) throws IOException
+    protected final File saveProperties(final Properties properties, final File targetFile, final String comment)
+            throws IOException
     {
         final File targetDirectory = targetFile.getParentFile();
         targetDirectory.mkdirs();

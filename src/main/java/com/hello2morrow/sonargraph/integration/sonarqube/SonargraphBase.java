@@ -46,6 +46,9 @@ final class SonargraphBase
     static final String SONARGRAPH_PLUGIN_PRESENTATION_NAME = "Sonargraph Integration";
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
     static final String JAVA = "java";
+    static final String CSHARP = "cs";
+    static final String[] SUPPORTED_LANGUAGES = new String[] { SonargraphBase.JAVA, SonargraphBase.CSHARP };
+
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
     static final String CONFIG_PREFIX = "sonar.sonargraph.integration";
@@ -73,8 +76,9 @@ final class SonargraphBase
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphBase.class);
 
     static final Set<String> IGNORE_ISSUE_TYPE_CATEGORIES = Collections.unmodifiableSet(Arrays
-            .asList("Workspace", "InstallationConfiguration", "SystemConfiguration", "Session" /* deprecated, replaced by ArchitecturalView */,
-                    "ArchitecturalView", "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition")
+            .asList("Workspace", "InstallationConfiguration", "SystemConfiguration",
+                    "Session" /* deprecated, replaced by ArchitecturalView */, "ArchitecturalView",
+                    "ArchitectureDefinition", "ArchitectureConsistency", "ScriptDefinition")
             .stream().collect(Collectors.toSet()));
 
     private SonargraphBase()
@@ -110,7 +114,8 @@ final class SonargraphBase
         if (description != null && !description.isEmpty())
         {
             final String trimmedDescription = description.replace("\r", " ").replace("\n", " ").trim();
-            return trimmedDescription.length() > 255 ? trimmedDescription.substring(0, 252) + "..." : trimmedDescription;
+            return trimmedDescription.length() > 255 ? trimmedDescription.substring(0, 252) + "..."
+                    : trimmedDescription;
         }
         return "";
     }
@@ -133,7 +138,8 @@ final class SonargraphBase
 
     static void setWorstValue(final Double worstValue, final Metric.Builder metric)
     {
-        if (!worstValue.equals(Double.NaN) && !worstValue.equals(Double.POSITIVE_INFINITY) && !worstValue.equals(Double.NEGATIVE_INFINITY))
+        if (!worstValue.equals(Double.NaN) && !worstValue.equals(Double.POSITIVE_INFINITY)
+                && !worstValue.equals(Double.NEGATIVE_INFINITY))
         {
             metric.setWorstValue(worstValue);
         }
@@ -141,7 +147,8 @@ final class SonargraphBase
 
     static void setBestValue(final Double bestValue, final Metric.Builder metric)
     {
-        if (!bestValue.equals(Double.NaN) && !bestValue.equals(Double.POSITIVE_INFINITY) && !bestValue.equals(Double.NEGATIVE_INFINITY))
+        if (!bestValue.equals(Double.NaN) && !bestValue.equals(Double.POSITIVE_INFINITY)
+                && !bestValue.equals(Double.NEGATIVE_INFINITY))
         {
             metric.setBestValue(bestValue);
         }
@@ -213,7 +220,8 @@ final class SonargraphBase
     static String createRuleCategoryTag(final String categoryPresentationName)
     {
         final String withoutLeadingDotSlash = categoryPresentationName.replace("./", "");
-        final String escaped = INVALID_TAG_CHARACTERS_PATTERN.matcher(withoutLeadingDotSlash.toLowerCase()).replaceAll(ESCAPE);
+        final String escaped = INVALID_TAG_CHARACTERS_PATTERN.matcher(withoutLeadingDotSlash.toLowerCase())
+                .replaceAll(ESCAPE);
         final String removedDuplicateEscapes = AVOID_DUPLICATE_ESCAPES_PATTERN.matcher(escaped).replaceAll(ESCAPE);
         if (removedDuplicateEscapes.length() > MAX_TAG_LENGTH)
         {
@@ -241,7 +249,8 @@ final class SonargraphBase
     static boolean isIgnoredErrorOrWarningIssue(final IIssueType issueType)
     {
         return ignoreIssueType(issueType.getCategory().getName())
-                && (issueType.getSupportedSeverities().contains(Severity.ERROR) || issueType.getSupportedSeverities().contains(Severity.WARNING));
+                && (issueType.getSupportedSeverities().contains(Severity.ERROR)
+                        || issueType.getSupportedSeverities().contains(Severity.WARNING));
     }
 
     static boolean isScriptIssue(final IIssueType issueType)
@@ -266,7 +275,8 @@ final class SonargraphBase
         }
     }
 
-    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey, final File baseDirectory, final boolean isProject)
+    static IModule matchModule(final ISoftwareSystem softwareSystem, final String inputModuleKey,
+            final File baseDirectory, final boolean isProject)
     {
         IModule matched = null;
 
@@ -279,7 +289,8 @@ final class SonargraphBase
         else if (moduleCandidates.size() == 1)
         {
             matched = moduleCandidates.get(0);
-            LOGGER.info("{}: Matched Sonargraph module '{}' for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME, matched.getName(), sqMsgPart);
+            LOGGER.info("{}: Matched Sonargraph module '{}' for {}", SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    matched.getName(), sqMsgPart);
         }
         else
         {
@@ -297,12 +308,14 @@ final class SonargraphBase
      * @param baseDirectory
      * @return A list of matching Sonargraph modules. Problems are indicated by list size of 0 (no match) or > 1 (several modules found).
      */
-    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem, final File baseDirectory)
+    private static List<IModule> getSonargraphModuleCandidates(final ISoftwareSystem softwareSystem,
+            final File baseDirectory)
     {
         final String identifyingBaseDirectoryPath = getIdentifyingPath(baseDirectory);
         final File systemBaseDirectory = new File(softwareSystem.getBaseDir());
 
-        LOGGER.info("{}: Trying to match module using system base directory '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME, systemBaseDirectory);
+        LOGGER.info("{}: Trying to match module using system base directory '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                systemBaseDirectory);
 
         final TreeMap<Integer, List<IModule>> numberOfMatchedRootDirsToModules = new TreeMap<>();
         for (final IModule nextModule : softwareSystem.getModules().values())
@@ -318,8 +331,8 @@ final class SonargraphBase
                     final String identifyingPath = getIdentifyingPath(absoluteRootDirectory);
                     if (identifyingPath.startsWith(identifyingBaseDirectoryPath))
                     {
-                        LOGGER.info("{}: Matched Sonargraph root directory '{}' underneath '{}'", SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                                identifyingPath, identifyingBaseDirectoryPath);
+                        LOGGER.info("{}: Matched Sonargraph root directory '{}' underneath '{}'",
+                                SONARGRAPH_PLUGIN_PRESENTATION_NAME, identifyingPath, identifyingBaseDirectoryPath);
                         matchedRootDirs++;
                     }
                 }
@@ -328,7 +341,8 @@ final class SonargraphBase
             if (matchedRootDirs > 0)
             {
                 final Integer nextMatchedRootDirsAsInteger = Integer.valueOf(matchedRootDirs);
-                final List<IModule> matched = numberOfMatchedRootDirsToModules.computeIfAbsent(nextMatchedRootDirsAsInteger, k -> new ArrayList<>(2));
+                final List<IModule> matched = numberOfMatchedRootDirsToModules
+                        .computeIfAbsent(nextMatchedRootDirsAsInteger, k -> new ArrayList<>(2));
                 matched.add(nextModule);
             }
         }
@@ -348,5 +362,18 @@ final class SonargraphBase
             return (String) input;
         }
         throw new IllegalArgumentException("Empty input");
+    }
+
+    public static String convertLanguage(final String sonargraphLanguage)
+    {
+        switch (sonargraphLanguage)
+        {
+        case "Java":
+            return JAVA;
+        case "CSharp":
+            return CSHARP;
+        default:
+            return null;
+        }
     }
 }
