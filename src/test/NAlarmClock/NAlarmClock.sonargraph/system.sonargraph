@@ -36,7 +36,7 @@
 	</module>
 	<systemExtension xmlns:ns4="http://www.hello2morrow.com/sonargraph/languageprovider/csharp" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns4:xsdCSharpSystemConfiguration" language="CSharp">
 		<systemProfile targetFrameworkVersion2="4.0">
-			<profileRef profileId="Local4.7.2"></profileRef>
+			<profileRef profileId=".NETFramework_v4.7"></profileRef>
 			<directories></directories>
 			<preprocessorSymbols></preprocessorSymbols>
 		</systemProfile>

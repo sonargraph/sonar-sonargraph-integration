@@ -6,11 +6,10 @@
 	  You can request a Sonargraph-Architect evaluation license on our website.	  
 -->
 <sonargraphBuild 
-    licenseFile="C:\Users\Ingmar\AppData\Roaming\hello2morrow\Sonargraph\Build\SonargraphBuild.license"
     waitForLicense="2" 
     languages="CSharp"
     installationDirectory="D:\00_repo\sgng-master\products\SonargraphBuild\dist\release\SonargraphBuild"
-    systemDirectory="./NAlarmClock.sonargraph"
+    
     virtualModel="Modifiable.vm"
     workspaceProfile="" 
     reportDirectory="./target/sonargraph"
