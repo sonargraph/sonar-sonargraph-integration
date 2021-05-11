@@ -151,8 +151,8 @@ public final class SonargraphSensor implements ProjectSensor
         this(fileSystem, metricFinder, sgMetrics, new SonargraphRulesProvider());
     }
 
-    SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder,
-            final SonargraphMetrics sgMetrics, final SonargraphRulesProvider sgRulesProvider)
+    SonargraphSensor(final FileSystem fileSystem, final MetricFinder metricFinder, final SonargraphMetrics sgMetrics,
+            final SonargraphRulesProvider sgRulesProvider)
     {
         this.sqFileSystem = fileSystem;
         this.sqMetricFinder = metricFinder;
@@ -180,13 +180,12 @@ public final class SonargraphSensor implements ProjectSensor
         LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                 projectKey);
 
+        final ISonargraphSystemController sgController = ControllerFactory.createController();
         final File reportFile = getReportFile(sensorContext.config());
+        Result loadReport;
         if (reportFile != null)
         {
-            final ISonargraphSystemController sgController = ControllerFactory.createController();
-
             final File systemBaseDir = getSystemBaseDirectory(sensorContext.config());
-            Result loadReport;
             if (systemBaseDir == null)
             {
                 loadReport = sgController.loadSystemReport(reportFile);
@@ -205,10 +204,9 @@ public final class SonargraphSensor implements ProjectSensor
             {
                 LOGGER.error("{}: {}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, loadReport.toString());
             }
+            LOGGER.info("{}: Finished processing SonarQube project '{}'",
+                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
         }
-
-        LOGGER.info("{}: Finished processing SonarQube project '{}'",
-                SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, projectKey);
     }
 
     private File getReportFile(final Configuration config)
@@ -368,9 +366,9 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void processModules(final SensorContext sensorContext,
-            final ISonargraphSystemController sgController, final ActiveRulesAndMetrics rulesAndMetrics,
-            final ISystemInfoProcessor systemInfoProcessor, final String language)
+    private void processModules(final SensorContext sensorContext, final ISonargraphSystemController sgController,
+            final ActiveRulesAndMetrics rulesAndMetrics, final ISystemInfoProcessor systemInfoProcessor,
+            final String language)
     {
         for (final Entry<String, IModule> nextEntry : systemInfoProcessor.getModules().entrySet())
         {
@@ -629,8 +627,9 @@ public final class SonargraphSensor implements ProjectSensor
         return createIssueDescription(infoProcessor, issue, "");
     }
 
-    private void createSourceFileIssues(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
-            final ISourceFile sourceFile, final InputPath inputPath, final IIssue issue, final ActiveRule rule)
+    private void createSourceFileIssues(final SensorContext sensorContext,
+            final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile, final InputPath inputPath,
+            final IIssue issue, final ActiveRule rule)
     {
         if (issue instanceof IDuplicateCodeBlockIssue)
         {
@@ -670,9 +669,9 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void addIssuesToSourceFile(final SensorContext sensorContext, final IModuleInfoProcessor moduleInfoProcessor,
-            final Map<String, ActiveRule> keyToRule, final String baseDir, final ISourceFile sourceFile,
-            final List<IIssue> issues)
+    private void addIssuesToSourceFile(final SensorContext sensorContext,
+            final IModuleInfoProcessor moduleInfoProcessor, final Map<String, ActiveRule> keyToRule,
+            final String baseDir, final ISourceFile sourceFile, final List<IIssue> issues)
     {
         final String rootDirectoryRelPath = sourceFile.getRelativeRootDirectory();
         final String sourceRelPath = sourceFile.getRelativePath();
@@ -691,7 +690,8 @@ public final class SonargraphSensor implements ProjectSensor
                 {
                     try
                     {
-                        createSourceFileIssues(sensorContext, moduleInfoProcessor, sourceFile, inputPath, issue, nextRule);
+                        createSourceFileIssues(sensorContext, moduleInfoProcessor, sourceFile, inputPath, issue,
+                                nextRule);
                     }
                     catch (final Exception e)
                     {
@@ -729,8 +729,8 @@ public final class SonargraphSensor implements ProjectSensor
                 {
                     try
                     {
-                        createSqIssue(sensorContext, inputDir, nextRule, createIssueDescription(moduleInfoProcessor, issue),
-                                null);
+                        createSqIssue(sensorContext, inputDir, nextRule,
+                                createIssueDescription(moduleInfoProcessor, issue), null);
                     }
                     catch (final Exception e)
                     {
@@ -817,8 +817,8 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
-    private void createSqIssue(final SensorContext sensorContext, final InputComponent inputComponent, final ActiveRule rule,
-            final String msg, final Consumer<NewIssueLocation> consumer)
+    private void createSqIssue(final SensorContext sensorContext, final InputComponent inputComponent,
+            final ActiveRule rule, final String msg, final Consumer<NewIssueLocation> consumer)
     {
         final NewIssue sonarqubeIssue = sensorContext.newIssue();
         sonarqubeIssue.forRule(rule.ruleKey());
