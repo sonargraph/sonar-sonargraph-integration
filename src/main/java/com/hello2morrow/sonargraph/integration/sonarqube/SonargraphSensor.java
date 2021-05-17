@@ -177,7 +177,7 @@ public final class SonargraphSensor implements ProjectSensor
         sgRulesProvider.loadCustomRules();
 
         final String projectKey = sensorContext.config().get("sonar.projectKey").orElse("<unknown>");
-        LOGGER.info("{}: Processing SonarQube project '{}", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+        LOGGER.info("{}: Processing SonarQube project '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
                 projectKey);
 
         final ISonargraphSystemController sgController = ControllerFactory.createController();
