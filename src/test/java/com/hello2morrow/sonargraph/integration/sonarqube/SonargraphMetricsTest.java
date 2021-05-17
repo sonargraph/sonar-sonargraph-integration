@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +34,8 @@ public final class SonargraphMetricsTest
     @Test
     public void testMetricsDefinition()
     {
-        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
+        final SonargraphMetrics sonargraphMetrics = new SonargraphMetrics(
+                new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
         assertEquals("Wrong number of metrics (init triggered)", 55, metrics.size());

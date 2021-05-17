@@ -1,0 +1,1349 @@
+<?xml version="1.0" ?>
+<ns2:report xmlns:ns3="http://www.hello2morrow.com/sonargraph/core/export" xmlns:ns2="http://www.hello2morrow.com/sonargraph/core/report" id="_0" systemId="b0834025fd004e3e43a8c2b26976c7a1" name="NAlarmClock" version="11.1.0.100" systemPath="D:\00_repo\sonar-sonargraph-integration\src\test\NAlarmClock\NAlarmClock.sonargraph" timestamp="2021-03-15T22:04:54.305+01:00" currentVirtualModel="Modifiable.vm" systemDescription="" analyzerExecutionLevel="full">
+	<reportContextInfo></reportContextInfo>
+	<description></description>
+	<metaData>
+		<issueProviders>
+			<issueProvider id="_30" name="./layers.arc" presentationName="./layers.arc"></issueProvider>
+			<issueProvider id="_31" name="CSharpLanguageProvider" presentationName="C#"></issueProvider>
+			<issueProvider id="_32" name="Core" presentationName="Core"></issueProvider>
+		</issueProviders>
+		<issueCategories>
+			<category id="_20" name="ArchitecturalView" presentationName="Architectural View"></category>
+			<category id="_21" name="ArchitectureConsistency" presentationName="Architecture Consistency"></category>
+			<category id="_22" name="ArchitectureDefinition" presentationName="Architecture Definition"></category>
+			<category id="_23" name="ArchitectureViolation" presentationName="Architecture Violation"></category>
+			<category id="_24" name="CycleGroup" presentationName="Cycle Group"></category>
+			<category id="_25" name="DuplicateCode" presentationName="Duplicate Code"></category>
+			<category id="_26" name="InstallationConfiguration" presentationName="Installation Configuration"></category>
+			<category id="_27" name="PluginBased" presentationName="Plugin Based"></category>
+			<category id="_28" name="QualityGate" presentationName="Quality Gate"></category>
+			<category id="_29" name="Refactoring" presentationName="Refactoring"></category>
+			<category id="_2a" name="ScriptBased" presentationName="Script Based"></category>
+			<category id="_2b" name="ScriptDefinition" presentationName="Script Definition"></category>
+			<category id="_2c" name="SystemConfiguration" presentationName="System Configuration"></category>
+			<category id="_2d" name="ThresholdViolation" presentationName="Threshold Violation"></category>
+			<category id="_2e" name="Todo" presentationName="Todo"></category>
+			<category id="_2f" name="Workspace" presentationName="Workspace"></category>
+		</issueCategories>
+		<issueTypes>
+			<issueType severity="Error" category="_23" id="_33" name="ArchitectureViolation" presentationName="Architecture Violation"></issueType>
+			<issueType severity="Error, Warning" category="_24" id="_34" name="NamespaceCycleGroup" presentationName="Namespace Cycle Group"></issueType>
+			<issueType severity="Warning" category="_2c" id="_35" name="NoInstallationProfileReferencedMatchingNetstandardVersion" presentationName="No C# installation profile referenced by module or system that matches used NetStandard target framework version"></issueType>
+		</issueTypes>
+		<metricProviders>
+			<provider id="_42" name="CSharpLanguageProvider" presentationName="C#"></provider>
+			<provider id="_3b" name="Core" presentationName="Core"></provider>
+		</metricProviders>
+		<metricCategories>
+			<category id="_60" name="Architecture" presentationName="Architecture" orderNumber="0"></category>
+			<category id="_3d" name="CodeAnalysis" presentationName="Code Analysis" orderNumber="1"></category>
+			<category id="_41" name="Cycle" presentationName="Cycle" orderNumber="2"></category>
+			<category id="_37" name="CohesionAndCoupling" presentationName="Cohesion/Coupling" orderNumber="3"></category>
+			<category id="_52" name="Dependency" presentationName="Dependency" orderNumber="4"></category>
+			<category id="_4e" name="Size" presentationName="Size" orderNumber="5"></category>
+			<category id="_38" name="JohnLakos" presentationName="John Lakos" orderNumber="7"></category>
+			<category id="_3f" name="ThomasMccabe" presentationName="Thomas J. McCabe" orderNumber="10"></category>
+			<category id="_86" name="MacCormack" presentationName="MacCormack, Rusnak, Baldwin" orderNumber="11"></category>
+			<category id="_47" name="ChangeHistory" presentationName="Change History" orderNumber="12"></category>
+		</metricCategories>
+		<metricLevels>
+			<level id="_39" name="System" presentationName="System" orderNumber="0"></level>
+			<level id="_3a" name="Module" presentationName="Module" orderNumber="10"></level>
+		</metricLevels>
+		<metricIds>
+			<metricId id="_36" name="CoreAcd" presentationName="ACD" description="Average component dependency according to John Lakos. Average number of components a component depends on directly and indirectly. This metric can be used to characterize the overall average coupling of internal components." categories="_37 _38" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_3c" name="CoreAverageNesting" presentationName="Average Block Nesting Depth" description="Weighted average of nesting depth." categories="_3d" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_3e" name="CoreAverageComplexity" presentationName="Average Complexity" description="Weighted average modified cyclomatic complexity" categories="_3f" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_40" name="CsBiggestDirectoryCycleGroup" presentationName="Biggest C# Directory Cycle Group" description="Biggest C# directory cycle group." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_43" name="CsBiggestNamespaceCycleGroup" presentationName="Biggest C# Namespace Cycle Group" description="Biggest C# namespace cycle group." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_44" name="CoreBiggestComponentCycleGroup" presentationName="Biggest Component Cycle Group" description="Number of components in biggest cycle." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_45" name="CoreCcd" presentationName="CCD" description="Cumulative component dependency according to John Lakos. Cumulated depends upon values." categories="_37 _38" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_46" name="CoreCodeChurn30" presentationName="Code Churn (30d)" description="Number of lines added or removed in the last 30 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_48" name="CoreCodeChurn365" presentationName="Code Churn (365d)" description="Number of lines added or removed in the last 365 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_49" name="CoreCodeChurn90" presentationName="Code Churn (90d)" description="Number of lines added or removed in the last 90 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4a" name="CoreCodeChurnRate30" presentationName="Code Churn Rate (30d)" description="Percentage of lines added or removed in the last 30 days based on total lines" categories="_47" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4b" name="CoreCodeChurnRate365" presentationName="Code Churn Rate (365d)" description="Percentage of lines added or removed in the last 365 days based on total lines" categories="_47" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4c" name="CoreCodeChurnRate90" presentationName="Code Churn Rate (90d)" description="Percentage of lines added or removed in the last 90 days based on total lines" categories="_47" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_4d" name="CoreCodeCommentLines" presentationName="Code Comment Lines" description="Counts all comment lines excluding header comments and blank comment lines." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_4f" name="CoreCommentLines" presentationName="Comment Lines" description="Counts all comment lines excluding blank comment lines." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_50" name="CsComponentDependenciesToRemoveDirectories" presentationName="Component Dependencies to Remove (C# Directories)" description="Number of component dependencies to remove to break up all C# directory cycle groups." categories="_3d _41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_51" name="CsComponentDependenciesToRemoveNamespaces" presentationName="Component Dependencies to Remove (C# Namespaces)" description="Number of component dependencies to remove to break up all C# namespace cycle groups." categories="_3d _52" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_53" name="CoreComponentDependenciesToRemoveComponents" presentationName="Component Dependencies to Remove (Components)" description="Number of component dependencies to remove to break up all  component cycles." categories="_3d _41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_54" name="CsCyclicityDirectories" presentationName="Cyclicity (C# Directories)" description="Cumulated cyclicity of C# directory cycle groups." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_55" name="CsCyclicityNamespaces" presentationName="Cyclicity (C# Namespaces)" description="Cumulated cyclicity of C# namespace cycle groups." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_56" name="CoreCyclicityComponents" presentationName="Cyclicity (Components)" description="Cumulated cyclicity of component cycles." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_57" name="CoreChanges30" presentationName="File Changes (30d)" description="Number of committed file changes in the last 30 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_58" name="CoreChanges365" presentationName="File Changes (365d)" description="Number of committed file changes in the last 365 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_59" name="CoreChanges90" presentationName="File Changes (90d)" description="Number of committed file changes in the last 90 days" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_5a" name="CoreMaxAcd" presentationName="Highest ACD" description="Highest module ACD." categories="_37 _38" provider="_3b" isFloat="true" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_5b" name="CoreIssueDensity" presentationName="Issue Density" description="Calculated as the number of unresolved issues (errors, warnings) * 1000, divided by source element count" categories="_3d" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_5c" name="CoreLinesOfCode" presentationName="Lines of Code" description="Lines of code excluding blank and comment lines." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_5d" name="CoreMaintainabilityLevel" presentationName="Maintainability Level" description="This metric estimates maintainability as a percentage. 100% is the best possible value. To do that it looks at the dependency structure between components (source files in most languages). Cyclic dependencies and low level classes with a lot of incoming dependencies have a negative influence on the metric. Keeping good vertical boundaries and not having too many layers will have a positive influence. It is also recommended to have as many components as possible that are independent, i.e. have no incoming dependencies and therefore can be changed without influencing the rest of the system. In Java and C# the metric also considers the value of the relative cyclicity metric for packages/namespaces. If you have large cycle groups they will have a negative influence on the metric value." categories="_37" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="100.0" worstValue="0.0" minValue="0.0" maxValue="100.0" direction="LowerWorse"></metricId>
+			<metricId id="_5e" name="CoreNccd" presentationName="NCCD" description="Normalized cumulative component dependency  according to John Lakos. The ratio between the cumulative component dependency and the cumulative component dependency of a balanced binary tree of the same size. A value greater than 1 indicates a more vertical design. A value less than 1 indicates a more horizontal design." categories="_37 _38" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_5f" name="CoreArtifactCount" presentationName="Number of Artifacts" description="Number of architecture artifacts in checked files" categories="_60" provider="_3b" isFloat="false" levels="_39" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_61" name="CoreNumberOfAuthors" presentationName="Number of Authors (365d)" description="Number of developers who have worked on this item in the last year" categories="_47" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="INF" worstValue="0.0" minValue="0.0" maxValue="INF" direction="LowerWorse"></metricId>
+			<metricId id="_62" name="CsDirectories" presentationName="Number of C# Directories" description="Number of C# directories containing components." categories="_4e" provider="_42" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_63" name="CsNamespaces" presentationName="Number of C# Namespaces" description="Number of C# namespaces containing types." categories="_4e" provider="_42" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_64" name="CoreDuplicates" presentationName="Number of Code Duplicates" description="Number of duplicated code blocks." categories="_3d" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_65" name="CoreComponentCycleGroups" presentationName="Number of Component Cycle Groups" description="Number of all component cycle groups, warnings and errors." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_66" name="CoreComponents" presentationName="Number of Components" description="Number of components." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_67" name="CoreComponentsIgnoringIssues" presentationName="Number of Components (Ignoring Issues)" description="Number of components ignoring issues." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_68" name="CoreComponentsInDeprecatedArtifacts" presentationName="Number of Components in Deprecated Artifacts" description="Number of components that are assigned to deprecated artifact" categories="_60" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_69" name="CoreViolatingComponents" presentationName="Number of Components with Violations" description="Number of components that contain architecture violations" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6a" name="CsCriticalDirectoryCycleGroups" presentationName="Number of Critical C# Directory Cycle Groups" description="Number of C# directory cycle groups marked as errors." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6b" name="CsCriticalNamespaceCycleGroups" presentationName="Number of Critical C# Namespace Cycle Groups" description="Number of C# namespace cycle groups marked as errors." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6c" name="CoreCriticalComponentCycleGroups" presentationName="Number of Critical Component Cycle Groups" description="Number of component cycle groups marked as errors." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6d" name="CsCyclicDirectories" presentationName="Number of Cyclic C# Directories" description="Number of cyclic C# directories." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6e" name="CsCyclicNamespaces" presentationName="Number of Cyclic C# Namespaces" description="Number of cyclic C# namespaces." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_6f" name="CoreCyclicComponents" presentationName="Number of Cyclic Components" description="Number of cyclic components." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_70" name="CoreCyclicModules" presentationName="Number of Cyclic Modules" description="Number of cyclic modules." categories="_41" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_71" name="CoreDuplicatedLines" presentationName="Number of Duplicated Code Lines" description="Number of duplicated lines in duplicated code blocks. The duplicated lines of each code block are calculated as the sum of involved occurrences excluding the largest, which is treated as the reference." categories="_3d" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_72" name="CoreEmptyArtifactCount" presentationName="Number of Empty Artifacts" description="Number of architecture artifacts that are empty in checked files" categories="_60" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_73" name="CoreIgnoredDuplicates" presentationName="Number of Ignored Code Duplicates" description="Number of ignored duplicated code blocks." categories="_3d" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_74" name="CsIgnoredCyclicDirectories" presentationName="Number of Ignored Cyclic C# Directories" description="Number of ignored cyclic C# directories." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_75" name="CsIgnoredCyclicNamespaces" presentationName="Number of Ignored Cyclic C# Namespaces" description="Number of ignored cyclic C# namespaces." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_76" name="CoreIgnoredCyclicComponents" presentationName="Number of Ignored Cyclic Components" description="Number of ignored cyclic components." categories="_41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_77" name="CoreIgnoredViolationsParserDependencies" presentationName="Number of Ignored Violations (Parser Dependencies)" description="Number of parser dependencies in ignored architecture violations" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_78" name="CoreElementsInDeprecatedArtifacts" presentationName="Number of Logical Elements in Deprecated Artifacts" description="Number of logical programming elements that are assigned to deprecated artifact" categories="_60" provider="_3b" isFloat="false" levels="_39" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_79" name="CoreModules" presentationName="Number of Modules" description="Number of modules." categories="_4e" provider="_3b" isFloat="false" levels="_39" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_7a" name="CoreStatements" presentationName="Number of Statements" description="Counts all statements." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_7b" name="CoreTypes" presentationName="Number of Types" description="Number of types (classes, enums or similar) in container." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_7c" name="CoreUnassignedLogicalElements" presentationName="Number of Unassigned Logical Elements" description="Number of internal logical elements that are not assigned to any artifact" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7d" name="CoreUnassignedComponents" presentationName="Number of Unassigned Physical Components" description="Number of internal physical components that are not assigned to any artifact" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7e" name="CoreViolationsComponentDependencies" presentationName="Number of Violations (Component Dependencies)" description="Number of architecture-violating component dependencies" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_7f" name="CoreViolationsParserDependencies" presentationName="Number of Violations (Parser Dependencies)" description="Number of architecture-violating parser dependencies" categories="_60" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_80" name="CsDirectoryCycleGroups" presentationName="Number of all C# Directory Cycle Groups" description="Number of all C# directory cycle groups, errors and warnings." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_81" name="CsNamespaceCycleGroups" presentationName="Number of all C# Namespace Cycle Groups" description="Number of C# namespace cycle groups, errors and warnings." categories="_41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_82" name="CsParserDependenciesToRemoveDirectories" presentationName="Parser Dependencies to Remove (C# Directories)" description="Number of code lines to change to break up all C# directory cycle groups." categories="_3d _41" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_83" name="CsParserDependenciesToRemoveNamespaces" presentationName="Parser Dependencies to Remove (C# Namespaces)" description="Number of code lines to change to break up all C# namespace cycle groups." categories="_3d _52" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_84" name="CoreParserDependenciesToRemoveComponents" presentationName="Parser Dependencies to Remove (Components)" description="Number of code lines to change to break up all  component cycles." categories="_3d _41" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_85" name="CorePropagationCost" presentationName="Propagation Cost" description="Propagation cost metric according to MacCormack, Rusnak and Baldwin. It describes the proportion of software files that are directly or indirectly linked to each other." categories="_37 _86" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_87" name="CoreRacd" presentationName="RACD" description="Relative average component dependency. Average component dependency divided by the number of internal components multiplied by 100 (in percent)." categories="_37 _38" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_88" name="CsRelativeCyclicityDirectories" presentationName="Relative Cyclicity (C# Directories)" description="Relative C# directory cyclicity in percent." categories="_41" provider="_42" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_89" name="CsRelativeCyclicityNamespaces" presentationName="Relative Cyclicity (C# Namespaces)" description="Relative C# namespace cyclicity in percent." categories="_41" provider="_42" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_8a" name="CoreRelativeCyclicityComponents" presentationName="Relative Cyclicity (Components)" description="Relative component cyclicity in percent." categories="_41" provider="_3b" isFloat="true" levels="_39 _3a" bestValue="0.0" worstValue="100.0" minValue="0.0" maxValue="100.0" direction="HigherWorse"></metricId>
+			<metricId id="_8b" name="CoreSourceElementCount" presentationName="Source Element Count" description="Number of programming elements (i.e. types, fields, methods, functions, ...) plus number of statements." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+			<metricId id="_8c" name="CsStructuralDebtIndexDirectories" presentationName="Structural Debt Index (C# Directories)" description="Cumulative structural debt index of all C# directory cycle groups." categories="_3d" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8d" name="CsStructuralDebtIndexNamespaces" presentationName="Structural Debt Index (C# Namespaces)" description="Cumulative structural debt index of all C# namespace cycle groups." categories="_3d" provider="_42" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8e" name="CoreStructuralDebtIndexComponents" presentationName="Structural Debt Index (Components)" description="Cumulative structural debt index of component cycles." categories="_3d" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="0.0" worstValue="INF" minValue="0.0" maxValue="INF" direction="HigherWorse"></metricId>
+			<metricId id="_8f" name="CoreTotalLines" presentationName="Total Lines" description="Counts all lines including empty and comment lines." categories="_4e" provider="_3b" isFloat="false" levels="_39 _3a" bestValue="NaN" worstValue="NaN" minValue="0.0" maxValue="INF" direction="Indifferent"></metricId>
+		</metricIds>
+	</metaData>
+	<features>
+		<feature name="Architecture" presentationName="Architecture" licensed="true"></feature>
+		<feature name="CohesionAndCouplingMetrics" presentationName="Cohesion And Coupling Metrics" licensed="true"></feature>
+		<feature name="CycleBreakUp" presentationName="Cycle Break Up" licensed="true"></feature>
+		<feature name="DuplicateCode" presentationName="Duplicate Code" licensed="true"></feature>
+		<feature name="Platform" presentationName="Platform" licensed="true"></feature>
+		<feature name="Plugins" presentationName="Plugins" licensed="true"></feature>
+		<feature name="Reporting" presentationName="Reporting" licensed="true"></feature>
+		<feature name="Scripts" presentationName="Scripts" licensed="true"></feature>
+		<feature name="ScriptsAutomated" presentationName="Scripts Automated" licensed="true"></feature>
+		<feature name="Snapshots" presentationName="Snapshots" licensed="true"></feature>
+		<feature name="Systems" presentationName="Systems" licensed="true"></feature>
+		<feature name="VirtualModels" presentationName="Virtual Models" licensed="true"></feature>
+	</features>
+	<analyzers>
+		<analyzer description="Checks for architecture violations" licensed="true" executionLevel="minimal" executed="true" id="_2" name="ArchitectureCheck" presentationName="Architecture Check"></analyzer>
+		<analyzer description="Calculates number of violatong/ignored parser dependencies" licensed="true" executionLevel="minimal" executed="true" id="_3" name="ArchitectureCheckMetrics" presentationName="Architecture Metrics"></analyzer>
+		<analyzer description="Calculates average complexity metrics" licensed="true" executionLevel="minimal" executed="true" id="_4" name="AverageComplexityMetrics" presentationName="Average Complexity Metrics"></analyzer>
+		<analyzer description="Calculates cohesion and coupling metrics" licensed="true" executionLevel="full" executed="true" id="_16" name="CohesionAndCouplingMetrics" presentationName="Cohesion and Coupling Metrics"></analyzer>
+		<analyzer description="Analyzes component / compilation unit cycles on module level" licensed="true" executionLevel="advanced" executed="true" id="_c" name="ComponentCyclesModule" presentationName="Component Cycles (Module)"></analyzer>
+		<analyzer description="Computes component cycle metrics on module level" licensed="true" executionLevel="advanced" executed="true" id="_d" name="ComponentCyclesModuleMetrics" presentationName="Component Cycle Metrics (Module)"></analyzer>
+		<analyzer description="Analyzes component / compilation unit cycles on system level" licensed="true" executionLevel="advanced" executed="true" id="_e" name="ComponentCyclesSystem" presentationName="Component Cycles (System)"></analyzer>
+		<analyzer description="Computes component cycle metrics on system level" licensed="true" executionLevel="advanced" executed="true" id="_f" name="ComponentCyclesSystemMetrics" presentationName="Component Cycle Metrics (System)"></analyzer>
+		<analyzer description="Analyzes directory cycles on module level" licensed="true" executionLevel="basic" executed="true" id="_7" name="CsDirectoryCyclesModule" presentationName="C# Directory Cycles (Module)"></analyzer>
+		<analyzer description="Computes directory cycle metrics on module level" licensed="true" executionLevel="basic" executed="true" id="_8" name="CsDirectoryCyclesModuleMetrics" presentationName="C# Directory Cycle Metrics (Module)"></analyzer>
+		<analyzer description="Analyzes directory cycles on system level" licensed="true" executionLevel="advanced" executed="true" id="_10" name="CsDirectoryCyclesSystem" presentationName="C# Directory Cycles (System)"></analyzer>
+		<analyzer description="Computes directory cycle metrics on system level" licensed="true" executionLevel="advanced" executed="true" id="_11" name="CsDirectoryCyclesSystemMetrics" presentationName="C# Directory Cycle Metrics (System)"></analyzer>
+		<analyzer description="Calculates John Lakos metrics on module level" licensed="true" executionLevel="full" executed="true" id="_17" name="CumulateDependenciesModule" presentationName="Module Dependencies"></analyzer>
+		<analyzer description="Calculates John Lakos metrics on system level" licensed="true" executionLevel="full" executed="true" id="_18" name="CumulateDependenciesSystem" presentationName="System Dependencies"></analyzer>
+		<analyzer description="Search duplicate code on system level" licensed="true" executionLevel="full" executed="true" id="_19" name="DuplicateCode" presentationName="Duplicate Code"></analyzer>
+		<analyzer description="Calculates duplicate code metrics" licensed="true" executionLevel="full" executed="true" id="_1a" name="DuplicateCodeMetrics" presentationName="Duplicate Code Metrics"></analyzer>
+		<analyzer description="Calculates issue density per 1000 source elements" licensed="true" executionLevel="full" executed="true" id="_1b" name="IssueDensity" presentationName="Issue Density"></analyzer>
+		<analyzer description="Calculates maintainability level metrics" licensed="true" executionLevel="advanced" executed="true" id="_12" name="MaintainabilityLevel" presentationName="Calculate Maintainability Level"></analyzer>
+		<analyzer description="Checks for metric threshold violations" licensed="true" executionLevel="minimal" executed="true" id="_5" name="MetricThresholds" presentationName="Metric Thresholds"></analyzer>
+		<analyzer description="Analyzes module cycles on system level" licensed="true" executionLevel="basic" executed="true" id="_9" name="ModuleCyclesSystem" presentationName="Module Cycles"></analyzer>
+		<analyzer description="Analyzes namespace cycles on module level" licensed="true" executionLevel="basic" executed="true" id="_a" name="NamespaceCyclesModule" presentationName="C# Namespace Cycles (Module)"></analyzer>
+		<analyzer description="Computes namespace cycle metrics on module level" licensed="true" executionLevel="basic" executed="true" id="_b" name="NamespaceCyclesModuleMetrics" presentationName="C# Namespace Cycle Metrics (Module)"></analyzer>
+		<analyzer description="Analyzes namespace cycles on system level" licensed="true" executionLevel="advanced" executed="true" id="_13" name="NamespaceCyclesSystem" presentationName="C# Namespace Cycles (System)"></analyzer>
+		<analyzer description="Computes namespace cycle metrics on system level" licensed="true" executionLevel="advanced" executed="true" id="_14" name="NamespaceCyclesSystemMetrics" presentationName="C# Namespace Cycle Metrics (System)"></analyzer>
+		<analyzer description="Checks compliance against defined quality gates" licensed="true" executionLevel="full" executed="true" id="_1c" name="QualityGates" presentationName="Quality Gate"></analyzer>
+		<analyzer description="Calculates source code management based metrics" licensed="true" executionLevel="advanced" executed="true" id="_15" name="ScmMetrics" presentationName="SCM Metrics"></analyzer>
+		<analyzer description="Runs scripts configured for automated execution" licensed="true" executionLevel="full" executed="true" id="_1d" name="ScriptRunner" presentationName="Script Runner"></analyzer>
+		<analyzer description="Calculates size metrics" licensed="true" executionLevel="minimal" executed="true" id="_6" name="SizeMetrics" presentationName="Size Metrics"></analyzer>
+		<analyzer description="Computes the system diff against a baseline" licensed="true" executionLevel="full" executed="true" id="_1e" name="SystemDiff" presentationName="System Diff"></analyzer>
+	</analyzers>
+	<plugins>
+		<plugin description="Plugin that uses PMD to find issues" version="11.1.0.100_2021-03-15-12-00" vendor="hello2morrow GmbH" licensed="true" enabled="false" id="_1" name="com.hello2morrow.sonargraph.plugin.pmd" presentationName="Sonargraph PMD Plugin">
+			<supportedExecutionPhase>analyzer</supportedExecutionPhase>
+		</plugin>
+	</plugins>
+	<duplicateCodeConfiguration>
+		<entry>MinimalLineLength:3</entry>
+		<entry>MinimalBlockLength:25</entry>
+		<entry>MaximalNumberOfCopies:100</entry>
+		<entry>MaximalTolerancePerEdit:3</entry>
+		<entry>MaximalRelativeTolerancePercentage:35</entry>
+	</duplicateCodeConfiguration>
+	<architectureCheckConfiguration>
+		<entry>./layers.arc</entry>
+	</architectureCheckConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_e" name="ComponentCyclesSystem">
+		<intEntry name="CriticalComponentCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_9" name="ModuleCyclesSystem">
+		<intEntry name="CriticalModuleCycleSize" value="2"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_c" name="ComponentCyclesModule">
+		<intEntry name="CriticalComponentCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_13" name="NamespaceCyclesSystem">
+		<intEntry name="CriticalNamespaceCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_7" name="CsDirectoryCyclesModule">
+		<intEntry name="CriticalDirectoryCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_10" name="CsDirectoryCyclesSystem">
+		<intEntry name="CriticalDirectoryCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<cycleGroupAnalyzerConfiguration analyzer="_a" name="NamespaceCyclesModule">
+		<intEntry name="CriticalNamespaceCycleSize" value="6"></intEntry>
+	</cycleGroupAnalyzerConfiguration>
+	<qualityGateConfiguration></qualityGateConfiguration>
+	<systemFile path="./layers.arc" type="Architecture" lastModified="2021-03-09T16:42:30.781+01:00" hash="067822623219654631de9edb39b0a7aa"></systemFile>
+	<pluginConfiguration plugin="_1" id="_1f" name="./com.hello2morrow.sonargraph.plugin.pmd.xml" presentationName="./com.hello2morrow.sonargraph.plugin.pmd.xml">
+		<stringEntry name="HIGH" value="error"></stringEntry>
+		<stringEntry name="MEDIUM_HIGH" value="error"></stringEntry>
+		<stringEntry name="MEDIUM" value="error"></stringEntry>
+		<stringEntry name="MEDIUM_LOW" value="warning"></stringEntry>
+		<stringEntry name="LOW" value="warning"></stringEntry>
+		<stringEntry name="RuleSets" value="/rulesets/java/basic.xml"></stringEntry>
+		<intEntry name="Minimum Priority" value="5"></intEntry>
+		<intEntry name="Number of Threads" value="0"></intEntry>
+		<booleanEntry name="Enabled" value="false"></booleanEntry>
+		<booleanEntry name="Cache" value="true"></booleanEntry>
+	</pluginConfiguration>
+	<elementKinds>
+		<elementKind id="_9b" standardKind="CSharpExternal" presentationKind="CSharp External" imageResourceName="External"></elementKind>
+		<elementKind id="_9d" standardKind="CSharpClass" presentationKind="CSharp Class"></elementKind>
+		<elementKind id="_a1" standardKind="CSharpInterface" presentationKind="CSharp Interface"></elementKind>
+		<elementKind id="_91" standardKind="CSharpProjectFileBasedModule" presentationKind="C# Module" imageResourceName="Module"></elementKind>
+		<elementKind id="_ae" standardKind="CSharpNamespaceFragment" presentationKind="Namespace" imageResourceName="NamespaceFragment"></elementKind>
+		<elementKind id="_93" standardKind="CSharpProjectFileDirectoryPath" presentationKind="C# Source Root Directory" imageResourceName="RootDirectoryPath"></elementKind>
+		<elementKind id="_b4" standardKind="SoftwareSystem" presentationKind="System"></elementKind>
+		<elementKind id="_9f" standardKind="CSharpSourceFile" presentationKind="CSharp Source File"></elementKind>
+		<elementKind id="_a3" standardKind="CSharpMethodWithBody" presentationKind="CSharp Method With Body"></elementKind>
+		<elementKind id="_ab" standardKind="CSharpLogicalModuleNamespace" presentationKind="Namespace" imageResourceName="NamespaceFragment"></elementKind>
+	</elementKinds>
+	<workspace>
+		<workspaceFilter description="Exclude files (matches against the 'Identifying Path' property)" information="Excluded 0 files(s)" numberOfExcludedElements="0"></workspaceFilter>
+		<productionCodeFilter description="Exclude internal components containing test code (matches against the 'Workspace Filter Name' property)" information="Excluded 0 internal component(s) (processed 5)" numberOfExcludedElements="0" numberOfIncludedElements="5"></productionCodeFilter>
+		<issueFilter description="Ignore analysis issues of internal components containing legacy/generated code (matches against the 'Workspace Filter Name' property)" information="Ignoring analysis issues of 0 internal component(s) (processed 5)" numberOfExcludedElements="0" numberOfIncludedElements="5"></issueFilter>
+		<module moduleId="30ea47f0fd6a867b730bda1844c6c101" language="CSharp" description="" kind="_91" fqName="Workspace:NAlarmClock" id="_90" name="NAlarmClock" presentationName="NAlarmClock">
+			<rootDirectory kind="_93" fqName="Workspace:NAlarmClock:./NAlarmClock" id="_92" name="./NAlarmClock" presentationName="./NAlarmClock">
+				<sourceElement kind="_9f" fqName="Workspace:NAlarmClock:./NAlarmClock:Program.cs" id="_a9" name="Program.cs" presentationName="./Program.cs"></sourceElement>
+				<programmingElement line="7" kind="_a3" fqName="Workspace:NAlarmClock:./NAlarmClock:Program.cs:NAlarmClock:MainClass:Main(string[])" source="_a9" id="_a8" name="Main(string[])" presentationName="NAlarmClock.MainClass.Main(string[])"></programmingElement>
+			</rootDirectory>
+		</module>
+		<module moduleId="ab5a4ff231659bcf447c7f10373addd0" language="CSharp" description="" kind="_91" fqName="Workspace:Foundation" id="_94" name="Foundation" presentationName="Foundation">
+			<rootDirectory kind="_93" fqName="Workspace:Foundation:./Foundation" id="_95" name="./Foundation" presentationName="./Foundation">
+				<sourceElement kind="_9f" fqName="Workspace:Foundation:./Foundation:Observable.cs" id="_9e" name="Observable.cs" presentationName="./Observable.cs"></sourceElement>
+				<programmingElement line="7" kind="_9d" fqName="Workspace:Foundation:./Foundation:Observable.cs:Foundation:Observable" source="_9e" id="_9c" name="Observable" presentationName="Foundation.Observable"></programmingElement>
+				<programmingElement line="9" kind="_a1" fqName="Workspace:Foundation:./Foundation:Observable.cs:Foundation:Observable:IObserver" source="_9e" id="_a0" name="IObserver" presentationName="Foundation.Observable.IObserver"></programmingElement>
+				<programmingElement line="27" kind="_a3" fqName="Workspace:Foundation:./Foundation:Observable.cs:Foundation:Observable:addObserver(Foundation.Observable.IObserver,string)" source="_9e" id="_a2" name="addObserver(Foundation.Observable.IObserver,string)" presentationName="Foundation.Observable.addObserver(Foundation.Observable.IObserver,string)"></programmingElement>
+				<programmingElement line="37" kind="_a3" fqName="Workspace:Foundation:./Foundation:Observable.cs:Foundation:Observable:notifyAboutEvent(string)" source="_9e" id="_a4" name="notifyAboutEvent(string)" presentationName="Foundation.Observable.notifyAboutEvent(string)"></programmingElement>
+			</rootDirectory>
+		</module>
+		<module moduleId="5a2fadb83a841ea2154210f4c61c43f5" language="CSharp" description="" kind="_91" fqName="Workspace:Model" id="_96" name="Model" presentationName="Model">
+			<rootDirectory kind="_93" fqName="Workspace:Model:./Model" id="_97" name="./Model" presentationName="./Model">
+				<sourceElement kind="_9f" fqName="Workspace:Model:./Model:AlarmClock.cs" id="_a6" name="AlarmClock.cs" presentationName="./AlarmClock.cs"></sourceElement>
+				<programmingElement line="6" kind="_9d" fqName="Workspace:Model:./Model:AlarmClock.cs:Model:AlarmClock" source="_a6" id="_a5" name="AlarmClock" presentationName="Model.AlarmClock"></programmingElement>
+				<programmingElement line="20" kind="_a3" fqName="Workspace:Model:./Model:AlarmClock.cs:Model:AlarmClock:Run()" source="_a6" id="_a7" name="Run()" presentationName="Model.AlarmClock.Run()"></programmingElement>
+			</rootDirectory>
+		</module>
+		<module moduleId="188d643ed343519fb4d9fe8d5506db34" language="CSharp" description="" kind="_91" fqName="Workspace:View" id="_98" name="View" presentationName="View">
+			<rootDirectory kind="_93" fqName="Workspace:View:./View" id="_99" name="./View" presentationName="./View">
+				<physicalRecursiveElement kind="_ae" fqName="Workspace:View:./View:View.cs:Presentation:Console" source="_ac" id="_ad" name="Console" presentationName="Presentation.Console"></physicalRecursiveElement>
+				<physicalRecursiveElement kind="_ae" fqName="Workspace:View:./View:View.cs:Presentation:File" source="_ac" id="_b0" name="File" presentationName="Presentation.File"></physicalRecursiveElement>
+				<sourceElement kind="_9f" fqName="Workspace:View:./View:View.cs" id="_ac" name="View.cs" presentationName="./View.cs"></sourceElement>
+				<programmingElement line="7" kind="_9d" fqName="Workspace:View:./View:View.cs:Presentation:AlarmHandler" source="_ac" id="_b1" name="AlarmHandler" presentationName="Presentation.AlarmHandler"></programmingElement>
+				<programmingElement line="21" kind="_a3" fqName="Workspace:View:./View:View.cs:Presentation:AlarmHandler:handleEvent(Foundation.Observable,string)" source="_ac" id="_b2" name="handleEvent(Foundation.Observable,string)" presentationName="Presentation.AlarmHandler.handleEvent(Foundation.Observable,string)"></programmingElement>
+			</rootDirectory>
+		</module>
+		<external language="CSharp" description="Contains external C# elements" kind="_9b" fqName="Workspace:External [C#]" id="_9a" name="External [C#]" presentationName="External [C#]"></external>
+	</workspace>
+	<systemElements ref="_0">
+		<element kind="_b4" fqName="NAlarmClock" id="_b3" name="NAlarmClock" presentationName="NAlarmClock"></element>
+	</systemElements>
+	<moduleElements ref="_94"></moduleElements>
+	<moduleElements ref="_96"></moduleElements>
+	<moduleElements ref="_90"></moduleElements>
+	<moduleElements ref="_98">
+		<logicalNamespace derivedFrom="_ad" kind="_ab" fqName="Logical module namespaces:View:Presentation:Console" id="_aa" name="Console" presentationName="Presentation.Console"></logicalNamespace>
+		<logicalNamespace derivedFrom="_b0" kind="_ab" fqName="Logical module namespaces:View:Presentation:File" id="_af" name="File" presentationName="Presentation.File"></logicalNamespace>
+	</moduleElements>
+	<systemMetricValues elementRef="_0">
+		<levelValues levelRef="_39">
+			<metric ref="_55">
+				<int ref="_b3">4</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_46">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_72">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_69">
+				<int ref="_b3">3</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_67">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_4b">
+				<float ref="_b3">0.0</float>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_b3">2</int>
+			</metric>
+			<metric ref="_87">
+				<float ref="_b3">40.0</float>
+			</metric>
+			<metric ref="_5f">
+				<int ref="_b3">4</int>
+			</metric>
+			<metric ref="_8a">
+				<float ref="_b3">0.0</float>
+			</metric>
+			<metric ref="_73">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_50">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_89">
+				<float ref="_b3">33.33</float>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_b3">73</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_78">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_b3">5</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_79">
+				<int ref="_b3">4</int>
+			</metric>
+			<metric ref="_56">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_b3">4</int>
+			</metric>
+			<metric ref="_70">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_5d">
+				<float ref="_b3">100.0</float>
+			</metric>
+			<metric ref="_45">
+				<int ref="_b3">10</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_b3">186</int>
+			</metric>
+			<metric ref="_5b">
+				<float ref="_b3">150.68</float>
+			</metric>
+			<metric ref="_40">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_58">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_64">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_71">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_5e">
+				<float ref="_b3">0.95</float>
+			</metric>
+			<metric ref="_65">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_4f">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_5c">
+				<int ref="_b3">153</int>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_b3">8</int>
+			</metric>
+			<metric ref="_68">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_54">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_b3">3</int>
+			</metric>
+			<metric ref="_53">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_51">
+				<int ref="_b3">1</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_4a">
+				<float ref="_b3">0.0</float>
+			</metric>
+			<metric ref="_82">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_b3">42</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_b3">12</int>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_3e">
+				<float ref="_b3">1.48</float>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_61">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_b3">6</int>
+			</metric>
+			<metric ref="_36">
+				<float ref="_b3">2.0</float>
+			</metric>
+			<metric ref="_44">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_3c">
+				<float ref="_b3">0.48</float>
+			</metric>
+			<metric ref="_85">
+				<float ref="_b3">40.0</float>
+			</metric>
+			<metric ref="_59">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_5a">
+				<float ref="_b3">1.0</float>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_b3">6</int>
+			</metric>
+			<metric ref="_43">
+				<int ref="_b3">2</int>
+			</metric>
+			<metric ref="_88">
+				<float ref="_b3">0.0</float>
+			</metric>
+			<metric ref="_48">
+				<int ref="_b3">0</int>
+			</metric>
+			<metric ref="_4c">
+				<float ref="_b3">0.0</float>
+			</metric>
+			<metric ref="_83">
+				<int ref="_b3">2</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_b3">1</int>
+			</metric>
+			<metric ref="_57">
+				<int ref="_b3">0</int>
+			</metric>
+		</levelValues>
+	</systemMetricValues>
+	<moduleMetricValues elementRef="_90">
+		<levelValues levelRef="_3a">
+			<metric ref="_69">
+				<int ref="_90">1</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_90">1</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_90">2</int>
+			</metric>
+			<metric ref="_46">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_4a">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_4b">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_4c">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_57">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_58">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_59">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_61">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_3c">
+				<float ref="_90">0.4</float>
+			</metric>
+			<metric ref="_50">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_51">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_53">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_5b">
+				<float ref="_90">187.5</float>
+			</metric>
+			<metric ref="_82">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_83">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_36">
+				<float ref="_90">1.0</float>
+			</metric>
+			<metric ref="_45">
+				<int ref="_90">2</int>
+			</metric>
+			<metric ref="_5d">
+				<float ref="_90">100.0</float>
+			</metric>
+			<metric ref="_5e">
+				<float ref="_90">0.73</float>
+			</metric>
+			<metric ref="_85">
+				<float ref="_90">50.0</float>
+			</metric>
+			<metric ref="_87">
+				<float ref="_90">50.0</float>
+			</metric>
+			<metric ref="_40">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_43">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_44">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_54">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_55">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_56">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_65">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_88">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_89">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_8a">
+				<float ref="_90">0.0</float>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_4f">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_5c">
+				<int ref="_90">35</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_90">1</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_90">1</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_90">2</int>
+			</metric>
+			<metric ref="_67">
+				<int ref="_90">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_90">10</int>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_90">2</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_90">16</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_90">40</int>
+			</metric>
+			<metric ref="_3e">
+				<float ref="_90">1.4</float>
+			</metric>
+		</levelValues>
+	</moduleMetricValues>
+	<moduleMetricValues elementRef="_94">
+		<levelValues levelRef="_3a">
+			<metric ref="_69">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_46">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_4a">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_4b">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_4c">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_57">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_58">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_59">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_61">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_3c">
+				<float ref="_94">0.65</float>
+			</metric>
+			<metric ref="_50">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_51">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_53">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_5b">
+				<float ref="_94">41.67</float>
+			</metric>
+			<metric ref="_82">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_83">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_36">
+				<float ref="_94">1.0</float>
+			</metric>
+			<metric ref="_45">
+				<int ref="_94">1</int>
+			</metric>
+			<metric ref="_5d">
+				<float ref="_94">100.0</float>
+			</metric>
+			<metric ref="_5e">
+				<float ref="_94">1.0</float>
+			</metric>
+			<metric ref="_85">
+				<float ref="_94">100.0</float>
+			</metric>
+			<metric ref="_87">
+				<float ref="_94">100.0</float>
+			</metric>
+			<metric ref="_40">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_43">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_44">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_54">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_55">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_56">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_65">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_88">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_89">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_8a">
+				<float ref="_94">0.0</float>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_4f">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_5c">
+				<int ref="_94">42</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_94">1</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_94">1</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_94">1</int>
+			</metric>
+			<metric ref="_67">
+				<int ref="_94">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_94">17</int>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_94">2</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_94">24</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_94">51</int>
+			</metric>
+			<metric ref="_3e">
+				<float ref="_94">1.65</float>
+			</metric>
+		</levelValues>
+	</moduleMetricValues>
+	<moduleMetricValues elementRef="_96">
+		<levelValues levelRef="_3a">
+			<metric ref="_69">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_96">2</int>
+			</metric>
+			<metric ref="_46">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_4a">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_4b">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_4c">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_57">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_58">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_59">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_61">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_3c">
+				<float ref="_96">0.71</float>
+			</metric>
+			<metric ref="_50">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_51">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_53">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_5b">
+				<float ref="_96">250.0</float>
+			</metric>
+			<metric ref="_82">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_83">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_36">
+				<float ref="_96">1.0</float>
+			</metric>
+			<metric ref="_45">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_5d">
+				<float ref="_96">100.0</float>
+			</metric>
+			<metric ref="_5e">
+				<float ref="_96">1.0</float>
+			</metric>
+			<metric ref="_85">
+				<float ref="_96">100.0</float>
+			</metric>
+			<metric ref="_87">
+				<float ref="_96">100.0</float>
+			</metric>
+			<metric ref="_40">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_43">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_44">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_54">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_55">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_56">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_65">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_88">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_89">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_8a">
+				<float ref="_96">0.0</float>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_4f">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_5c">
+				<int ref="_96">26</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_67">
+				<int ref="_96">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_96">7</int>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_96">1</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_96">12</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_96">33</int>
+			</metric>
+			<metric ref="_3e">
+				<float ref="_96">1.71</float>
+			</metric>
+		</levelValues>
+	</moduleMetricValues>
+	<moduleMetricValues elementRef="_98">
+		<levelValues levelRef="_3a">
+			<metric ref="_69">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_77">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_7c">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_7d">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_7e">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_7f">
+				<int ref="_98">2</int>
+			</metric>
+			<metric ref="_46">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_48">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_49">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_4a">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_4b">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_4c">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_57">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_58">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_59">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_61">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_3c">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_50">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_51">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_53">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_5b">
+				<float ref="_98">190.48</float>
+			</metric>
+			<metric ref="_82">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_83">
+				<int ref="_98">2</int>
+			</metric>
+			<metric ref="_84">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_8c">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_8d">
+				<int ref="_98">12</int>
+			</metric>
+			<metric ref="_8e">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_36">
+				<float ref="_98">1.0</float>
+			</metric>
+			<metric ref="_45">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_5d">
+				<float ref="_98">100.0</float>
+			</metric>
+			<metric ref="_5e">
+				<float ref="_98">1.0</float>
+			</metric>
+			<metric ref="_85">
+				<float ref="_98">100.0</float>
+			</metric>
+			<metric ref="_87">
+				<float ref="_98">100.0</float>
+			</metric>
+			<metric ref="_40">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_43">
+				<int ref="_98">2</int>
+			</metric>
+			<metric ref="_44">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_54">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_55">
+				<int ref="_98">4</int>
+			</metric>
+			<metric ref="_56">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_80">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_81">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_65">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_6a">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_6b">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_6c">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_6d">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_6e">
+				<int ref="_98">2</int>
+			</metric>
+			<metric ref="_6f">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_74">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_75">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_76">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_88">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_89">
+				<float ref="_98">66.67</float>
+			</metric>
+			<metric ref="_8a">
+				<float ref="_98">0.0</float>
+			</metric>
+			<metric ref="_4d">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_4f">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_5c">
+				<int ref="_98">50</int>
+			</metric>
+			<metric ref="_62">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_63">
+				<int ref="_98">3</int>
+			</metric>
+			<metric ref="_66">
+				<int ref="_98">1</int>
+			</metric>
+			<metric ref="_67">
+				<int ref="_98">0</int>
+			</metric>
+			<metric ref="_7a">
+				<int ref="_98">8</int>
+			</metric>
+			<metric ref="_7b">
+				<int ref="_98">3</int>
+			</metric>
+			<metric ref="_8b">
+				<int ref="_98">21</int>
+			</metric>
+			<metric ref="_8f">
+				<int ref="_98">62</int>
+			</metric>
+			<metric ref="_3e">
+				<float ref="_98">1.0</float>
+			</metric>
+		</levelValues>
+	</moduleMetricValues>
+	<issues modelName="./Modifiable.vm" numberOfIssues="11" numberOfUnresolvedIssues="11">
+		<elementIssues>
+			<issue affectedElement="_90" id="_b5" type="_35" provider="_31" description="No .NETFramework installation profile referenced on module or system level that matches the given .NETFramework version 4.0.0"></issue>
+			<issue affectedElement="_94" id="_b6" type="_35" provider="_31" description="No .NETFramework installation profile referenced on module or system level that matches the given .NETFramework version 4.0.0"></issue>
+			<issue affectedElement="_96" id="_b7" type="_35" provider="_31" description="No .NETFramework installation profile referenced on module or system level that matches the given .NETFramework version 4.0.0"></issue>
+			<issue affectedElement="_98" id="_b8" type="_35" provider="_31" description="No .NETFramework installation profile referenced on module or system level that matches the given .NETFramework version 4.0.0"></issue>
+			<cycleGroups analyzerRef="_a">
+				<cycleGroup numberOfCyclicElements="2" name="C# Namespace cycle group 4.1" fqName="Files:BaseDirectory:SystemDirectory:Analyzers:NamespaceCyclesModule:Result:fb576243e1944c7e28a317391844fedb|ee461cac226933d1753f577e85534115" structuralDebtIndex="12" componentDependenciesToRemove="1" parserDependenciesToRemove="2" scope="_98" id="_b9" type="_34" provider="_32" description="2 cyclic namespaces" severity="Warning">
+					<element ref="_aa"></element>
+					<element ref="_af"></element>
+				</cycleGroup>
+			</cycleGroups>
+		</elementIssues>
+		<depencencyIssues>
+			<issue from="_b2" to="_9c" id="_ba" type="_33" provider="_30" description="[Parameter type] 'View' cannot access 'Observable.cs' from 'Foundation'" line="21"></issue>
+			<issue from="_a8" to="_a2" id="_bb" type="_33" provider="_30" description="[Virtual call] 'Application' cannot access 'Observable.cs' from 'Foundation'" line="12"></issue>
+			<issue from="_a8" to="_a2" id="_bc" type="_33" provider="_30" description="[Virtual call] 'Application' cannot access 'Observable.cs' from 'Foundation'" line="13"></issue>
+			<issue from="_b1" to="_a0" id="_bd" type="_33" provider="_30" description="[Implements] 'View' cannot access 'Observable.cs' from 'Foundation'" line="7"></issue>
+			<issue from="_a5" to="_9c" id="_be" type="_33" provider="_30" description="[Inherits from] 'Model' cannot access 'Observable.cs' from 'Foundation'" line="6"></issue>
+			<issue from="_a7" to="_a4" id="_bf" type="_33" provider="_30" description="[Virtual call] 'Model' cannot access 'Observable.cs' from 'Foundation'" line="29"></issue>
+		</depencencyIssues>
+	</issues>
+</ns2:report>

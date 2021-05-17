@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -86,7 +86,8 @@ class ExportMetaDataXmlToPropertiesConverter
             {
                 String name = next.getName();
                 String presentationName = next.getPresentationName();
-                String issueTypePresentationName = next.getDescription().length() > 0 ? next.getDescription() : next.getPresentationName();
+                String issueTypePresentationName = next.getDescription().length() > 0 ? next.getDescription()
+                        : next.getPresentationName();
                 if (severity == Severity.ERROR)
                 {
                     if (next.getName().endsWith("CycleGroup"))
@@ -103,7 +104,8 @@ class ExportMetaDataXmlToPropertiesConverter
                     }
                 }
 
-                rulesProvider.addRule(name, issueTypePresentationName, presentationName, severity, next, ruleProperties);
+                rulesProvider.addRule(name, issueTypePresentationName, presentationName, severity, next,
+                        ruleProperties);
             }
         }
 
@@ -117,12 +119,14 @@ class ExportMetaDataXmlToPropertiesConverter
     public IExportMetaData readBuiltInMetaData()
     {
         final String errorMsg = "Failed to load built in meta data from '" + BUILT_IN_META_DATA_RESOURCE_PATH + "'";
-        try (InputStream inputStream = ExportMetaDataXmlToPropertiesConverter.class.getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
+        try (InputStream inputStream = ExportMetaDataXmlToPropertiesConverter.class
+                .getResourceAsStream(BUILT_IN_META_DATA_RESOURCE_PATH))
         {
             if (inputStream != null)
             {
                 final IMetaDataController controller = ControllerFactory.createMetaDataController();
-                final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream, BUILT_IN_META_DATA_RESOURCE_PATH);
+                final ResultWithOutcome<IExportMetaData> result = controller.loadExportMetaData(inputStream,
+                        BUILT_IN_META_DATA_RESOURCE_PATH);
                 if (result.isFailure())
                 {
                     LOGGER.error("{} - {}", errorMsg, result);
@@ -145,7 +149,8 @@ class ExportMetaDataXmlToPropertiesConverter
         return null;
     }
 
-    private void getMetricsForLevel(final IExportMetaData builtInMetaData, final IMetricLevel level, final Map<String, IMetricId> metricMap)
+    private void getMetricsForLevel(final IExportMetaData builtInMetaData, final IMetricLevel level,
+            final Map<String, IMetricId> metricMap)
     {
         for (final IMetricId next : builtInMetaData.getMetricIdsForLevel(level))
         {
@@ -156,9 +161,16 @@ class ExportMetaDataXmlToPropertiesConverter
         }
     }
 
-    public static void main(final String[] args) throws IOException
+    public static void main(final String[] args)
     {
         final ExportMetaDataXmlToPropertiesConverter converter = new ExportMetaDataXmlToPropertiesConverter();
-        converter.convert();
+        try
+        {
+            converter.convert();
+        }
+        catch (final IOException e)
+        {
+            LOGGER.error("Failed to convert meta data", e);
+        }
     }
 }

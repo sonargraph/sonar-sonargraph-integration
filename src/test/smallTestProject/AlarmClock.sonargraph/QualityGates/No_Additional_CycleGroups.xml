@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<qualityGate version="10.4.0.100">
+<qualityGate version="11.2.0.100">
 	<description></description>
 	<currentSystemConditions>
 		<issueCondition operator="lessOrEqual" limit="0" issueType="Any" severity="Error" resolution="None"></issueCondition>

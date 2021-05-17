@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,8 +49,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
         private final String severity;
         private final String description;
 
-        public RuleDto(final String key, final String name, final String categoryName, final String severity, final String description,
-                final String... categoryTag)
+        public RuleDto(final String key, final String name, final String categoryName, final String severity,
+                final String description, final String... categoryTag)
         {
             this.key = key;
             this.name = name;
@@ -94,7 +94,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
     private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphRulesProvider.class);
     private static final String SEPARATOR = "|";
     private static final String PROPERTIES_FILENAME = "SonargraphRules.properties";
-    private static final String BUILT_IN_RULES_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/" + PROPERTIES_FILENAME;
+    private static final String BUILT_IN_RULES_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/"
+            + PROPERTIES_FILENAME;
     private static final int NUMBER_OF_VALUE_PARTS = 5;
 
     private SortedProperties customRules;
@@ -110,7 +111,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
     }
 
     void addRule(final String issueTypeName, final String issueTypePresentationName, final String presentationName,
-            final com.hello2morrow.sonargraph.integration.access.model.Severity severity, final IIssueType issueType, final Properties ruleProperties)
+            final com.hello2morrow.sonargraph.integration.access.model.Severity severity, final IIssueType issueType,
+            final Properties ruleProperties)
     {
         if (SonargraphBase.ignoreIssueType(issueType.getCategory().getName()))
         {
@@ -126,7 +128,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
         final String key;
         final List<String> categoryTags = new ArrayList<>();
         categoryTags.add(SonargraphBase.createRuleCategoryTag(categoryPresentationName));
-        if (category.getName().equals(SonargraphBase.SCRIPT_ISSUE_CATEGORY) || category.getName().equals(SonargraphBase.PLUGIN_ISSUE_CATEGORY))
+        if (category.getName().equals(SonargraphBase.SCRIPT_ISSUE_CATEGORY)
+                || category.getName().equals(SonargraphBase.PLUGIN_ISSUE_CATEGORY))
         {
             final String issueTag = SonargraphBase.createRuleCategoryTag(issueTypePresentationName);
             categoryTags.add(issueTag);
@@ -171,7 +174,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
     void addCustomRuleForIssue(final IIssue issue)
     {
         final IIssueType type = issue.getIssueType();
-        final String presentationName = type.getPresentationName() + " (" + type.getProvider().getPresentationName() + ")";
+        final String presentationName = type.getPresentationName() + " (" + type.getProvider().getPresentationName()
+                + ")";
         addRule(type.getName(), type.getPresentationName(), presentationName, issue.getSeverity(), type, customRules);
     }
 
@@ -220,13 +224,15 @@ class SonargraphRulesProvider extends AbstractDataProvider
         final File customPropertiesFile = new File(filePath);
         if (!customPropertiesFile.exists())
         {
-            LOGGER.info("{}: No custom rules file found at '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, filePath);
+            LOGGER.info("{}: No custom rules file found at '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    filePath);
             return customRules;
         }
         try (InputStream inputStream = new FileInputStream(filePath))
         {
             customRules.load(inputStream);
-            LOGGER.info("{}: Loaded custom rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, filePath);
+            LOGGER.info("{}: Loaded custom rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    filePath);
         }
         return customRules;
     }
@@ -302,7 +308,8 @@ class SonargraphRulesProvider extends AbstractDataProvider
         try (InputStream inputStream = SonargraphBase.class.getResourceAsStream(BUILT_IN_RULES_RESOURCE_PATH))
         {
             properties.load(inputStream);
-            LOGGER.info("{}: Loaded standard rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, BUILT_IN_RULES_RESOURCE_PATH);
+            LOGGER.info("{}: Loaded standard rules file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    BUILT_IN_RULES_RESOURCE_PATH);
         }
 
         return properties;

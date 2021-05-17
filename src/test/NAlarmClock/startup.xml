@@ -1,0 +1,38 @@
+<!--  See http://eclipse.hello2morrow.com/doc/build/content/integrating_with_shell.html -->
+<!--  NOTE: This example uses a quality model file, which overrides all local configuration! -->
+<!--  This example uses an activation code for a free Sonargraph-Explorer license. 
+	  Advanced features like architecture check, quality gates, scripting, etc. 
+	  are only available with a Sonargraph-Architect license.
+	  You can request a Sonargraph-Architect evaluation license on our website.	  
+-->
+<sonargraphBuild 
+    waitForLicense="2" 
+    languages="CSharp"
+    installationDirectory="D:\00_repo\sgng-master\products\SonargraphBuild\dist\release\SonargraphBuild"
+    
+    virtualModel="Modifiable.vm"
+    workspaceProfile="" 
+    reportDirectory="./target/sonargraph"
+    reportFileName="sonargraph-sonarqube-report"
+    reportType="standard"
+    reportFormat="xml,html"
+    splitByModule="false"
+    baselineReportPath=""
+    snapshotDirectory=""
+    proxyHost="" 
+    proxyPort="" 
+    proxyUsername=""
+    proxyPassword="" 
+    logLevel="info"
+    progressInfo="basic">
+    
+   <!-- 
+   <failSet failOnEmptyWorkspace="true">
+   	   <include issueType="any" severity="error" resolution="none"/>
+       <include issueType="any" severity="warning"/>
+       <exclude issueType="ThresholdViolation"/>
+       <exclude issueType="Supertype uses subtype"/>
+       <exclude issueType="ScriptCompilationError" resolution="none"/>
+   </failSet>
+   -->
+</sonargraphBuild>

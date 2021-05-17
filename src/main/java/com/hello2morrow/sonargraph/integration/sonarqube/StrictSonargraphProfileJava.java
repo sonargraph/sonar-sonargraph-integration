@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,28 +18,25 @@
 package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
  * Activates additional non-critical Sonargraph rules.
  */
-public final class SonargraphStrictProfile extends SonargraphProfile
+public final class StrictSonargraphProfileJava extends AbstractSonargraphProfile
 {
-    static final List<String> RULE_KEYS = Arrays.asList("MODULE_CYCLE_GROUP", "NAMESPACE_CYCLE_GROUP", "COMPONENT_CYCLE_GROUP",
-            "THRESHOLD_VIOLATION");
     static final String NAME = SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME + " (Strict)";
 
-    public SonargraphStrictProfile()
+    public StrictSonargraphProfileJava()
     {
-        super(NAME);
+        super(NAME, SonargraphBase.JAVA);
     }
 
     @Override
     protected List<String> getRuleKeys()
     {
-        final List<String> ruleKeys = new ArrayList<>(super.getRuleKeys());
-        ruleKeys.addAll(RULE_KEYS);
+        final List<String> ruleKeys = new ArrayList<>(STANDARD_RULE_KEYS);
+        ruleKeys.addAll(STRICT_RULE_KEYS);
         return ruleKeys;
     }
 }

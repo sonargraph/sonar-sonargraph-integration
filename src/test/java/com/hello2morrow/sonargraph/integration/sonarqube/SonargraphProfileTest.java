@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,19 +48,22 @@ public final class SonargraphProfileTest
     {
         final Context context = TestProfile.createTestContext();
         {
-            final SonargraphProfile sonargraphProfile = new SonargraphProfile();
+            final BuiltInQualityProfilesDefinition sonargraphProfile = new StandardSonargraphProfileJava();
             sonargraphProfile.define(context);
             //Call a second time to see if this causes a problem
             sonargraphProfile.define(context);
         }
 
         {
-            final Map<String, BuiltInQualityProfile> javaProfiles = context.profilesByLanguageAndName().get(SonargraphBase.JAVA);
+            final Map<String, BuiltInQualityProfile> javaProfiles = context.profilesByLanguageAndName()
+                    .get(SonargraphBase.JAVA);
             assertNotNull("Missing Java profiles", javaProfiles);
             assertEquals("Wrong number of profiles", 1, javaProfiles.size());
-            final BuiltInQualityProfile sonargraphProfile = javaProfiles.get(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
+            final BuiltInQualityProfile sonargraphProfile = javaProfiles
+                    .get(SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
             assertNotNull("Missing Sonargraph profile", sonargraphProfile);
-            assertEquals("Wrong number of rules", SonargraphProfile.RULE_KEYS.size(), sonargraphProfile.rules().size());
+            assertEquals("Wrong number of rules", StandardSonargraphProfileJava.STANDARD_RULE_KEYS.size(),
+                    sonargraphProfile.rules().size());
         }
     }
 
@@ -69,20 +72,21 @@ public final class SonargraphProfileTest
     {
         final Context context = TestProfile.createTestContext();
         {
-            final SonargraphStrictProfile sonargraphStrictProfile = new SonargraphStrictProfile();
+            final StrictSonargraphProfileJava sonargraphStrictProfile = new StrictSonargraphProfileJava();
             sonargraphStrictProfile.define(context);
             //Call a second time to see if this causes a problem
             sonargraphStrictProfile.define(context);
         }
 
         {
-            final Map<String, BuiltInQualityProfile> javaProfiles = context.profilesByLanguageAndName().get(SonargraphBase.JAVA);
+            final Map<String, BuiltInQualityProfile> javaProfiles = context.profilesByLanguageAndName()
+                    .get(SonargraphBase.JAVA);
             assertNotNull("Missing Java profiles", javaProfiles);
             assertEquals("Wrong number of profiles", 1, javaProfiles.size());
-            final BuiltInQualityProfile sonargraphProfile2 = javaProfiles.get(SonargraphStrictProfile.NAME);
+            final BuiltInQualityProfile sonargraphProfile2 = javaProfiles.get(StrictSonargraphProfileJava.NAME);
             assertNotNull("Missing Sonargraph (Strict) profile", sonargraphProfile2);
-            assertEquals("Wrong number of rules", SonargraphProfile.RULE_KEYS.size() + SonargraphStrictProfile.RULE_KEYS.size(),
-                    sonargraphProfile2.rules().size());
+            assertEquals("Wrong number of rules", AbstractSonargraphProfile.STANDARD_RULE_KEYS.size()
+                    + AbstractSonargraphProfile.STRICT_RULE_KEYS.size(), sonargraphProfile2.rules().size());
         }
     }
 }

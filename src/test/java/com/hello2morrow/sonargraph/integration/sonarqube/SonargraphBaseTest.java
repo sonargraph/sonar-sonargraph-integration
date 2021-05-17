@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -40,17 +40,22 @@ public final class SonargraphBaseTest
     {
         //Rules
         assertEquals("SCRIPT_ISSUE", SonargraphBase.createRuleKey(SonargraphBase.SCRIPT_ISSUE_NAME));
-        assertEquals("Sonargraph Integration: Script Issue", SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME));
-        assertEquals("script-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME));
+        assertEquals("Sonargraph Integration: Script Issue",
+                SonargraphBase.createRuleName(SonargraphBase.SCRIPT_ISSUE_PRESENTATION_NAME));
+        assertEquals("script-based",
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.SCRIPT_ISSUE_CATEGORY_PRESENTATION_NAME));
 
         assertEquals("PLUGIN_ISSUE", SonargraphBase.createRuleKey(SonargraphBase.PLUGIN_ISSUE_NAME));
-        assertEquals("Sonargraph Integration: Plugin Issue", SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME));
-        assertEquals("plugin-based", SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME));
+        assertEquals("Sonargraph Integration: Plugin Issue",
+                SonargraphBase.createRuleName(SonargraphBase.PLUGIN_ISSUE_PRESENTATION_NAME));
+        assertEquals("plugin-based",
+                SonargraphBase.createRuleCategoryTag(SonargraphBase.PLUGIN_ISSUE_CATEGORY_PRESENTATION_NAME));
 
         assertEquals("use-case-cluster-depends-on-legacy-module-shared",
                 SonargraphBase.createRuleCategoryTag("Use case cluster depends on legacy module: 'shared'?"));
         assertEquals("use-case-cluster-depends-on-legacy-module-shared-.-this-over...",
-                SonargraphBase.createRuleCategoryTag("Use case cluster depends on legacy module: 'shared'. This overly long tag is truncated?"));
+                SonargraphBase.createRuleCategoryTag(
+                        "Use case cluster depends on legacy module: 'shared'. This overly long tag is truncated?"));
 
         //Metrics
         assertEquals("sg_i.NUMBER_OF_STATEMENTS", SonargraphBase.createMetricKeyFromStandardName("NumberOfStatements"));
@@ -61,15 +66,23 @@ public final class SonargraphBaseTest
     public void testIssueTypeName()
     {
         assertEquals("ThresholdViolation", SonargraphBase.adjustIssueTypeName("ThresholdViolation", Severity.WARNING));
-        assertEquals("ThresholdViolationError", SonargraphBase.adjustIssueTypeName("ThresholdViolation", Severity.ERROR));
-        assertEquals("ComponentCycleGroup", SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.WARNING));
-        assertEquals("CriticalComponentCycleGroup", SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.ERROR));
-        assertEquals("NamespaceCycleGroup", SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.WARNING));
-        assertEquals("CriticalNamespaceCycleGroup", SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.ERROR));
-        assertEquals("DirectoryCycleGroup", SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.WARNING));
-        assertEquals("CriticalDirectoryCycleGroup", SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.ERROR));
+        assertEquals("ThresholdViolationError",
+                SonargraphBase.adjustIssueTypeName("ThresholdViolation", Severity.ERROR));
+        assertEquals("ComponentCycleGroup",
+                SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.WARNING));
+        assertEquals("CriticalComponentCycleGroup",
+                SonargraphBase.adjustIssueTypeName("ComponentCycleGroup", Severity.ERROR));
+        assertEquals("NamespaceCycleGroup",
+                SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.WARNING));
+        assertEquals("CriticalNamespaceCycleGroup",
+                SonargraphBase.adjustIssueTypeName("NamespaceCycleGroup", Severity.ERROR));
+        assertEquals("DirectoryCycleGroup",
+                SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.WARNING));
+        assertEquals("CriticalDirectoryCycleGroup",
+                SonargraphBase.adjustIssueTypeName("DirectoryCycleGroup", Severity.ERROR));
         assertEquals("ModuleCycleGroup", SonargraphBase.adjustIssueTypeName("ModuleCycleGroup", Severity.WARNING));
-        assertEquals("CriticalModuleCycleGroup", SonargraphBase.adjustIssueTypeName("ModuleCycleGroup", Severity.ERROR));
+        assertEquals("CriticalModuleCycleGroup",
+                SonargraphBase.adjustIssueTypeName("ModuleCycleGroup", Severity.ERROR));
     }
 
     @Test
@@ -78,14 +91,16 @@ public final class SonargraphBaseTest
         final SensorContextTester sensorContextTester = SensorContextTester.create(new File("."));
         sensorContextTester.fileSystem()
                 .add(TestInputFileBuilder
-                        .create("projectKey", "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
+                        .create("projectKey",
+                                "./src/main/java/com/hello2morrow/sonargraph/integration/sonarqube/SonargraphBase.java")
                         .setLanguage(SonargraphBase.JAVA).build());
 
         final ISonargraphSystemController controller = ControllerFactory.createController();
         final Result result = controller.loadSystemReport(new File("./src/test/report/IntegrationSonarqube.xml"));
         assertTrue("Failed to load report", result.isSuccess());
 
-        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla", sensorContextTester.fileSystem().baseDir(), false);
+        final IModule matched = SonargraphBase.matchModule(controller.getSoftwareSystem(), "Bla",
+                sensorContextTester.fileSystem().baseDir(), false);
         assertNotNull("No match found for 'Bla'", matched);
     }
 

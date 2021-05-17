@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -49,7 +49,8 @@ abstract class AbstractDataProvider
         return getDirectory() + "/" + propertiesFileName;
     }
 
-    protected final File saveProperties(final Properties properties, final File targetFile, final String comment) throws IOException
+    protected final File saveProperties(final Properties properties, final File targetFile, final String comment)
+            throws IOException
     {
         final File targetDirectory = targetFile.getParentFile();
         targetDirectory.mkdirs();

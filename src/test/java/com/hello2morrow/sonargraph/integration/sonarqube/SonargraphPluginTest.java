@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -61,12 +61,6 @@ public final class SonargraphPluginTest
                 {
                     return SonarEdition.COMMUNITY;
                 }
-
-                //                @Override
-                //                public SonarEdition getEdition()
-                //                {
-                //                    return SonarEdition.COMMUNITY;
-                //                }
             });
         }
 
@@ -86,6 +80,6 @@ public final class SonargraphPluginTest
 
         @SuppressWarnings("rawtypes")
         final List extensions = context.getExtensions();
-        assertEquals("Wrong number of extensions", 5, extensions.size());
+        assertEquals("Wrong number of extensions", 7, extensions.size());
     }
 }

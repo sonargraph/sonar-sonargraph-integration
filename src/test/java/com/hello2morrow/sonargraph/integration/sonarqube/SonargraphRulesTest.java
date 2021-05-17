@@ -1,6 +1,6 @@
 /**
  * SonarQube Sonargraph Integration Plugin
- * Copyright (C) 2016-2020 hello2morrow GmbH
+ * Copyright (C) 2016-2021 hello2morrow GmbH
  * mailto: support AT hello2morrow DOT com
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -48,16 +48,19 @@ public final class SonargraphRulesTest
     public void testStandardRulesDefinition()
     {
         final RulesDefinition.Context context = new Context();
-        final SonargraphRules sonargraphRules = new SonargraphRules(new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath()));
+        final SonargraphRules sonargraphRules = new SonargraphRules(
+                new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath()));
         sonargraphRules.define(context);
         final int numberOfBuiltinRules = 18;
-        assertEquals("Wrong number of rules", numberOfBuiltinRules, context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
+        assertEquals("Wrong number of rules", numberOfBuiltinRules,
+                context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
     }
 
     @Test
     public void testEmptyCustomRulesDefinition()
     {
-        final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath());
+        final SonargraphRulesProvider rulesProvider = new SonargraphRulesProvider(
+                tempFolder.getRoot().getAbsolutePath());
         assertEquals("No custom rules expected", 0, rulesProvider.loadCustomRules().size());
     }
 }
