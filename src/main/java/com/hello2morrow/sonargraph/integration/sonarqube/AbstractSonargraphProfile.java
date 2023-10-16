@@ -22,15 +22,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.server.profile.BuiltInQualityProfilesDefinition;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 abstract class AbstractSonargraphProfile implements BuiltInQualityProfilesDefinition
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSonargraphProfile.class);
+    private static final Logger LOGGER = Loggers.get(AbstractSonargraphProfile.class);
 
-    protected static final List<String> STANDARD_RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION",
+    protected static final List<String> STANDARD_RULE_KEYS = Arrays.asList("ARCHITECTURE_VIOLATION", "ARCHITECTURE_DEPRECATION",
             "CRITICAL_MODULE_CYCLE_GROUP", "CRITICAL_NAMESPACE_CYCLE_GROUP", "CRITICAL_COMPONENT_CYCLE_GROUP",
             "THRESHOLD_VIOLATION_ERROR", "TODO", "DELETE_REFACTORING", "MOVE_REFACTORING", "MOVE_RENAME_REFACTORING",
             "RENAME_REFACTORING", "DUPLICATE_CODE_BLOCK", "QUALITY_GATE_ISSUE");
@@ -65,10 +65,7 @@ abstract class AbstractSonargraphProfile implements BuiltInQualityProfilesDefini
             final Set<String> activeRuleKeys = new HashSet<>();
             for (final NewBuiltInActiveRule activeRule : newProfile.activeRules())
             {
-                if (LOGGER.isInfoEnabled())
-                {
-                    LOGGER.info("Already activated rule key: {}", activeRule.ruleKey());
-                }
+                LOGGER.debug("Already activated rule key: {}", activeRule.ruleKey());
                 activeRuleKeys.add(activeRule.ruleKey());
             }
 

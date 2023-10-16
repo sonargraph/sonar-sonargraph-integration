@@ -47,7 +47,8 @@ final class SonargraphBase
     static final String SONARGRAPH_RULE_TAG = "sonargraph-integration";
     static final String JAVA = "java";
     static final String CSHARP = "cs";
-    static final String[] SUPPORTED_LANGUAGES = new String[] { SonargraphBase.JAVA, SonargraphBase.CSHARP };
+    static final String CPLUSPLUS = "cpp";
+    static final String[] SUPPORTED_LANGUAGES = new String[] { SonargraphBase.JAVA, SonargraphBase.CSHARP, SonargraphBase.CPLUSPLUS };
 
     static final String METRIC_ID_PREFIX = "sg_i.";//There is a max length of 64 characters for metric keys
 
@@ -372,6 +373,8 @@ final class SonargraphBase
             return JAVA;
         case "CSharp":
             return CSHARP;
+        case "CPlusPlus":
+            return CPLUSPLUS;
         default:
             return null;
         }

@@ -77,19 +77,13 @@ public final class SonargraphSensorTest
     private final SensorDescriptor sensorDescriptor = new SensorDescriptor()
     {
         @Override
-        public SensorDescriptor requireProperty(final String... propertyKey)
-        {
-            return this;
-        }
-
-        @Override
-        public SensorDescriptor requireProperties(final String... propertyKeys)
-        {
-            return this;
-        }
-
-        @Override
         public SensorDescriptor onlyWhenConfiguration(final Predicate<Configuration> predicate)
+        {
+            return this;
+        }
+
+        @Override
+        public SensorDescriptor processesFilesIndependently()
         {
             return this;
         }
@@ -218,7 +212,7 @@ public final class SonargraphSensorTest
     @Test
     public void testSonargraphSensorOnReportFile() throws IOException
     {
-        final int standardRulesCount = 18;
+        final int standardRulesCount = 19;
         final int scriptRulesCount = 2;
         final int pluginRulesCount = 1;
         final int customRulesCount = scriptRulesCount + pluginRulesCount;
@@ -422,7 +416,7 @@ public final class SonargraphSensorTest
         assertEquals("Wrong Maven default path",
                 new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT)
                         .getCanonicalPath(),
-                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+                SonargraphSensor.getPathForScannerApp(context.config(), scanner));
     }
 
     @Test
@@ -441,7 +435,7 @@ public final class SonargraphSensorTest
         assertEquals("Wrong Gradle default path",
                 new File(new File(baseToUse, outputPath), SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT)
                         .getCanonicalPath(),
-                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+                SonargraphSensor.getPathForScannerApp(context.config(), scanner));
     }
 
     @Test
@@ -456,7 +450,7 @@ public final class SonargraphSensorTest
         context.setSettings(settings);
 
         assertNull("Wrong Gradle default path",
-                SonargraphSensor.getRelativePathForScannerApp(context.config(), scanner));
+                SonargraphSensor.getPathForScannerApp(context.config(), scanner));
     }
 
     private SensorContextTester setupAndExecuteSensorForTestProject(final MapSettings settings, final String basePath)

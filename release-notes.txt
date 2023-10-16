@@ -1,6 +1,12 @@
 SonarQube Sonargraph 8 Integration Plugin
 =========================================
 
+Please see https://github.com/sonargraph/sonar-sonargraph-integration for installation instructions.
+
+8.0.0
+=====
+- Added support for C/C++. Updated Sonarqube Plugin API to 9.5.
+
 7.0.0
 =====
 - Support for C#. Separate built-in quality profiles exist for C# projects. 

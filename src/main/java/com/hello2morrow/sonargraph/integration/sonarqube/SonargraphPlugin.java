@@ -40,6 +40,7 @@ public final class SonargraphPlugin implements Plugin
     {
         context.addExtensions(SonargraphRules.class, SonargraphMetrics.class, StandardSonargraphProfileJava.class,
                 StrictSonargraphProfileJava.class, StandardSonargraphProfileCSharp.class,
-                StrictSonargraphProfileCSharp.class, SonargraphSensor.class);
+                StrictSonargraphProfileCSharp.class, StandardSonargraphProfileCPlusPlus.class,
+                StrictSonargraphProfileCPlusPlus.class, SonargraphSensor.class);
     }
 }

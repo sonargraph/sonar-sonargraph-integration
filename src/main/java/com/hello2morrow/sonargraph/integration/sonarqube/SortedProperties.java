@@ -19,6 +19,7 @@ package com.hello2morrow.sonargraph.integration.sonarqube;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -48,7 +49,7 @@ final class SortedProperties extends Properties
             keyList.add(keysEnum.nextElement());
         }
 
-        Collections.sort(keyList, (o1, o2) -> o1.toString().compareTo(o2.toString()));
+        keyList.sort(Comparator.comparing(Object::toString));
         return Collections.enumeration(keyList);
     }
 

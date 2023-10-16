@@ -68,6 +68,11 @@ public final class SonargraphRules implements RulesDefinition
             return SonargraphBase.SONARGRAPH_PLUGIN_KEY + "_" + SonargraphBase.CSHARP;
         }
 
+        if (language.equals(SonargraphBase.CPLUSPLUS))
+        {
+            return SonargraphBase.SONARGRAPH_PLUGIN_KEY + "_" + SonargraphBase.CPLUSPLUS;
+        }
+
         throw new IllegalArgumentException("Unsupported language: " + language);
     }
 
