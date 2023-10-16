@@ -1,14 +1,12 @@
-[![Build Status](https://api.travis-ci.org/sonargraph/sonar-sonargraph-integration.svg)](https://travis-ci.org/sonargraph/sonar-sonargraph-integration) [![Nemo Quality Gate status](https://sonarqube.com/api/badges/gate?key=com.hello2morrow%3Asonar-sonargraph-integration)](https://sonarqube.com/overview?id=com.hello2morrow%3Asonar-sonargraph-integration)                                                                                                                                                                                                                                                                                        
-
 Sonargraph Integration Plugin
 =================
 
 - License: Apache License 2
 - Author: [hello2morrow](https://www.hello2morrow.com)
 
-Compatible with Sonargraph 8.7 and higher versions.
-Requires Java 8 runtime.
-Currently only supports Sonargraph systems containing Java or C# modules. 
+Compatible with Sonargraph 9.5 and higher versions.
+Requires Java 11 runtime or higher.
+Currently the plugin supports Sonargraph systems containing Java,C# or C/C++ modules. 
 
 Check the <a href="https://github.com/sonargraph/sonar-sonargraph-integration/wiki/Sonargraph-8--Integration-with-SonarQube">GitHub Wiki</a> for information about compatibilities with SonarQube versions and Sonargraph versions.
 
@@ -17,7 +15,7 @@ Check the <a href="https://github.com/sonargraph/sonar-sonargraph-integration/wi
 This plugin for [SonarQube](http://www.sonarsource.com/) can be used to check the conformance of your code base to a 
 formal architecture definition created with [Sonargraph](https://www.hello2morrow.com/products/sonargraph/architect9) version 8.7 and higher. 
 A free license is available to allow you to check and measure the overall coupling and the level of cyclic dependencies at the package level. 
-This license can be requested on the website of [Sonargraph Explorer](https://www.hello2morrow.com/products/sonargraph/explorer).
+This license can be requested on our website  ([Sonargraph Explorer](https://www.hello2morrow.com/products/sonargraph/explorer)).
 Usually a high level of coupling and cyclic dependencies points to a high level of 
 structural erosion. If structural erosion grows over a certain level this will have a negative impact on testability, maintainability and 
 comprehensibility of your code.

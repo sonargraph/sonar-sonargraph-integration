@@ -29,17 +29,17 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.StringJoiner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 import com.hello2morrow.sonargraph.integration.access.foundation.Utility;
 import com.hello2morrow.sonargraph.integration.access.model.IMetricId;
 
 class SonargraphMetricsProvider extends AbstractDataProvider
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SonargraphMetricsProvider.class);
+    private static final Logger LOGGER = Loggers.get(SonargraphMetricsProvider.class);
 
     static final String PROPERTIES_FILENAME = "SonargraphMetrics.properties";
     private static final String BUILT_IN_METRICS_RESOURCE_PATH = "/com/hello2morrow/sonargraph/integration/sonarqube/"

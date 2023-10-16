@@ -80,6 +80,6 @@ public final class SonargraphPluginTest
 
         @SuppressWarnings("rawtypes")
         final List extensions = context.getExtensions();
-        assertEquals("Wrong number of extensions", 7, extensions.size());
+        assertEquals("Wrong number of extensions", 9, extensions.size());
     }
 }

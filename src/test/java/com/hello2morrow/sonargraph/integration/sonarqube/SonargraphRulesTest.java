@@ -51,7 +51,7 @@ public final class SonargraphRulesTest
         final SonargraphRules sonargraphRules = new SonargraphRules(
                 new SonargraphRulesProvider(tempFolder.getRoot().getAbsolutePath()));
         sonargraphRules.define(context);
-        final int numberOfBuiltinRules = 18;
+        final int numberOfBuiltinRules = 19;
         assertEquals("Wrong number of rules", numberOfBuiltinRules,
                 context.repository(SonargraphBase.SONARGRAPH_PLUGIN_KEY).rules().size());
     }

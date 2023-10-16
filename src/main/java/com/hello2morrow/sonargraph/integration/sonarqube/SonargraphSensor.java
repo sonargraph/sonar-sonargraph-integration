@@ -37,9 +37,7 @@ import java.util.stream.Collectors;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.fs.internal.DefaultTextPointer;
-import org.sonar.api.batch.fs.internal.DefaultTextRange;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRule;
@@ -209,51 +207,76 @@ public final class SonargraphSensor implements ProjectSensor
         }
     }
 
+    private File resolveReadableFile(String path)
+    {
+        if (path == null || path.isEmpty())
+        {
+            return null;
+        }
+
+        File result = sqFileSystem.resolvePath(path);
+
+        if (result != null && result.canRead())
+        {
+            LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
+                    result.getAbsolutePath());
+            return result;
+        }
+        return null;
+    }
+
     private File getReportFile(final Configuration config)
     {
-        String relPath = null;
+        File report = null;
+        String path = null;
         final Optional<String> configuredRelativeReportPathOpt = config.get(SonargraphBase.XML_REPORT_FILE_PATH_KEY);
         if (configuredRelativeReportPathOpt.isPresent())
         {
             final String configuredRelativeReportPath = configuredRelativeReportPathOpt.get();
             if (!configuredRelativeReportPath.isEmpty())
             {
-                relPath = configuredRelativeReportPath;
+                path = configuredRelativeReportPath;
+                report = resolveReadableFile(path);
+                if (report != null)
+                {
+                    return report;
+                }
             }
         }
 
-        if (relPath == null)
+        final Optional<String> scannerApp = config.get("sonar.scanner.app");
+        if (scannerApp.isPresent())
         {
-            final Optional<String> scannerApp = config.get("sonar.scanner.app");
-            if (scannerApp.isPresent())
+            final String scanner = scannerApp.get();
+            LOGGER.info("Determine report path from scanner app {}", scanner);
+            path = SonargraphSensor.getPathForScannerApp(config, scanner);
+            report = resolveReadableFile(path);
+            if (report != null)
             {
-                final String scanner = scannerApp.get();
-                LOGGER.info("Determine report path from scanner app {}", scanner);
-                relPath = SonargraphSensor.getRelativePathForScannerApp(config, scanner);
+                return report;
             }
         }
 
-        if (relPath == null)
+        // Try Maven default target directory
+        path = "target/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+        report = resolveReadableFile(path);
+        if (report != null)
         {
-            relPath = "target/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
-            LOGGER.info("{}: XML report file path not configured - using default '{}'",
-                    SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, relPath);
-        }
-
-        final File report = sqFileSystem.resolvePath(relPath);
-        if (report.exists())
-        {
-            LOGGER.info("{}: Using XML report file '{}'", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                    report.getAbsolutePath());
             return report;
         }
 
-        LOGGER.warn("{}: XML report file '{}' not found", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME,
-                report.getAbsolutePath());
+        // Try Gradle default target directory
+        path = "build/" + SonargraphBase.XML_REPORT_FILE_PATH_DEFAULT;
+        report = resolveReadableFile(path);
+        if (report != null)
+        {
+            return report;
+        }
+        LOGGER.error("{}: XML report file not found", SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME);
         return null;
     }
 
-    static String getRelativePathForScannerApp(final Configuration configuration, final String scannerApp)
+    static String getPathForScannerApp(final Configuration configuration, final String scannerApp)
     {
         if (scannerApp.equals("ScannerMaven"))
         {
@@ -410,7 +433,7 @@ public final class SonargraphSensor implements ProjectSensor
         final String language = getMostUsedActiveLanguage(languagesOfModules, rulesAndMetrics);
         if (language == null)
         {
-            LOGGER.error("{}: No rules are active that match the languages or the Sonargraph system: {}",
+            LOGGER.error("{}: No rules are active that match the languages of the Sonargraph system: {}",
                     SonargraphBase.SONARGRAPH_PLUGIN_PRESENTATION_NAME, languagesOfModules.stream()
                             .map(ModulesLanguageCounter::getLanguage).collect(Collectors.joining(", ")));
             return null;
@@ -628,7 +651,7 @@ public final class SonargraphSensor implements ProjectSensor
     }
 
     private void createSourceFileIssues(final SensorContext sensorContext,
-            final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile, final InputPath inputPath,
+            final IModuleInfoProcessor moduleInfoProcessor, final ISourceFile sourceFile, final InputFile inputFile,
             final IIssue issue, final ActiveRule rule)
     {
         if (issue instanceof IDuplicateCodeBlockIssue)
@@ -647,24 +670,20 @@ public final class SonargraphSensor implements ProjectSensor
                     others.remove(nextOccurrence);
                     final String issueDescription = createIssueDescription(moduleInfoProcessor,
                             nextDuplicateCodeBlockIssue, nextOccurrence, others);
-                    createSqIssue(sensorContext, inputPath, rule, issueDescription,
-                            location -> location.at(new DefaultTextRange(
-                                    new DefaultTextPointer(nextOccurrence.getStartLine(), ZERO_LINE_OFFSET),
-                                    new DefaultTextPointer(
-                                            nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(),
-                                            ZERO_LINE_OFFSET))));
+                    createSqIssue(sensorContext, inputFile, rule, issueDescription,
+                            location -> location.at(inputFile.newRange(nextOccurrence.getStartLine(), ZERO_LINE_OFFSET, nextOccurrence.getStartLine() + nextOccurrence.getBlockSize(),
+                                    ZERO_LINE_OFFSET)));
                 }
             }
         }
         else
         {
             final String issueDescription = createIssueDescription(moduleInfoProcessor, issue);
-            createSqIssue(sensorContext, inputPath, rule, issueDescription, location ->
+            createSqIssue(sensorContext, inputFile, rule, issueDescription, location ->
             {
                 final int line = issue.getLine();
                 final int lineToUse = line <= 0 ? 1 : line;
-                location.at(new DefaultTextRange(new DefaultTextPointer(lineToUse, ZERO_LINE_OFFSET),
-                        new DefaultTextPointer(lineToUse, ZERO_LINE_OFFSET)));
+                location.at(inputFile.newRange(lineToUse, ZERO_LINE_OFFSET, lineToUse+1, ZERO_LINE_OFFSET));
             });
         }
     }
@@ -678,8 +697,8 @@ public final class SonargraphSensor implements ProjectSensor
         final String sourceFileLocation = Paths.get(baseDir, rootDirectoryRelPath, sourceRelPath).toAbsolutePath()
                 .normalize().toString();
 
-        final InputPath inputPath = sqFileSystem.inputFile(
-                sqFileSystem.predicates().hasAbsolutePath(Utility.convertPathToUniversalForm(sourceFileLocation)));
+        final InputFile inputPath = sqFileSystem.inputFile(
+                sqFileSystem.predicates().hasAbsolutePath(sourceFileLocation));
         if (inputPath != null)
         {
             for (final IIssue issue : issues)

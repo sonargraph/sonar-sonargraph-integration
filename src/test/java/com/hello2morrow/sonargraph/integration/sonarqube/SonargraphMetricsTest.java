@@ -38,7 +38,7 @@ public final class SonargraphMetricsTest
                 new SonargraphMetricsProvider(tempFolder.getRoot().getAbsolutePath()));
         @SuppressWarnings("rawtypes")
         final List<Metric> metrics = sonargraphMetrics.getMetrics();
-        assertEquals("Wrong number of metrics (init triggered)", 55, metrics.size());
+        assertEquals("Wrong number of metrics (init triggered)", 185, metrics.size());
         assertEquals("Wrong number of metrics (no init necessary)", metrics, sonargraphMetrics.getMetrics());
     }
 }
